@@ -1,1 +1,31 @@
-#test bois
+# reserved keywords for traits: exists, ability, xCoord, yCoord
+#-------------------------------------------------------------------------------
+agent dog:
+     type = animal
+     age = 5
+     color = brown
+     eatRange = 5
+     undigestedCalories = 0
+     digestedCalories = 200
+     metabolismfactor = 0.7
+     ability eat
+
+#-------------------------------------------------------------------------------
+agent apple:
+     type = food
+     calories = 100
+
+# reserved keywords for abilites: self
+#-------------------------------------------------------------------------------
+ability eat:
+     conditions:
+          food.type = food && (food.xCoord + food.yCoord)^2 < self.eatRange
+     effects:
+          food.exists = 0
+          self.undigestedCalories += food.calories * 0.7
+
+     blockers:
+          all self
+          all food
+     time:
+          60
