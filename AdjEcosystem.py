@@ -95,7 +95,7 @@ class Ability(Resource):
                     print "     ", target.name
 
                 if self.condition(targetIndex):
-                    print '   yielding: ', targetIndex
+                    print '   -> yielding'
                     validTargetSet.append(targetIndex)
             else:
                 # init next targetIndex Entry
@@ -146,9 +146,10 @@ class Ability(Resource):
 
         print "   Potential Target Set: "
         for agentSet in potentialTargetSet:
-            print "   ---"
+            print "      ."
             for agent in agentSet:
                 print "     ", agent.name
+        print "      ."
 
 
 
@@ -375,7 +376,7 @@ class AdjEcosystem(object):
         print "Testing predicate & condition casting:"
         dog_eat = self.environment.getAgentByName('dog').abilities['eat']
         potentialTargets = dog_eat.getPotentialTargets()
-        print "Potential targets: ", potentialTargets
+        print "...done"
 
         print "Testing effect & blocker casting"
         chosenTargets = dog_eat.chooseTargetSet(potentialTargets)
