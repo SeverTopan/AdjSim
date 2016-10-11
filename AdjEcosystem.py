@@ -90,12 +90,12 @@ class Ability(Resource):
             # if at end of recursion expansion, check condition, if not, keep
             # recursing until end is reached
             if currIndex + 1 == len(potentialTargetSet):
-                print "   At end of recursion expansion:"
+                print("   At end of recursion expansion:")
                 for target in targetIndex:
-                    print "     ", target.name
+                    print("     ", target.name)
 
                 if self.condition(targetIndex):
-                    print '   -> yielding'
+                    print('   -> yielding')
                     validTargetSet.append(targetIndex)
             else:
                 # init next targetIndex Entry
@@ -144,12 +144,12 @@ class Ability(Resource):
                 if not potentialTargetSet[target]:
                     return None
 
-        print "   Potential Target Set: "
+        print("   Potential Target Set: ")
         for agentSet in potentialTargetSet:
-            print "      ."
+            print("      .")
             for agent in agentSet:
-                print "     ", agent.name
-        print "      ."
+                print("     ", agent.name)
+        print("      .")
 
 
 
@@ -222,7 +222,7 @@ class Environment(Agent):
     def simulate(self, numTimesteps):
         # print header
         self.printSnapshot()
-        print "Simulating: ", numTimesteps, " time steps"
+        print("Simulating: ", numTimesteps, " time steps")
         AdjEcosystem.horizontalRuler(24)
 
         # run simulation steps for num time steps
@@ -232,7 +232,7 @@ class Environment(Agent):
             self.cleanupNonExistentAgents()
 
         # print footer
-        print "...Simulation Complete"
+        print("...Simulation Complete")
         self.printSnapshot()
 
 # METHOD EXECUTE TIMESTEP
@@ -242,11 +242,11 @@ class Environment(Agent):
 
         # decrement blockers
         for agent in self.agentList:
-            for ability in agent.abilities.itervalues():
+            for ability in agent.abilities.values():
                 if ability.blockedDuration > 0:
                     ability.blockedDuration -= 1
 
-            for trait in agent.traits.itervalues():
+            for trait in agent.traits.values():
                 if trait.blockedDuration > 0:
                     trait.blockedDuration -= 1
 
@@ -257,7 +257,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def executeAbilities(self):
         for agent in self.agentList:
-            for ability in agent.abilities.itervalues():
+            for ability in agent.abilities.values():
                 potentialTargets = ability.getPotentialTargets()
                 if not potentialTargets:
                     continue
@@ -282,22 +282,22 @@ class Environment(Agent):
 # * Prints all simulation environment information
 #-------------------------------------------------------------------------------
     def printSnapshot(self):
-        print "Environment Snapshot:"
-        AdjEcosystem.horizontalRuler(24)
+        print("Environment Snapshot:")
+        print(AdjEcosystem.horizontalRuler(24))
 
-        print "   timeStep: ", self.time
+        print("   timeStep: ", self.time)
 
-        print "   Agents:"
+        print("   Agents:")
         for i in range(len(self.agentList)):
-            print "   ", i, ": ", self.agentList[i].name, " | ", self.agentList[i].blockedDuration
+            print("   ", i, ": ", self.agentList[i].name, " | ", self.agentList[i].blockedDuration)
 
-            print "   Traits:"
+            print("   Traits:")
             for key, val in self.agentList[i].traits.items():
-                print "      ", key, ": ", val.value, " | ", val.blockedDuration
+                print("      ", key, ": ", val.value, " | ", val.blockedDuration)
 
-            print "   Abilities:"
+            print("   Abilities:")
             for key, val in self.agentList[i].abilities.items():
-                print "      ", key, " | ", val.blockedDuration
+                print("      ", key, " | ", val.blockedDuration)
 
 # METHOD GET TRAIT RANDOM
 #-------------------------------------------------------------------------------
@@ -355,24 +355,24 @@ class AdjEcosystem(object):
     def printWelcome():
         welcomeMessage = "- AdjEcosystem -"
 
-        print AdjEcosystem.horizontalRuler(len(welcomeMessage))
-        print welcomeMessage
-        print AdjEcosystem.horizontalRuler(len(welcomeMessage))
+        print(AdjEcosystem.horizontalRuler(len(welcomeMessage)))
+        print(welcomeMessage)
+        print(AdjEcosystem.horizontalRuler(len(welcomeMessage)))
 
 # METHOD PARSE CONFIG FILE
 #-------------------------------------------------------------------------------
     def parseConfigFile(self, argv):
         if len(argv) != 2:
-            print "Invalid arguments - usage: python AdjEcosystem.py configfile"
+            print("Invalid arguments - usage: python AdjEcosystem.py configfile")
             return False
 
         try:
             configFile = open(argv[1])
         except:
-            print "Unable to open file", argv[1]
+            print("Unable to open file", argv[1])
             return False
 
-        print "Parsing Config file..."
+        print("Parsing Config file...")
 
 
 
@@ -444,22 +444,22 @@ class AdjEcosystem(object):
 # METHOD EXECUTE TEST
 #-------------------------------------------------------------------------------
     def executeTest(self):
-        print "Testing dog and apple generation:"
+        print("Testing dog and apple generation:")
         self.generateTestClasses()
         self.environment.printSnapshot()
-        print "...done"
+        print("...done")
 
-        print "Testing predicate & condition casting:"
+        print("Testing predicate & condition casting:")
         dog_eat = self.environment.getAgentByName('dog').abilities['eat']
         potentialTargets = dog_eat.getPotentialTargets()
-        print "...done"
+        print("...done")
 
-        print "Testing effect & blocker casting"
+        print("Testing effect & blocker casting")
         chosenTargets = dog_eat.chooseTargetSet(potentialTargets)
         dog_eat.cast(chosenTargets)
-        print "...done"
+        print("...done")
 
-        print "Result:"
+        print("Result:")
         self.environment.printSnapshot()
 
 
