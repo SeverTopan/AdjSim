@@ -27,7 +27,7 @@ class Resource(object):
     def __init__(self, environment, name):
         self.environment = environment
         self.name = name
-        blockedDuration = 0
+        self.blockedDuration = 0
 
 #-------------------------------------------------------------------------------
 # CLASS AGENT
@@ -207,14 +207,97 @@ class Trait(Resource):
 #-------------------------------------------------------------------------------
 # CLASS ENVIRONMENT
 #-------------------------------------------------------------------------------
-class Environment(object):
+class Environment(Agent):
     """docstring for Environment."""
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self):
-        self.agentList = []
+        super(Environment, self).__init__(self, "environment")
+        self.agentList = [self]
         self.time = 0
+
+# METHOD SIMULATE
+#-------------------------------------------------------------------------------
+    def simulate(self, numTimesteps):
+        # print header
+        self.printSnapshot()
+        print "Simulating: ", numTimesteps, " time steps"
+        AdjEcosystem.horizontalRuler(24)
+
+        # run simulation steps for num time steps
+        for timeStep in range(numTimesteps):
+            self.executeAbilities()
+            self.executeTimestep()
+            self.cleanupNonExistentAgents()
+
+        # print footer
+        print "...Simulation Complete"
+        self.printSnapshot()
+
+# METHOD EXECUTE TIMESTEP
+#-------------------------------------------------------------------------------
+    def executeTimestep(self):
+        self.time += 1
+
+        # decrement blockers
+        for agent in self.agentList:
+            for ability in agent.abilities.itervalues():
+                if ability.blockedDuration > 0:
+                    ability.blockedDuration -= 1
+
+            for trait in agent.traits.itervalues():
+                if trait.blockedDuration > 0:
+                    trait.blockedDuration -= 1
+
+            if agent.blockedDuration > 0:
+                agent.blockedDuration -= 1
+
+# METHOD EXECUTE ABILITIES
+#-------------------------------------------------------------------------------
+    def executeAbilities(self):
+        for agent in self.agentList:
+            for ability in agent.abilities.itervalues():
+                potentialTargets = ability.getPotentialTargets()
+                if not potentialTargets:
+                    continue
+
+                chosenTargets = ability.chooseTargetSet(potentialTargets)
+                if not chosenTargets:
+                    continue
+
+                ability.cast(chosenTargets)
+
+# METHOD CLEANUP NON EXISTENT AGENTS
+# * Removes all agents with their mandatory 'exists' trait set to False
+# * To be used at the end of each timestep cycle
+#-------------------------------------------------------------------------------
+    def cleanupNonExistentAgents(self):
+        for agent in self.agentList:
+            if not agent.traits.get('exists').value:
+                self.agentList.remove(agent)
+
+
+# METHOD PRINT SNAPSHOT
+# * Prints all simulation environment information
+#-------------------------------------------------------------------------------
+    def printSnapshot(self):
+        print "Environment Snapshot:"
+        AdjEcosystem.horizontalRuler(24)
+
+        print "   timeStep: ", self.time
+
+        print "   Agents:"
+        for i in range(len(self.agentList)):
+            print "   ", i, ": ", self.agentList[i].name, " | ", self.agentList[i].blockedDuration
+
+            print "   Traits:"
+            for key, val in self.agentList[i].traits.items():
+                print "      ", key, ": ", val.value, " | ", val.blockedDuration
+
+            print "   Abilities:"
+            for key, val in self.agentList[i].abilities.items():
+                print "      ", key, " | ", val.blockedDuration
 
 # METHOD GET TRAIT RANDOM
 #-------------------------------------------------------------------------------
@@ -356,14 +439,6 @@ class AdjEcosystem(object):
 
         dog.abilities["eat"] = ability_eat
 
-        # output debug data
-        print "   Agents:"
-        for i in range(len(self.environment.agentList)):
-            print "   ", i, ": ", self.environment.agentList[i].name
-            for key, val in self.environment.agentList[i].traits.items():
-                print "      ", key, ": ", val.value
-
-
         return
 
 # METHOD EXECUTE TEST
@@ -371,6 +446,7 @@ class AdjEcosystem(object):
     def executeTest(self):
         print "Testing dog and apple generation:"
         self.generateTestClasses()
+        self.environment.printSnapshot()
         print "...done"
 
         print "Testing predicate & condition casting:"
@@ -384,15 +460,13 @@ class AdjEcosystem(object):
         print "...done"
 
         print "Result:"
-        print "   Agents:"
-        for i in range(len(self.environment.agentList)):
-            print "   ", i, ": ", self.environment.agentList[i].name
-            for key, val in self.environment.agentList[i].traits.items():
-                print "      ", key, ": ", val.value
+        self.environment.printSnapshot()
 
 
 #-------------------------------------------------------------------------------
 # MAIN EXECUTION SCRIPT
 #-------------------------------------------------------------------------------
 adjEcosystem = AdjEcosystem(sys.argv)
-adjEcosystem.executeTest()
+
+adjEcosystem.generateTestClasses()
+adjEcosystem.environment.simulate(5)
