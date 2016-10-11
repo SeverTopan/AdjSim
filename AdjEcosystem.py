@@ -283,21 +283,28 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def printSnapshot(self):
         print("Environment Snapshot:")
-        print(AdjEcosystem.horizontalRuler(24))
+        print("  ".rjust(32, "-"))
 
         print("   timeStep: ", self.time)
+        print(" |".rjust(32, "-"), " ----- |")
 
-        print("   Agents:")
+        print("   Agents:".ljust(30), "|        |")
         for i in range(len(self.agentList)):
-            print("   ", i, ": ", self.agentList[i].name, " | ", self.agentList[i].blockedDuration)
+            print(" |".rjust(32, "-"), " ----- |")
+            print((" " + str(i) + " : " + self.agentList[i].name).ljust(30), \
+                "| ", str(self.agentList[i].blockedDuration).rjust(5), "|")
 
-            print("   Traits:")
+            print("   Traits:".ljust(30), "|        |")
             for key, val in self.agentList[i].traits.items():
-                print("      ", key, ": ", val.value, " | ", val.blockedDuration)
+                print(("      " + key + ": " + str(val.value)).ljust(30), "| ", \
+                    str(val.blockedDuration).rjust(5), "|")
 
-            print("   Abilities:")
+            print("   Abilities:".ljust(30), "|        |")
             for key, val in self.agentList[i].abilities.items():
-                print("      ", key, " | ", val.blockedDuration)
+                print(("      " + key).ljust(30), "| ", \
+                    str(val.blockedDuration).rjust(5), "|")
+
+        print(" |".rjust(32, "-"), " ----- |")
 
 # METHOD GET TRAIT RANDOM
 #-------------------------------------------------------------------------------
