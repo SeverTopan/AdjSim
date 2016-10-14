@@ -1,12 +1,13 @@
 #-------------------------------------------------------------------------------
 # ADJECOSYSTEM SIMULATION FRAMEWORK
-# Deisgned and developed by Sever Topan
+# Designed and developed by Sever Topan
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
 from core import *
+import tests
 import sys
 
 #-------------------------------------------------------------------------------
@@ -16,8 +17,8 @@ def main(args=sys.argv):
     """The main routine."""
 
     adjEcosystem = AdjEcosystem(args)
-    adjEcosystem.generateTestClasses()
-    adjEcosystem.environment.simulate(5)
+    tests.generateTestClasses_dogApple(adjEcosystem.environment)
+    adjEcosystem.simulate(5)
 
 
 # EXECUTIUON CALLBACK

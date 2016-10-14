@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # ADJECOSYSTEM SIMULATION FRAMEWORK
-# Deisgned and developed by Sever Topan
+# Designed and developed by Sever Topan
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -10,6 +10,7 @@ import sys
 import re
 import inspect
 import random
+import copy
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -78,7 +79,7 @@ class Ability(Resource):
         currIndex = len(targetIndex) - 1
 
         # error check
-        if len(potentialTargetSet) is 0:
+        if not potentialTargetSet:
             raise Exception('Invalid potentialTargetSet')
 
         for currTarget in potentialTargetSet[currIndex]:
@@ -92,7 +93,7 @@ class Ability(Resource):
 
                 if self.condition(targetIndex):
                     print('   -> yielding')
-                    validTargetSet.append(targetIndex)
+                    validTargetSet.append([item for item in targetIndex])
             else:
                 # init next targetIndex Entry
                 if len(targetIndex) is currIndex + 1:
@@ -110,6 +111,9 @@ class Ability(Resource):
     def getPotentialTargets(self):
         potentialTargetSet = []
         validTargetSet = []
+
+        # debug message
+        print("Casting ", self.name)
 
         for target, predicate in self.predicates:
             if target is 0:
@@ -172,7 +176,6 @@ class Ability(Resource):
 # METHOD CAST
 #-------------------------------------------------------------------------------
     def cast(self, targets):
-
         # error check
         if not targets:
             raise Exception('No targets in method cast')
@@ -186,7 +189,6 @@ class Ability(Resource):
             blocker(targets)
 
         return True
-
 
 #-------------------------------------------------------------------------------
 # CLASS TRAIT
@@ -213,22 +215,6 @@ class Environment(Agent):
         self.agentSet = {self}
         self.time = 0
 
-# METHOD SIMULATE
-#-------------------------------------------------------------------------------
-    def simulate(self, numTimesteps):
-        # print header
-        self.printSnapshot()
-        print("Simulating: ", numTimesteps, " time steps")
-
-        # run simulation steps for num time steps
-        for timeStep in range(numTimesteps):
-            self.executeAbilities()
-            self.executeTimestep()
-            self.cleanupNonExistentAgents()
-
-        # print footer
-        print("...Simulation Complete")
-        self.printSnapshot()
 
 # METHOD EXECUTE TIMESTEP
 #-------------------------------------------------------------------------------
@@ -251,6 +237,10 @@ class Environment(Agent):
 # METHOD EXECUTE ABILITIES
 #-------------------------------------------------------------------------------
     def executeAbilities(self):
+        # debug message
+        print("Timestep: ", self.time)
+
+        # cast abilities
         for agent in self.agentSet:
             for ability in agent.abilities.values():
                 potentialTargets = ability.getPotentialTargets()
@@ -274,6 +264,8 @@ class Environment(Agent):
             # remove graphics link
             if agent.traits['exists'].value is False:
                  discardSet.add(agent)
+                 # debug message
+                 print("   ! Discarding ", agent.name)
 
         self.agentSet = self.agentSet - discardSet
 

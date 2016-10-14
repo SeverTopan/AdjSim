@@ -1,3 +1,7 @@
+#-------------------------------------------------------------------------------
+# ADJECOSYSTEM SIMULATION FRAMEWORK
+# Designed and developed by Sever Topan
+#-------------------------------------------------------------------------------
 from setuptools import setup
 
 setup(name='AdjEcosystem',
