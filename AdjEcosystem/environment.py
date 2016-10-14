@@ -20,6 +20,7 @@ class Resource(object):
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self, environment, name):
+        super(Resource, self).__init__()
         self.environment = environment
         self.name = name
         self.blockedDuration = 0
@@ -77,14 +78,14 @@ class Ability(Resource):
         currIndex = len(targetIndex) - 1
 
         # error check
-        if len(potentialTargetSet) == 0:
+        if len(potentialTargetSet) is 0:
             raise Exception('Invalid potentialTargetSet')
 
         for currTarget in potentialTargetSet[currIndex]:
             targetIndex[currIndex] = currTarget
             # if at end of recursion expansion, check condition, if not, keep
             # recursing until end is reached
-            if currIndex + 1 == len(potentialTargetSet):
+            if currIndex + 1 is len(potentialTargetSet):
                 print("   At end of recursion expansion:")
                 for target in targetIndex:
                     print("     ", target.name)
@@ -94,13 +95,13 @@ class Ability(Resource):
                     validTargetSet.append(targetIndex)
             else:
                 # init next targetIndex Entry
-                if len(targetIndex) == currIndex + 1:
+                if len(targetIndex) is currIndex + 1:
                     targetIndex.append(0)
                 # recurse
                 return self.checkTargetSetCombinations(potentialTargetSet, validTargetSet, targetIndex)
 
         # exit condition
-        if currIndex + 1 == len(potentialTargetSet):
+        if currIndex + 1 is len(potentialTargetSet):
             return
 
 # METHOD GET POTENTIAL TARGET SET
@@ -111,7 +112,7 @@ class Ability(Resource):
         validTargetSet = []
 
         for target, predicate in self.predicates:
-            if target == 0:
+            if target is 0:
                 # target = self - check predicate
                 if predicate(self.agent):
                     # add list entry if not done before
@@ -129,7 +130,7 @@ class Ability(Resource):
 
                 # insert new potential agents into potentialTargetSet
                 # !!! tuple element 0 of predictes must be in sorted order
-                if len(potentialTargetSet) == target:
+                if len(potentialTargetSet) is target:
                     potentialTargetSet.append(newPotentialAgents)
                 else:
                     potentialTargetSet[target] = \
@@ -140,9 +141,9 @@ class Ability(Resource):
                     return None
 
         print("   Potential Target Set: ")
-        for agentSet in potentialTargetSet:
+        for targetSet in potentialTargetSet:
             print("      .")
-            for agent in agentSet:
+            for agent in targetSet:
                 print("     ", agent.name)
         print("      .")
 
@@ -209,7 +210,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def __init__(self):
         super(Environment, self).__init__(self, "environment")
-        self.agentList = [self]
+        self.agentSet = {self}
         self.time = 0
 
 # METHOD SIMULATE
@@ -235,7 +236,7 @@ class Environment(Agent):
         self.time += 1
 
         # decrement blockers
-        for agent in self.agentList:
+        for agent in self.agentSet:
             for ability in agent.abilities.values():
                 if ability.blockedDuration > 0:
                     ability.blockedDuration -= 1
@@ -250,7 +251,7 @@ class Environment(Agent):
 # METHOD EXECUTE ABILITIES
 #-------------------------------------------------------------------------------
     def executeAbilities(self):
-        for agent in self.agentList:
+        for agent in self.agentSet:
             for ability in agent.abilities.values():
                 potentialTargets = ability.getPotentialTargets()
                 if not potentialTargets:
@@ -267,10 +268,14 @@ class Environment(Agent):
 # * To be used at the end of each timestep cycle
 #-------------------------------------------------------------------------------
     def cleanupNonExistentAgents(self):
-        for agent in self.agentList:
-            if not agent.traits.get('exists').value:
-                self.agentList.remove(agent)
+        discardSet = set()
 
+        for agent in self.agentSet:
+            # remove graphics link
+            if agent.traits['exists'].value is False:
+                 discardSet.add(agent)
+
+        self.agentSet = self.agentSet - discardSet
 
 # METHOD PRINT SNAPSHOT
 # * Prints all simulation environment information
@@ -283,18 +288,17 @@ class Environment(Agent):
         print(" |".rjust(32, "-"), " ----- |")
 
         print("   Agents:".ljust(30), "|        |")
-        for i in range(len(self.agentList)):
+        for agent in self.agentSet:
             print(" |".rjust(32, "-"), " ----- |")
-            print((" " + str(i) + " : " + self.agentList[i].name).ljust(30), \
-                "| ", str(self.agentList[i].blockedDuration).rjust(5), "|")
+            print((" " + agent.name).ljust(30), "| ", str(agent.blockedDuration).rjust(5), "|")
 
             print("   Traits:".ljust(30), "|        |")
-            for key, val in self.agentList[i].traits.items():
+            for key, val in agent.traits.items():
                 print(("      " + key + ": " + str(val.value)).ljust(30), "| ", \
                     str(val.blockedDuration).rjust(5), "|")
 
             print("   Abilities:".ljust(30), "|        |")
-            for key, val in self.agentList[i].abilities.items():
+            for key, val in agent.abilities.items():
                 print(("      " + key).ljust(30), "| ", \
                     str(val.blockedDuration).rjust(5), "|")
 
@@ -303,7 +307,7 @@ class Environment(Agent):
 # METHOD GET TRAIT RANDOM
 #-------------------------------------------------------------------------------
     def getTraitRandom(self):
-        selectedAgent = random.random() * len(self.agentList)
+        selectedAgent = random.random() * len(self.agentSet)
         selectedTrait = random.random() * len(selectedAgent.traits)
 
         return selectedAgent.traits[selectedTrait]
@@ -311,8 +315,8 @@ class Environment(Agent):
 # METHOD GET AGENT BY NAME
 #-------------------------------------------------------------------------------
     def getAgentByName(self, name):
-        for agent in self.agentList:
-            if agent.name == name:
+        for agent in self.agentSet:
+            if agent.name is name:
                 return agent
 
         return None
@@ -320,10 +324,10 @@ class Environment(Agent):
 # METHOD GET TRAIT ON PREDICATE
 #-------------------------------------------------------------------------------
     def getAgentsOnPredicate(self, predicate):
-        agentSet = set()
+        targetSet = set()
 
-        for agent in self.agentList:
+        for agent in self.agentSet:
             if predicate(agent):
-                agentSet.add(agent)
+                targetSet.add(agent)
 
-        return agentSet
+        return targetSet

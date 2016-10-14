@@ -73,15 +73,15 @@ class AdjEcosystem(object):
         dog.addTrait('type', 'animal')
         dog.addTrait('calories', 500)
         dog.addTrait('eatRange', 5)
-        self.environment.agentList.append(dog)
+        self.environment.agentSet.add(dog)
 
         # create apple agent
         apple = Agent(self.environment, "apple", 3, 3)
         apple.addTrait('type', 'food')
         apple.addTrait('calories', 35)
-        self.environment.agentList.append(apple)
+        self.environment.agentSet.add(apple)
 
-        # ability eat condition: food.type == 'food'
+        # ability eat condition: food.type is 'food'
         #       && ((food.x - self.x)^2 + (food.y - self.y)^2)^0.5 < self.eatRange
         # !!! blocked duration predicates
         # !!! always sort predicate list before insertion into class
@@ -100,7 +100,7 @@ class AdjEcosystem(object):
             (1, eat_predicate_food_x), (1, eat_predicate_food_y), \
             (1, eat_predicate_food_calories)]
 
-        eat_condition = lambda targets: targets[1].traits['type'].value == 'food' \
+        eat_condition = lambda targets: targets[1].traits['type'].value is 'food' \
             and ((targets[1].traits['xCoord'].value - targets[0].traits['xCoord'].value)**2 \
             + (targets[1].traits['yCoord'].value - targets[0].traits['yCoord'].value)**2)**0.5 \
             < targets[0].traits['eatRange'].value
