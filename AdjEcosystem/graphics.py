@@ -10,22 +10,7 @@ import sys
 import tkinter
 import time
 import random
-
-#-------------------------------------------------------------------------------
-# GLOBAL CONSTANTS
-#-------------------------------------------------------------------------------
-RED_LIGHT = '#ff6961'
-RED_DARK = '#c23b22'
-BLUE_LIGHT = '#aec6cf'
-BLUE_DARK = '#779ecb'
-GREEN = '#bdecb6'
-PINK = '#dea5a4'
-WHITE = '#f0ead6'
-
-COLORS = [RED_LIGHT, RED_DARK, BLUE_LIGHT, BLUE_DARK, GREEN, PINK, WHITE]
-
-OBJECT_RADIUS = 25
-OBJECT_BORDER_WIDTH = 2
+from constants import *
 
 #-------------------------------------------------------------------------------
 # GLOBAL FUNCTIONS
@@ -91,17 +76,25 @@ class Graphics(object):
             if agent.name is 'environment':
                 continue
 
+            # set trait constant
             normalizedX = agent.traits['xCoord'].value + self.windowWidth / 2
             normalizedY = agent.traits['yCoord'].value + self.windowHeight / 2
+            size = agent.traits['size'].value
+            borderWidth = agent.traits['borderWidth'].value
 
+            # set color
             color = self.colorMapping.get(agent.traits['type'].value)
             if color is None:
-                colorIndex = random.randint(0, len(COLORS) - 1)
-                color = COLORS[colorIndex]
+                if agent.traits['color'].value is not None:
+                    color = agent.traits['color'].value
+                else:
+                    colorIndex = random.randint(0, len(COLORS) - 1)
+                    color = COLORS[colorIndex]
                 self.colorMapping[agent.traits['type'].value] = color
 
+            # create object
             newObject = self.canvas.create_circle(normalizedX, normalizedY, \
-                OBJECT_RADIUS, fill=color, width=OBJECT_BORDER_WIDTH)
+                size, fill=color, width=borderWidth)
             self.objectList.append(newObject)
 
         # update

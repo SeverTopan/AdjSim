@@ -11,6 +11,7 @@ import re
 import inspect
 import random
 import copy
+from constants import *
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -52,6 +53,9 @@ class Agent(Resource):
         self.addTrait('exists', True)
         self.addTrait('xCoord', x)
         self.addTrait('yCoord', y)
+        self.addTrait('color', None)
+        self.addTrait('size', DEFAULT_OBJECT_RADIUS)
+        self.addTrait('borderWidth', DEFAULT_OBJECT_BORDER_WIDTH)
 
 #-------------------------------------------------------------------------------
 # CLASS ABILITY
