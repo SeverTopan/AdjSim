@@ -15,18 +15,18 @@ def generateTestClasses_dogApple(environment):
     dog = Agent(environment, "dog", 5, 5)
     dog.addTrait('type', 'animal')
     dog.addTrait('calories', 500)
-    dog.addTrait('eatRange', 5)
+    dog.addTrait('eatRange', 200)
     environment.agentSet.add(dog)
 
     # create apple agents
     # this one is within eat range by default
-    apple_close = Agent(environment, "apple_close", 3, 3)
+    apple_close = Agent(environment, "apple_close", 100, 100)
     apple_close.addTrait('type', 'food')
     apple_close.addTrait('calories', 35)
     environment.agentSet.add(apple_close)
 
     # this one should not be reachable withour movement
-    apple_far = Agent(environment, "apple_far", 10, 10)
+    apple_far = Agent(environment, "apple_far", 300, 300)
     apple_far.addTrait('type', 'food')
     apple_far.addTrait('calories', 35)
     environment.agentSet.add(apple_far)
@@ -57,7 +57,6 @@ def generateTestClasses_dogApple(environment):
     def eat_effect_addCalories(targets):
         targets[0].traits['calories'].value += targets[1].traits['calories'].value
     def eat_effect_killFood(targets):
-        print("killing food")
         targets[1].traits['exists'].value = False
     eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 

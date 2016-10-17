@@ -8,7 +8,8 @@
 #-------------------------------------------------------------------------------
 from environment import *
 from tests import *
-#from graphics import *
+from graphics import *
+import time
 
 #-------------------------------------------------------------------------------
 # CLASS ADJECOSYSTEM
@@ -20,6 +21,7 @@ class AdjEcosystem(object):
 #-------------------------------------------------------------------------------
     def __init__(self, argv):
         self.environment = Environment()
+        self.graphics = Graphics()
         AdjEcosystem.printWelcome()
 
 
@@ -40,11 +42,19 @@ class AdjEcosystem(object):
         self.environment.printSnapshot()
         print("Simulating: ", numTimesteps, " time steps")
 
+        # draw initial frame
+        self.graphics.update(self.environment.agentSet)
+        time.sleep(1)
+
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
             self.environment.executeAbilities()
             self.environment.executeTimestep()
             self.environment.cleanupNonExistentAgents()
+
+            self.graphics.update(self.environment.agentSet)
+            time.sleep(1)
+
 
         # print footer
         print("...Simulation Complete")

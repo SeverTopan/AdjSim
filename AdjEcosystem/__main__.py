@@ -20,6 +20,9 @@ def main(args=sys.argv):
     tests.generateTestClasses_dogApple(adjEcosystem.environment)
     adjEcosystem.simulate(5)
 
+    # get char press to exit
+    input("Press Enter to Termainate")
+
 
 # EXECUTIUON CALLBACK
 #-------------------------------------------------------------------------------
