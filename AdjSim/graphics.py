@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# ADJECOSYSTEM SIMULATION FRAMEWORK
+# ADJSIM SIMULATION FRAMEWORK
 # Designed and developed by Sever Topan
 #-------------------------------------------------------------------------------
 
@@ -52,13 +52,13 @@ class Graphics(object):
         self.colorMapping = {}
 
         self.tk = tkinter.Tk()
-        self.tk.title("AdjEcosystem")
+        self.tk.title("AdjSim")
 
         self.windowHeight = self.tk.winfo_screenheight() - 100
         self.windowWidth = self.tk.winfo_screenwidth() - 100
 
         self.canvas = tkinter.Canvas(self.tk, height=self.windowHeight, \
-            width=self.windowWidth, highlightthickness=0, background=WHITE)
+            width=self.windowWidth, highlightthickness=0)
 
         self.canvas.pack()
         self.tk.update()

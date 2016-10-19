@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# ADJECOSYSTEM SIMULATION FRAMEWORK
+# ADJSIM SIMULATION FRAMEWORK
 # Designed and developed by Sever Topan
 #-------------------------------------------------------------------------------
 
@@ -12,24 +12,24 @@ from graphics import *
 import time
 
 #-------------------------------------------------------------------------------
-# CLASS ADJECOSYSTEM
+# CLASS ADJSIM
 #-------------------------------------------------------------------------------
-class AdjEcosystem(object):
-    """docstring for AdjEcosystem."""
+class AdjSim(object):
+    """docstring for AdjSim."""
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self, argv):
         self.environment = Environment()
         self.graphics = Graphics()
-        AdjEcosystem.printWelcome()
+        AdjSim.printWelcome()
 
 
 # METHOD PRINT WELCOME
 #-------------------------------------------------------------------------------
     @staticmethod
     def printWelcome():
-        welcomeMessage = "- AdjEcosystem -"
+        welcomeMessage = "- AdjSim -"
 
         print(" ".ljust(len(welcomeMessage), "-"))
         print(welcomeMessage)
@@ -64,7 +64,7 @@ class AdjEcosystem(object):
 #-------------------------------------------------------------------------------
     def parseConfigFile(self, argv):
         if len(argv) != 2:
-            print("Invalid arguments - usage: python AdjEcosystem.py configfile")
+            print("Invalid arguments - usage: python AdjSim.py configfile")
             return False
 
         try:

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# ADJECOSYSTEM SIMULATION FRAMEWORK
+# ADJSIM SIMULATION FRAMEWORK
 # Designed and developed by Sever Topan
 #-------------------------------------------------------------------------------
 
@@ -16,12 +16,12 @@ import sys
 def main(args=sys.argv):
     """The main routine."""
 
-    adjEcosystem = AdjEcosystem(args)
-    tests.generateTestClasses_dogApple(adjEcosystem.environment)
-    adjEcosystem.simulate(5)
+    adjSim = AdjSim(args)
+    tests.generateTestClasses_dogApple(adjSim.environment)
+    adjSim.simulate(5)
 
     # get char press to exit
-    input("Press Enter to Termainate")
+    # input("Press Enter to Termainate")
 
 
 # EXECUTIUON CALLBACK

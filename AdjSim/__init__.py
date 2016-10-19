@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# ADJECOSYSTEM SIMULATION FRAMEWORK
+# ADJSIM SIMULATION FRAMEWORK
 # Deisgned and developed by Sever Topan
 #-------------------------------------------------------------------------------
 
