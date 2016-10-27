@@ -216,8 +216,19 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def __init__(self):
         super(Environment, self).__init__(self, "environment")
-        self.agentSet = {self}
+        self.addTrait('agentSet', {self})
         self.time = 0
+
+# PROPERTY METHOD - AGENTSET
+#-------------------------------------------------------------------------------
+    @property
+    def agentSet(self):
+        return self.traits['agentSet'].value
+
+    @agentSet.setter
+    def agentSet(self, value):
+        self.traits['agentSet'].value = value
+        return
 
 
 # METHOD EXECUTE TIMESTEP
@@ -290,8 +301,9 @@ class Environment(Agent):
 
             print("   Traits:".ljust(30), "|        |")
             for key, val in agent.traits.items():
-                print(("      " + key + ": " + str(val.value)).ljust(30), "| ", \
-                    str(val.blockedDuration).rjust(5), "|")
+                if key is not 'agentSet':
+                    print(("      " + key + ": " + str(val.value)).ljust(30), "| ", \
+                        str(val.blockedDuration).rjust(5), "|")
 
             print("   Abilities:".ljust(30), "|        |")
             for key, val in agent.abilities.items():
