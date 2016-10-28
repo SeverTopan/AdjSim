@@ -41,6 +41,39 @@ class Agent(Resource):
         self.traits = {}
         self.addMandatoryTraits(x, y)
 
+# PROPERTY METHOD - XCOORD
+#-------------------------------------------------------------------------------
+    @property
+    def xCoord(self):
+        return self.traits['xCoord'].value
+
+    @xCoord.setter
+    def xCoord(self, value):
+        self.traits['xCoord'].value = value
+        return
+
+# PROPERTY METHOD - YCOORD
+#-------------------------------------------------------------------------------
+    @property
+    def yCoord(self):
+        return self.traits['yCoord'].value
+
+    @yCoord.setter
+    def yCoord(self, value):
+        self.traits['yCoord'].value = value
+        return
+
+# PROPERTY METHOD - EXISTS
+#-------------------------------------------------------------------------------
+    @property
+    def exists(self):
+        return self.traits['exists'].value
+
+    @exists.setter
+    def exists(self, value):
+        self.traits['exists'].value = value
+        return
+
 # METHOD ADD TRAIT
 #-------------------------------------------------------------------------------
     def addTrait(self, name, value):
@@ -53,7 +86,7 @@ class Agent(Resource):
         self.addTrait('exists', True)
         self.addTrait('xCoord', x)
         self.addTrait('yCoord', y)
-        self.addTrait('color', None)
+        self.addTrait('color', QtCore.Qt.red)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
         self.addTrait('borderWidth', DEFAULT_OBJECT_BORDER_WIDTH)
 
