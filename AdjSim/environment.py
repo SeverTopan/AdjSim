@@ -409,9 +409,9 @@ class Environment(Agent):
 
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
+            self.cleanupNonExistentAgents()
             self.executeAbilities()
             self.executeTimestep()
-            self.cleanupNonExistentAgents()
 
             # wait for animaiton if graphics are intialized
             if thread:

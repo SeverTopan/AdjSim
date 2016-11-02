@@ -23,7 +23,6 @@ class AdjSim(object):
     def __init__(self, argv, graphicsEnabled):
         AdjSim.printWelcome()
 
-
         if graphicsEnabled:
             self.qApp = QtGui.QApplication(argv)
             self.view = AdjGraphicsView(self.qApp.desktop().screenGeometry())
@@ -42,6 +41,7 @@ class AdjSim(object):
     def run(environment, thread=None):
         tests.generateTestClasses_dogApple(environment)
         environment.simulate(5, thread)
+        time.sleep(20)
 
 
 # METHOD PRINT WELCOME
