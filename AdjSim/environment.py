@@ -38,7 +38,6 @@ class Agent(Resource):
 #-------------------------------------------------------------------------------
     def __init__(self, environment, name, x = 0, y = 0):
         super(Agent, self).__init__(environment, name)
-        self.abilities = {}
         self.traits = {}
         self.addMandatoryTraits(x, y)
 
@@ -97,6 +96,17 @@ class Agent(Resource):
         self.traits['color'].value = value
         return
 
+# PROPERTY METHOD - ABILITIIES
+#-------------------------------------------------------------------------------
+    @property
+    def abilities(self):
+        return self.traits['abilities'].value
+
+    @abilities.setter
+    def abilities(self, value):
+        self.traits['abilities'].value = value
+        return
+
 # METHOD ADD TRAIT
 #-------------------------------------------------------------------------------
     def addTrait(self, name, value):
@@ -111,6 +121,7 @@ class Agent(Resource):
         self.addTrait('yCoord', y)
         self.addTrait('color', QtCore.Qt.red)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
+        self.addTrait('abilities', {})
 
 #-------------------------------------------------------------------------------
 # CLASS ABILITY
@@ -356,7 +367,11 @@ class Environment(Agent):
 
             print("   Traits:".ljust(30), "|        |")
             for key, val in agent.traits.items():
-                if key is not 'agentSet':
+                # filter out unneeded keys
+                if key is not 'agentSet' \
+                    and key is not 'abilities' \
+                    and key is not 'color' \
+                    and key is not 'size':
                     print(("      " + key + ": " + str(val.value)).ljust(30), "| ", \
                         str(val.blockedDuration).rjust(5), "|")
 
