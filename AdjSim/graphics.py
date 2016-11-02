@@ -7,95 +7,96 @@
 # IMPORTS
 #-------------------------------------------------------------------------------
 import sys
-import tkinter
 import time
 import random
+
+import tests
 from constants import *
+from environment import *
+import core
 
-#-------------------------------------------------------------------------------
-# GLOBAL FUNCTIONS
-#-------------------------------------------------------------------------------
-def _create_circle(self, x, y, r, **kwargs):
-    return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
-tkinter.Canvas.create_circle = _create_circle
+from PyQt4 import QtGui, QtCore
 
-#-------------------------------------------------------------------------------
-# CLASS GRAPHICS
-#-------------------------------------------------------------------------------
-class BellFunction(object):
-    """docstring for BellFunction."""
 
-# METHOD INIT
-#-------------------------------------------------------------------------------
-    def __init__(self, a, b, c):
-        super(BellFunction, self).__init__()
-        self.a = a
-        self.b = b
-        self.c = c
+class AdjThread(QtCore.QThread):
 
-# METHOD CALL
-#-------------------------------------------------------------------------------
-    def __call__(self, x):
-        return 1 / (1 + abs((x - self.c) / self.a)**(2*self.b))
+    def __init__(self, app):
+        QtCore.QThread.__init__(self, parent=app)
+        self.signal = QtCore.SIGNAL("update")
+        self.environment = Environment()
 
-#-------------------------------------------------------------------------------
-# CLASS GRAPHICS
-#-------------------------------------------------------------------------------
-class Graphics(object):
-    """docstring for Graphics."""
+    def run(self):
+        core.AdjSim.run(self.environment, self)
 
-# METHOD INIT
-#-------------------------------------------------------------------------------
-    def __init__(self):
-        super(Graphics, self).__init__()
-        self.objectList = []
-        self.colorMapping = {}
+class AgentEllipse(QtGui.QGraphicsEllipseItem):
+    """docstring for AgentEllipse."""
 
-        self.tk = tkinter.Tk()
-        self.tk.title("AdjSim")
+    def __init__(self, x, y, r, color):
+        QtGui.QGraphicsEllipseItem.__init__(self, x, y, r, r)
+        self.setAcceptsHoverEvents(True)
+        self.setBrush(QtGui.QBrush(color, style = QtCore.Qt.SolidPattern))
+        self.oldCoordX = x
+        self.oldCoordY = y
 
-        self.windowHeight = self.tk.winfo_screenheight() - 100
-        self.windowWidth = self.tk.winfo_screenwidth() - 100
+    def hoverEnterEvent(self, event):
+        print('Enter')
 
-        self.canvas = tkinter.Canvas(self.tk, height=self.windowHeight, \
-            width=self.windowWidth, highlightthickness=0)
+    def hoverLeaveEvent(self, event):
+        print('Leave')
 
-        self.canvas.pack()
-        self.tk.update()
+class AdjGraphicsView(QtGui.QGraphicsView):
+    """docstring for GraphicsView."""
+
+    def __init__(self, screenGeometry):
+        QtGui.QGraphicsView.__init__(self)
+        # set Qt properties
+        self.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.setFrameShape(QtGui.QFrame.NoFrame)
+
+        # init scene
+        self.windowHeight = screenGeometry.height() - 100
+        self.windowWidth = screenGeometry.width() - 100
+        centerWidth = self.windowWidth / -2
+        centerHeight = self.windowHeight / -2
+
+        self.scene = QtGui.QGraphicsScene(-250, -250, 500, \
+            500, self)
+        self.setScene(self.scene)
+
+        # init other member variables
+        self.graphicsItems = {}
+
+        # show
+        self.show()
+
+    def timerEvent(self, event):
+         print("eyy")
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Space:
+            print("keypress")
+            adjSim = core.AdjSim(sys.argv, self)
+            tests.generateTestClasses_dogApple(adjSim.environment)
+            adjSim.simulate(5)
+
 
 # METHOD UPDATE
 #-------------------------------------------------------------------------------
     def update(self, agentSet):
-        # clear old object list
-        for item in self.objectList:
-            self.canvas.delete(item)
-        self.objectList.clear()
-
-        # fill new objects
         for agent in agentSet:
+            # don't draw environment itself
             if agent.name is 'environment':
                 continue
 
-            # set trait constant
-            normalizedX = agent.traits['xCoord'].value + self.windowWidth / 2
-            normalizedY = agent.traits['yCoord'].value + self.windowHeight / 2
-            size = agent.traits['size'].value
-            borderWidth = agent.traits['borderWidth'].value
+            if not self.graphicsItems.get(agent):
+                # create graphics item with entrance animation
+                newEllipse = AgentEllipse(agent.xCoord, agent.yCoord, agent.size, agent.color)
+                self.graphicsItems[agent] = newEllipse
+                self.scene.addItem(newEllipse)
 
-            # set color
-            color = self.colorMapping.get(agent.traits['type'].value)
-            if color is None:
-                if agent.traits['color'].value is not None:
-                    color = agent.traits['color'].value
-                else:
-                    colorIndex = random.randint(0, len(COLORS) - 1)
-                    color = COLORS[colorIndex]
-                self.colorMapping[agent.traits['type'].value] = color
+            elif not agent.exists:
+                # destroy object with exit animation
+                self.scene.removeItem(self.graphicsItems[agent])
 
-            # create object
-            newObject = self.canvas.create_circle(normalizedX, normalizedY, \
-                size, fill=color, width=borderWidth)
-            self.objectList.append(newObject)
-
-        # update
-        self.tk.update()
+            else:
+                self.graphicsItems[agent].setPos(agent.xCoord, agent.yCoord)

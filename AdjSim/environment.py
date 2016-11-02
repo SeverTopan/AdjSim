@@ -10,8 +10,9 @@ import sys
 import re
 import inspect
 import random
-import copy
+import time
 from constants import *
+from PyQt4 import QtCore
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -74,6 +75,28 @@ class Agent(Resource):
         self.traits['exists'].value = value
         return
 
+# PROPERTY METHOD - SIZE
+#-------------------------------------------------------------------------------
+    @property
+    def size(self):
+        return self.traits['size'].value
+
+    @size.setter
+    def size(self, value):
+        self.traits['size'].value = value
+        return
+
+# PROPERTY METHOD - COLOR
+#-------------------------------------------------------------------------------
+    @property
+    def color(self):
+        return self.traits['color'].value
+
+    @color.setter
+    def color(self, value):
+        self.traits['color'].value = value
+        return
+
 # METHOD ADD TRAIT
 #-------------------------------------------------------------------------------
     def addTrait(self, name, value):
@@ -88,7 +111,6 @@ class Agent(Resource):
         self.addTrait('yCoord', y)
         self.addTrait('color', QtCore.Qt.red)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
-        self.addTrait('borderWidth', DEFAULT_OBJECT_BORDER_WIDTH)
 
 #-------------------------------------------------------------------------------
 # CLASS ABILITY
@@ -372,3 +394,31 @@ class Environment(Agent):
                 targetSet.add(agent)
 
         return targetSet
+
+# METHOD SIMULATE
+#-------------------------------------------------------------------------------
+    def simulate(self, numTimesteps, thread=None):
+        # print header
+        self.printSnapshot()
+        print("Simulating: ", numTimesteps, " time steps")
+
+        # draw initial frame
+        if thread:
+            thread.emit(thread.signal, self.agentSet)
+            time.sleep(1)
+
+        # run simulation steps for num time steps
+        for timeStep in range(numTimesteps):
+            self.executeAbilities()
+            self.executeTimestep()
+            self.cleanupNonExistentAgents()
+
+            # wait for animaiton if graphics are intialized
+            if thread:
+                thread.emit(thread.signal, self.agentSet)
+                time.sleep(1)
+
+
+        # print footer
+        print("...Simulation Complete")
+        self.environment.printSnapshot()

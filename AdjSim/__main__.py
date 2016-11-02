@@ -7,24 +7,23 @@
 # IMPORTS
 #-------------------------------------------------------------------------------
 from core import *
+from graphics import *
 import tests
 import sys
 
 #-------------------------------------------------------------------------------
 # MAIN EXECUTION SCRIPT
 #-------------------------------------------------------------------------------
-def main(args=sys.argv):
+def main(argv=sys.argv):
     """The main routine."""
 
-    adjSim = AdjSim(args)
-    tests.generateTestClasses_dogApple(adjSim.environment)
-    adjSim.simulate(5)
+    adjSim = AdjSim(argv, True)
 
     # get char press to exit
     # input("Press Enter to Termainate")
 
 
-# EXECUTIUON CALLBACK
+# EXECUTION CALLBACK
 #-------------------------------------------------------------------------------
 if __name__ == "__main__":
     main()

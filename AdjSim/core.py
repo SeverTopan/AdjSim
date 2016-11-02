@@ -10,6 +10,7 @@ from environment import *
 from tests import *
 from graphics import *
 import time
+import sys
 
 #-------------------------------------------------------------------------------
 # CLASS ADJSIM
@@ -19,10 +20,28 @@ class AdjSim(object):
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
-    def __init__(self, argv):
-        self.environment = Environment()
-        self.graphics = Graphics()
+    def __init__(self, argv, graphicsEnabled):
         AdjSim.printWelcome()
+
+
+        if graphicsEnabled:
+            self.qApp = QtGui.QApplication(argv)
+            self.view = AdjGraphicsView(self.qApp.desktop().screenGeometry())
+            self.thread = AdjThread(self.qApp)
+            self.thread.finished.connect(self.qApp.exit)
+            self.qApp.connect(self.thread, self.thread.signal, self.view.update)
+            self.thread.start()
+            sys.exit(self.qApp.exec_())
+        else:
+            self.environment = Environment()
+            AdjSim.run(self.environment)
+
+# METHOD RUN
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def run(environment, thread=None):
+        tests.generateTestClasses_dogApple(environment)
+        environment.simulate(5, thread)
 
 
 # METHOD PRINT WELCOME
@@ -31,34 +50,11 @@ class AdjSim(object):
     def printWelcome():
         welcomeMessage = "- AdjSim -"
 
-        print(" ".ljust(len(welcomeMessage), "-"))
+        print("-".rjust(len(welcomeMessage), "-"))
         print(welcomeMessage)
-        print(" ".ljust(len(welcomeMessage), "-"))
-
-# METHOD SIMULATE
-#-------------------------------------------------------------------------------
-    def simulate(self, numTimesteps):
-        # print header
-        self.environment.printSnapshot()
-        print("Simulating: ", numTimesteps, " time steps")
-
-        # draw initial frame
-        self.graphics.update(self.environment.agentSet)
-        time.sleep(1)
-
-        # run simulation steps for num time steps
-        for timeStep in range(numTimesteps):
-            self.environment.executeAbilities()
-            self.environment.executeTimestep()
-            self.environment.cleanupNonExistentAgents()
-
-            self.graphics.update(self.environment.agentSet)
-            time.sleep(1)
+        print("-".rjust(len(welcomeMessage), "-"))
 
 
-        # print footer
-        print("...Simulation Complete")
-        self.environment.printSnapshot()
 
 # METHOD PARSE CONFIG FILE
 #-------------------------------------------------------------------------------
