@@ -17,12 +17,11 @@ AdjSim is currently in its early stages of development. There are four core elem
 
 Currently Implemented Features:
  - Core functionality - agent interaction through ability casting, timestep iterations
- - Core functionality - Simple graphical representation using tkinter
+ - Core functionality - Graphical representation using PyQt4
 
 Planned Features:
  - Improvement of agent interaction to reflect the framework structure listed below better.
  - More test cases!
- - Improved graphical interface, possibly using PyQt4
  - Core functionality - translation module
  - Core functionality - decision module
 
