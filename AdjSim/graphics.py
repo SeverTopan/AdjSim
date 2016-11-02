@@ -44,13 +44,14 @@ class AgentEllipse(QtGui.QGraphicsEllipseItem):
 # METHOD INIT
 #-------------------------------------------------------------------------------
     def __init__(self, agent, scene):
-        QtGui.QGraphicsEllipseItem.__init__(self, agent.xCoord, agent.yCoord, \
-            agent.size, agent.size)
+        QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, agent.size * 0.01, agent.size * 0.01)
         self.setAcceptsHoverEvents(True)
         self.setBrush(QtGui.QBrush(agent.color, style = QtCore.Qt.SolidPattern))
         self.agent = agent
         self.oldXCoord = agent.xCoord
         self.oldYCoord = agent.yCoord
+        self.exitAnimationComplete = False;
+        self.setPos(agent.xCoord, agent.yCoord)
 
     def updatePosition(self):
         if self.agent.xCoord != self.oldXCoord or self.agent.yCoord != self.oldYCoord:
@@ -94,6 +95,8 @@ class AdjGraphicsView(QtGui.QGraphicsView):
 
         # init other member variables
         self.graphicsItems = {}
+        self.timeline = None
+        self.animations = []
 
         # show
         self.show()
@@ -102,6 +105,21 @@ class AdjGraphicsView(QtGui.QGraphicsView):
 # METHOD UPDATE
 #-------------------------------------------------------------------------------
     def update(self, agentSet):
+
+        self.animations.clear()
+        del self.timeline
+        self.timeline = QtCore.QTimeLine(200)
+        self.timeline.setFrameRange(0, 200)
+
+        # delete items whose animations are complete
+        for ellipse in self.graphicsItems.values():
+            if ellipse.exitAnimationComplete:
+                self.scene.removeItem(ellipse)
+
+        self.graphicsItems = { key: val for key, val in self.graphicsItems.items() \
+            if not val.exitAnimationComplete }
+
+        # update agent ellipses
         for agent in agentSet:
             # don't draw environment itself
             if agent.name is 'environment':
@@ -109,16 +127,29 @@ class AdjGraphicsView(QtGui.QGraphicsView):
 
             if not self.graphicsItems.get(agent):
                 # create graphics item with entrance animation
-                print("creating agent ", agent.name)
                 newEllipse = AgentEllipse(agent, self.scene)
                 self.graphicsItems[agent] = newEllipse
+
+                animation = QtGui.QGraphicsItemAnimation()
+                animation.setTimeLine(self.timeline)
+                animation.setItem(newEllipse)
+                animation.setScaleAt(0, 1, 1)
+                animation.setScaleAt(1, 100, 100)
+                self.animations.append(animation)
+
                 self.scene.addItem(newEllipse)
 
             elif not agent.exists:
                 # destroy object with exit animation
-                print("deleting agent ", agent.name)
-                self.scene.removeItem(self.graphicsItems[agent])
-                del self.graphicsItems[agent]
+                self.graphicsItems[agent].exitAnimationComplete = True
+                animation = QtGui.QGraphicsItemAnimation()
+                animation.setTimeLine(self.timeline)
+                animation.setItem(self.graphicsItems[agent])
+                animation.setScaleAt(1, 1, 1)
+                animation.setScaleAt(0, 100, 100)
+                self.animations.append(animation)
 
             else:
                 self.graphicsItems[agent].updatePosition()
+
+        self.timeline.start()
