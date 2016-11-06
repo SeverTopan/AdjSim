@@ -13,6 +13,8 @@ from constants import *
 #-------------------------------------------------------------------------------
 def generateTestClasses_bacteriaYogurt(environment):
 
+    MOVEMENT_COST = 5
+
     # ability eat condition: food.type is 'food'
     #       && ((food.x - self.x)^2 + (food.y - self.y)^2)^0.5 < self.eatRange
     # !!! predicates will be grouped together for ease of writing
@@ -64,6 +66,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             and sel.traits.get('type') is not None \
             and sel.traits.get('interactRange') is not None \
             and sel.traits.get('calories') is not None \
+            and sel.blockedDuration is 0 \
             and sel.abilities['moveUp'].blockedDuration is 0 \
             and sel.blockedDuration is 0:
             return True
@@ -71,16 +74,19 @@ def generateTestClasses_bacteriaYogurt(environment):
             return False
     moveUp_predicateList = [(1, moveUp_predicate_self)]
 
-    moveUp_condition = lambda targets: targets[1].traits['calories'].value > 10
+    moveUp_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
 
     def moveUp_effect_removeCalories(targets):
-        targets[1].traits['calories'].value -= 10
+        targets[1].traits['calories'].value -= MOVEMENT_COST
     def moveUp_effect_move(targets):
         targets[1].yCoord += targets[1].traits['interactRange'].value * 2
     moveUp_effectList = [moveUp_effect_removeCalories, moveUp_effect_move]
 
     def moveUp_blocker_bacteria(targets):
-        targets[1].blockedDuration = 1
+        targets[1].abilities['moveLeft'].blockedDuration = 1
+        targets[1].abilities['moveRight'].blockedDuration = 1
+        targets[1].abilities['moveUp'].blockedDuration = 1
+        targets[1].abilities['moveDown'].blockedDuration = 1
     moveUp_blockerList = [moveUp_blocker_bacteria]
 
     # ability - moveDown
@@ -89,6 +95,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             and sel.traits.get('type') is not None \
             and sel.traits.get('interactRange') is not None \
             and sel.traits.get('calories') is not None \
+            and sel.blockedDuration is 0 \
             and sel.abilities['moveDown'].blockedDuration is 0 \
             and sel.blockedDuration is 0:
             return True
@@ -96,16 +103,19 @@ def generateTestClasses_bacteriaYogurt(environment):
             return False
     moveDown_predicateList = [(1, moveDown_predicate_self)]
 
-    moveDown_condition = lambda targets: targets[1].traits['calories'].value > 10
+    moveDown_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
 
     def moveDown_effect_removeCalories(targets):
-        targets[1].traits['calories'].value -= 10
+        targets[1].traits['calories'].value -= MOVEMENT_COST
     def moveDown_effect_move(targets):
         targets[1].yCoord -= targets[1].traits['interactRange'].value * 2
     moveDown_effectList = [moveDown_effect_removeCalories, moveDown_effect_move]
 
     def moveDown_blocker_bacteria(targets):
-        targets[1].blockedDuration = 1
+        targets[1].abilities['moveLeft'].blockedDuration = 1
+        targets[1].abilities['moveRight'].blockedDuration = 1
+        targets[1].abilities['moveUp'].blockedDuration = 1
+        targets[1].abilities['moveDown'].blockedDuration = 1
     moveDown_blockerList = [moveDown_blocker_bacteria]
 
     # ability - moveLeft
@@ -114,6 +124,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             and sel.traits.get('type') is not None \
             and sel.traits.get('interactRange') is not None \
             and sel.traits.get('calories') is not None \
+            and sel.blockedDuration is 0 \
             and sel.abilities['moveRight'].blockedDuration is 0 \
             and sel.blockedDuration is 0:
             return True
@@ -121,16 +132,19 @@ def generateTestClasses_bacteriaYogurt(environment):
             return False
     moveRight_predicateList = [(1, moveRight_predicate_self)]
 
-    moveRight_condition = lambda targets: targets[1].traits['calories'].value > 10
+    moveRight_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
 
     def moveRight_effect_removeCalories(targets):
-        targets[1].traits['calories'].value -= 10
+        targets[1].traits['calories'].value -= MOVEMENT_COST
     def moveRight_effect_move(targets):
         targets[1].xCoord += targets[1].traits['interactRange'].value * 2
     moveRight_effectList = [moveRight_effect_removeCalories, moveRight_effect_move]
 
     def moveRight_blocker_bacteria(targets):
-        targets[1].blockedDuration = 1
+        targets[1].abilities['moveLeft'].blockedDuration = 1
+        targets[1].abilities['moveRight'].blockedDuration = 1
+        targets[1].abilities['moveUp'].blockedDuration = 1
+        targets[1].abilities['moveDown'].blockedDuration = 1
     moveRight_blockerList = [moveRight_blocker_bacteria]
 
     # ability - moveLeft
@@ -139,6 +153,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             and sel.traits.get('type') is not None \
             and sel.traits.get('interactRange') is not None \
             and sel.traits.get('calories') is not None \
+            and sel.blockedDuration is 0 \
             and sel.abilities['moveLeft'].blockedDuration is 0 \
             and sel.blockedDuration is 0:
             return True
@@ -146,17 +161,42 @@ def generateTestClasses_bacteriaYogurt(environment):
             return False
     moveLeft_predicateList = [(1, moveLeft_predicate_self)]
 
-    moveLeft_condition = lambda targets: targets[1].traits['calories'].value > 10
+    moveLeft_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
 
     def moveLeft_effect_removeCalories(targets):
-        targets[1].traits['calories'].value -= 10
+        targets[1].traits['calories'].value -= MOVEMENT_COST
     def moveLeft_effect_move(targets):
         targets[1].xCoord -= targets[1].traits['interactRange'].value * 2
     moveLeft_effectList = [moveLeft_effect_removeCalories, moveLeft_effect_move]
 
     def moveLeft_blocker_bacteria(targets):
-        targets[1].blockedDuration = 1
+        targets[1].abilities['moveLeft'].blockedDuration = 1
+        targets[1].abilities['moveRight'].blockedDuration = 1
+        targets[1].abilities['moveUp'].blockedDuration = 1
+        targets[1].abilities['moveDown'].blockedDuration = 1
     moveLeft_blockerList = [moveLeft_blocker_bacteria]
+
+    # ability - starve
+    def starve_predicate_self(sel):
+        if sel.exists \
+            and sel.traits.get('type') is not None \
+            and sel.traits.get('interactRange') is not None \
+            and sel.traits.get('calories') is not None \
+            and sel.blockedDuration is 0:
+            return True
+        else:
+            return False
+    starve_predicateList = [(1, starve_predicate_self)]
+
+    starve_condition = lambda targets: targets[1].traits['calories'].value <= MOVEMENT_COST
+
+    def starve_effect_kill(targets):
+        targets[1].exists = False
+    starve_effectList = [starve_effect_kill]
+
+    def starve_blocker_bacteria(targets):
+        targets[1].blockedDuration = 1
+    starve_blockerList = [starve_blocker_bacteria]
 
     # ability - divide
     def divide_predicate_self(sel):
@@ -175,26 +215,24 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     divide_predicateList = [(0, divide_predicate_env), (1, divide_predicate_self)]
 
-    divide_condition = lambda targets: targets[1].traits['calories'].value > 0
+    divide_condition = lambda targets: targets[1].traits['calories'].value > 150
 
     def divide_blocker_bacteria(targets):
         targets[1].blockedDuration = 2
     divide_blockerList = [divide_blocker_bacteria]
 
     def divide_effect_addCalories(targets):
-        targets[1].traits['calories'].value -= 5
+        targets[1].traits['calories'].value -= 75
     def divide_effect_createChild(targets):
         bacterium = Agent(environment, "bacterium_child", targets[1].xCoord + 10, targets[1].yCoord)
         bacterium.addTrait('type', 'bacteria')
-        bacterium.addTrait('calories', 100)
+        bacterium.addTrait('calories', 75)
         bacterium.addTrait('interactRange', 10)
         bacterium.blockedDuration = 2
         bacterium.size = 10
         bacterium.color = QtCore.Qt.blue
         targets[0].traits['agentSet'].value.add(bacterium)
 
-        bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
-            eat_condition, eat_effectList, eat_blockerList)
         bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
             divide_predicateList, divide_condition, divide_effectList, divide_blockerList)
         bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
@@ -207,12 +245,14 @@ def generateTestClasses_bacteriaYogurt(environment):
             moveRight_condition, moveRight_effectList, moveRight_blockerList)
         bacterium.abilities["moveLeft"] = Ability(environment, "moveLeft", bacterium, moveLeft_predicateList, \
             moveLeft_condition, moveLeft_effectList, moveLeft_blockerList)
+        bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
+            starve_condition, starve_effectList, starve_blockerList)
 
     divide_effectList = [divide_effect_createChild, divide_effect_addCalories]
 
     # create bacteria agents
-    for i in range(5):
-        for j in range(5):
+    for i in range(4):
+        for j in range(4):
             name = "bacterium_" + str(5 * i + j)
             bacterium = Agent(environment, name, 10 * i, 10 * j)
             bacterium.addTrait('type', 'bacteria')
@@ -222,6 +262,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             bacterium.color = QtCore.Qt.green
             environment.agentSet.add(bacterium)
 
+            # temporary prioritization hack
             bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
                 eat_condition, eat_effectList, eat_blockerList)
             bacterium.abilities["moveUp"] = Ability(environment, "moveUp", bacterium, moveUp_predicateList, \
@@ -234,12 +275,14 @@ def generateTestClasses_bacteriaYogurt(environment):
                 moveLeft_condition, moveLeft_effectList, moveLeft_blockerList)
             bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
                 divide_predicateList, divide_condition, divide_effectList, divide_blockerList)
+            bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
+                starve_condition, starve_effectList, starve_blockerList)
 
     # create yogurt agents
-    for i in range(20):
-        for j in range(20):
+    for i in range(10):
+        for j in range(10):
             name = "yogurt_" + str(20 * i + j)
-            yogurt = Agent(environment, name, 5 * i, 5 * j + 100)
+            yogurt = Agent(environment, name, 5 * i, 5 * j + 50)
             yogurt.addTrait('type', 'food')
             yogurt.addTrait('calories', 30)
             yogurt.size = 5

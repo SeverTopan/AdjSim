@@ -42,7 +42,7 @@ class AdjSim(object):
     @staticmethod
     def run(environment, thread=None):
         tests.generateTestClasses_bacteriaYogurt(environment)
-        environment.simulate(50, thread)
+        environment.simulate(100, thread)
         time.sleep(20)
 
 
