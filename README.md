@@ -36,11 +36,11 @@ Clone the repository and run python 3 on the AdjSim folder:
      cd AdjSim
      python3 AdjSim/
 
-Currently the main execution script calls the one currently available test case.
+Currently the main execution script calls the bacteria/yogurt test case. It simulates the behavior of a set of bacteria exposed to a parcel of food (in this case yogurt).
 
-AdjSim also uses tkinter for its graphical simulation space representation. Obtain Using:
+AdjSim also uses pyqt4 for its graphical simulation space representation. Obtain Using:
 
-     sudo apt-get install python3-tk
+     sudo apt-get install python3-pyqt4
 
 ---
 
