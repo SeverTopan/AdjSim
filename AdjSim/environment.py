@@ -293,6 +293,7 @@ class Environment(Agent):
         super(Environment, self).__init__(self, "environment")
         self.addTrait('agentSet', {self})
         self.time = 0
+        self.prevStepAnimationStart = time.time()
 
 # PROPERTY METHOD - AGENTSET
 #-------------------------------------------------------------------------------
@@ -445,8 +446,12 @@ class Environment(Agent):
 
             # wait for animaiton if graphics are intialized
             if thread:
+                print(time.time() - self.prevStepAnimationStart)
+                while time.time() - self.prevStepAnimationStart < 0.2:
+                    continue
                 thread.emit(thread.signal, self.agentSet)
-                time.sleep(0.2)
+                self.prevStepAnimationStart = time.time()
+
 
 
         # print footer
