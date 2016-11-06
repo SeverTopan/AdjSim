@@ -333,22 +333,28 @@ class Environment(Agent):
 
         # cast abilities
         for agent in self.agentSet.copy():
-            # shuffle abilities to achieve random sequences
-            # * this is a temporary substitute for the lack of agent decisionmaking
-            # * infrastructure. It ensures that abilites like moveUp and moveDown
-            # * will be called in random order
-            shuffledAbilities = list(agent.abilities.values())
-            random.shuffle(shuffledAbilities)
-            for ability in shuffledAbilities:
-                potentialTargets = ability.getPotentialTargets()
-                if not potentialTargets:
-                    continue
+            # repeatedly cast abilities until no more abilities are cast
+            oneOrMoreAbilitiesCast = True
+            while oneOrMoreAbilitiesCast:
+                oneOrMoreAbilitiesCast = False
 
-                chosenTargets = ability.chooseTargetSet(potentialTargets)
-                if not chosenTargets:
-                    continue
+                # shuffle abilities to achieve random sequences
+                # * this is a temporary substitute for the lack of agent decisionmaking
+                # * infrastructure. It ensures that abilites like moveUp and moveDown
+                # * will be called in random order
+                shuffledAbilities = list(agent.abilities.values())
+                random.shuffle(shuffledAbilities)
+                for ability in shuffledAbilities:
+                    potentialTargets = ability.getPotentialTargets()
+                    if not potentialTargets:
+                        continue
 
-                ability.cast(chosenTargets)
+                    chosenTargets = ability.chooseTargetSet(potentialTargets)
+                    if not chosenTargets:
+                        continue
+
+                    ability.cast(chosenTargets)
+                    oneOrMoreAbilitiesCast = True
 
 # METHOD CLEANUP NON EXISTENT AGENTS
 # * Removes all agents with their mandatory 'exists' trait set to False
