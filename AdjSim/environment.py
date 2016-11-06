@@ -145,7 +145,12 @@ class Ability(Resource):
 # * target combination sets. Function is recursive, since its complexity is
 # * O(n^k), where k is the number of potential targets
 #-------------------------------------------------------------------------------
-    def checkTargetSetCombinations(self, potentialTargetSet, validTargetSet, targetIndex = [0]):
+    def checkTargetSetCombinations(self, potentialTargetSet, validTargetSet, targetIndex = None):
+        # init default argument to a mutable varible
+        if targetIndex is None:
+            targetIndex = [0]
+
+        # init current index
         currIndex = len(targetIndex) - 1
 
         # error check
@@ -161,6 +166,7 @@ class Ability(Resource):
                 for target in targetIndex:
                     print("     ", target.name)
 
+
                 if self.condition(targetIndex):
                     print('   -> yielding')
                     validTargetSet.append([item for item in targetIndex])
@@ -168,6 +174,7 @@ class Ability(Resource):
                 # init next targetIndex Entry
                 if len(targetIndex) is currIndex + 1:
                     targetIndex.append(0)
+
                 # recurse
                 return self.checkTargetSetCombinations(potentialTargetSet, validTargetSet, targetIndex)
 
@@ -179,20 +186,21 @@ class Ability(Resource):
 # * returns a list of sets of valid targets on which to perfrom actions
 #-------------------------------------------------------------------------------
     def getPotentialTargets(self):
-        potentialTargetSet = []
+        potentialTargetSet = [{self.environment}, {self.agent}]
         validTargetSet = []
 
         # debug message
-        print("Casting ", self.name)
+        print("Obtaining Targets: ", self.name)
 
         for target, predicate in self.predicates:
             if target is 0:
+                # target = environment
+                if not predicate(self.environment):
+                    return None
+
+            elif target is 1:
                 # target = self - check predicate
-                if predicate(self.agent):
-                    # add list entry if not done before
-                    if not potentialTargetSet:
-                        potentialTargetSet.append({self.agent})
-                else:
+                if not predicate(self.agent):
                     return None
 
             else:
@@ -204,7 +212,7 @@ class Ability(Resource):
 
                 # insert new potential agents into potentialTargetSet
                 # !!! tuple element 0 of predictes must be in sorted order
-                if len(potentialTargetSet) is target:
+                if len(potentialTargetSet) == target:
                     potentialTargetSet.append(newPotentialAgents)
                 else:
                     potentialTargetSet[target] = \
@@ -220,7 +228,6 @@ class Ability(Resource):
             for agent in targetSet:
                 print("     ", agent.name)
         print("      .")
-
 
 
         # accumulate target sets for decision
@@ -322,8 +329,14 @@ class Environment(Agent):
         print("Timestep: ", self.time)
 
         # cast abilities
-        for agent in self.agentSet:
-            for ability in agent.abilities.values():
+        for agent in self.agentSet.copy():
+            # shuffle abilities to achieve random sequences
+            # * this is a temporary substitute for the lack of agent decisionmaking
+            # * infrastructure. It ensures that abilites like moveUp and moveDown
+            # * will be called in random order
+            shuffledAbilities = list(agent.abilities.values())
+            random.shuffle(shuffledAbilities)
+            for ability in shuffledAbilities:
                 potentialTargets = ability.getPotentialTargets()
                 if not potentialTargets:
                     continue
@@ -414,7 +427,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def simulate(self, numTimesteps, thread=None):
         # print header
-        self.printSnapshot()
+        # self.printSnapshot()
         print("Simulating: ", numTimesteps, " time steps")
 
         # draw initial frame
@@ -436,4 +449,4 @@ class Environment(Agent):
 
         # print footer
         print("...Simulation Complete")
-        self.environment.printSnapshot()
+        # self.environment.printSnapshot()
