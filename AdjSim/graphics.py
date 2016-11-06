@@ -53,10 +53,6 @@ class AgentEllipse(QtGui.QGraphicsEllipseItem):
         self.exitAnimationComplete = False;
         self.setPos(agent.xCoord, agent.yCoord)
 
-    def updatePosition(self):
-        if self.agent.xCoord != self.oldXCoord or self.agent.yCoord != self.oldYCoord:
-            self.moveBy(self.agent.xCoord - self.oldXCoord, self.agent.yCoord - self.oldYCoord)
-
 
 # METHOD HOVER EVENT ENTER
 #-------------------------------------------------------------------------------
@@ -150,6 +146,20 @@ class AdjGraphicsView(QtGui.QGraphicsView):
                 self.animations.append(animation)
 
             else:
-                self.graphicsItems[agent].updatePosition()
+                moveX = agent.xCoord - self.graphicsItems[agent].oldXCoord
+                moveY = agent.yCoord - self.graphicsItems[agent].oldYCoord
+
+                if moveX != 0 or moveY != 0:
+                    animation = QtGui.QGraphicsItemAnimation()
+                    animation.setTimeLine(self.timeline)
+                    animation.setItem(self.graphicsItems[agent])
+                    animation.setPosAt(0, QtCore.QPointF(self.graphicsItems[agent].oldXCoord, self.graphicsItems[agent].oldYCoord))
+                    animation.setPosAt(1, QtCore.QPointF(agent.xCoord, agent.yCoord))
+                    # animation.setTranslationAt(1, 10, 10)
+                    self.animations.append(animation)
+                    # self.graphicsItems[agent].moveBy(moveX, moveY)
+
+                    self.graphicsItems[agent].oldXCoord = agent.xCoord
+                    self.graphicsItems[agent].oldYCoord = agent.yCoord
 
         self.timeline.start()
