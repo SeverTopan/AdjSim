@@ -10,6 +10,7 @@ import sys
 import re
 import inspect
 import random
+import logging
 import time
 from constants import *
 from PyQt4 import QtCore
@@ -162,13 +163,14 @@ class Ability(Resource):
             # if at end of recursion expansion, check condition, if not, keep
             # recursing until end is reached
             if currIndex + 1 is len(potentialTargetSet):
-                print("   At end of recursion expansion:")
+                # at end of recursion expansion
+                logging.debug("   At end of recursion expansion:")
                 for target in targetIndex:
-                    print("     ", target.name)
+                    logging.debug("     %s", target.name)
 
 
                 if self.condition(targetIndex):
-                    print('   -> yielding')
+                    logging.debug("   -> yielding")
                     validTargetSet.append([item for item in targetIndex])
             else:
                 # init next targetIndex Entry
@@ -190,7 +192,7 @@ class Ability(Resource):
         validTargetSet = []
 
         # debug message
-        print("Obtaining Targets: ", self.name)
+        logging.debug("Obtaining Targets: %s", self.name)
 
         for target, predicate in self.predicates:
             if target is 0:
@@ -222,12 +224,12 @@ class Ability(Resource):
                 if not potentialTargetSet[target]:
                     return None
 
-        print("   Potential Target Set: ")
+        logging.debug("   Potential Target Set: ")
         for targetSet in potentialTargetSet:
-            print("      .")
+            logging.debug("      .")
             for agent in targetSet:
-                print("     ", agent.name)
-        print("      .")
+                logging.debug("     %s", agent.name)
+        logging.debug("      .")
 
 
         # accumulate target sets for decision
@@ -359,7 +361,7 @@ class Environment(Agent):
             if agent.traits['exists'].value is False:
                  discardSet.add(agent)
                  # debug message
-                 print("   ! Discarding ", agent.name)
+                 logging.debug("   ! Discarding %s", agent.name)
 
         self.agentSet = self.agentSet - discardSet
 
@@ -444,7 +446,7 @@ class Environment(Agent):
             # wait for animaiton if graphics are intialized
             if thread:
                 thread.emit(thread.signal, self.agentSet)
-                time.sleep(1)
+                time.sleep(0.2)
 
 
         # print footer

@@ -10,6 +10,7 @@ from environment import *
 from tests import *
 from graphics import *
 import time
+import logging
 import sys
 
 #-------------------------------------------------------------------------------
@@ -22,6 +23,7 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     def __init__(self, argv, graphicsEnabled):
         AdjSim.printWelcome()
+        logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
         if graphicsEnabled:
             self.qApp = QtGui.QApplication(argv)
