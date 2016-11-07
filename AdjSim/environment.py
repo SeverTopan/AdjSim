@@ -206,7 +206,7 @@ class Ability(Resource):
                     return None
 
             else:
-                newPotentialAgents = self.environment.getAgentsOnPredicate(predicate)
+                newPotentialAgents = self.environment.getAgentsOnPredicate(self.agent, predicate)
 
                 # exit if no targets
                 if not newPotentialAgents:
@@ -423,11 +423,11 @@ class Environment(Agent):
 
 # METHOD GET TRAIT ON PREDICATE
 #-------------------------------------------------------------------------------
-    def getAgentsOnPredicate(self, predicate):
+    def getAgentsOnPredicate(self, callingAgent, predicate):
         targetSet = set()
 
         for agent in self.agentSet:
-            if predicate(agent):
+            if predicate(self, callingAgent, agent):
                 targetSet.add(agent)
 
         return targetSet
@@ -454,7 +454,7 @@ class Environment(Agent):
             if thread:
                 print(time.time() - self.prevStepAnimationStart)
                 while time.time() - self.prevStepAnimationStart < 0.2:
-                    continue
+                    pass
                 thread.emit(thread.signal, self.agentSet)
                 self.prevStepAnimationStart = time.time()
 
