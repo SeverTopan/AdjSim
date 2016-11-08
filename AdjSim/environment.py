@@ -345,6 +345,10 @@ class Environment(Agent):
                 shuffledAbilities = list(agent.abilities.values())
                 random.shuffle(shuffledAbilities)
                 for ability in shuffledAbilities:
+                    # abort if blocked or non-existent
+                    if ability.blockedDuration > 0 or agent.blockedDuration > 0 or not agent.exists:
+                        continue
+
                     potentialTargets = ability.getPotentialTargets()
                     if not potentialTargets:
                         continue
@@ -352,6 +356,8 @@ class Environment(Agent):
                     chosenTargets = ability.chooseTargetSet(potentialTargets)
                     if not chosenTargets:
                         continue
+
+                    logging.debug("%s casting: %s", agent.name, ability.name)
 
                     ability.cast(chosenTargets)
                     oneOrMoreAbilitiesCast = True
@@ -427,6 +433,7 @@ class Environment(Agent):
         targetSet = set()
 
         for agent in self.agentSet:
+            # abilities at this point can be cast onto themselves
             if predicate(self, callingAgent, agent):
                 targetSet.add(agent)
 
@@ -436,7 +443,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def simulate(self, numTimesteps, thread=None):
         # print header
-        # self.printSnapshot()
+        self.printSnapshot()
         print("Simulating: ", numTimesteps, " time steps")
 
         # draw initial frame
@@ -462,4 +469,4 @@ class Environment(Agent):
 
         # print footer
         print("...Simulation Complete")
-        # self.environment.printSnapshot()
+        self.environment.printSnapshot()
