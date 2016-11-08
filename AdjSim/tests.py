@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------
 from environment import *
 from constants import *
+from PyQt4 import QtGui, QtCore
 
 # FUNCTION GENERATE TEST CLASSES - PLANETS
 #-------------------------------------------------------------------------------
@@ -151,7 +152,7 @@ def generateTestClasses_planets(environment, identifier):
         targets[1].abilities['calculateVel'].blockedDuration = 2
     calculateVel_blockerList = [calculateVel_blocker]
 
-    def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment):
+    def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, style = QtCore.Qt.SolidPattern):
         planet = Agent(environment, name, xPos, yPos)
         planet.addTrait('type', 'planet')
         planet.addTrait('xVel', xVel)
@@ -162,6 +163,7 @@ def generateTestClasses_planets(environment, identifier):
         planet.addTrait('castLog_acc', set())
         planet.size = size
         planet.color = color
+        planet.style = style
 
         planet.abilities["calculateSetup"] = Ability(environment, "calculateSetup", planet, \
             calculateSetup_predicateList, calculateSetup_condition, calculateSetup_effectList, calculateSetup_blockerList)
@@ -174,20 +176,20 @@ def generateTestClasses_planets(environment, identifier):
 
         environment.agentSet.add(planet)
 
-    if identifier = 'earth':
+    if identifier is 'earth':
         # earth/moon
-        createPlanet('earth', 5.972e24, 5, QtCore.Qt.blue, 0, 0, 0.0 , 0, environment)
-        createPlanet('moon', 7.3e22, 3, QtCore.Qt.red, 38, 0, 0.0, 1.02e3, environment)
+        createPlanet('earth', 5.972e24, 5, QtGui.QColor(BLUE_DARK), 0, 0, 0.0 , 0, environment)
+        createPlanet('moon', 7.3e22, 3, QtGui.QColor(GREY), 38, 0, 0.0, 1.02e3, environment)
 
         environment.addTrait('numPhysicsDependentAgents', 2)
 
-    elif identifier = 'jupiter'
+    elif identifier is 'jupiter':
         # jupiter system
-        createPlanet('jupiter', 1.898e27, 10, QtCore.Qt.blue, 0, 0, 0.0 , 0, environment)
-        createPlanet('io', 8.9e22, 3, QtCore.Qt.red, 42, 0, 0.0, 17.38e3, environment)
-        createPlanet('europa', 4.8e22, 3, QtCore.Qt.red, 67, 0, 0.0, 13.7e3, environment)
-        createPlanet('ganymede', 1.48e23, 5, QtCore.Qt.red, 107, 0, 0.0, 10.88e3, environment)
-        createPlanet('callisto', 1.08e23, 4, QtCore.Qt.red, 188, 0, 0.0, 8.21e3, environment)
+        createPlanet('jupiter', 1.898e27, 10, QtGui.QColor(ORANGE), 0, 0, 0.0 , 0, environment, QtCore.Qt.Dense1Pattern)
+        createPlanet('io', 8.9e22, 3, QtGui.QColor(GREY), 42, 0, 0.0, 17.38e3, environment)
+        createPlanet('europa', 4.8e22, 3, QtGui.QColor(BLUE_LIGHT), 67, 0, 0.0, 13.7e3, environment)
+        createPlanet('ganymede', 1.48e23, 5, QtGui.QColor(RED_DARK), 107, 0, 0.0, 10.88e3, environment)
+        createPlanet('callisto', 1.08e23, 4, QtGui.QColor(BROWN_LIGHT), 188, 0, 0.0, 8.21e3, environment)
 
         environment.addTrait('numPhysicsDependentAgents', 5)
 
@@ -419,7 +421,7 @@ def generateTestClasses_bacteriaYogurt(environment):
         bacterium.addTrait('interactRange', 10)
         bacterium.blockedDuration = 2
         bacterium.size = 10
-        bacterium.color = QtCore.Qt.blue
+        bacterium.color = QtGui.QColor(GREEN)
         targets[0].traits['agentSet'].value.add(bacterium)
 
         bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
@@ -448,7 +450,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             bacterium.addTrait('calories', 100)
             bacterium.addTrait('interactRange', 10)
             bacterium.size = 10
-            bacterium.color = QtCore.Qt.green
+            bacterium.color = QtGui.QColor(GREEN)
             environment.agentSet.add(bacterium)
 
             # temporary prioritization hack
@@ -475,6 +477,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             yogurt.addTrait('type', 'food')
             yogurt.addTrait('calories', 30)
             yogurt.size = 5
+            yogurt.color = QtGui.QColor(PINK)
             environment.agentSet.add(yogurt)
 
 

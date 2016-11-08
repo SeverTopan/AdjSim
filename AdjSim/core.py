@@ -48,7 +48,7 @@ class AdjSim(object):
     @staticmethod
     def run(environment, thread=None):
         tests.generateTestClasses_bacteriaYogurt(environment)
-        # tests.generateTestClasses_planets(environment)
+        # tests.generateTestClasses_planets(environment, 'jupiter')
         environment.simulate(1000, thread)
         time.sleep(20)
 

@@ -13,7 +13,7 @@ import random
 import logging
 import time
 from constants import *
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -131,7 +131,7 @@ class Agent(Resource):
         self.addTrait('exists', True)
         self.addTrait('xCoord', x)
         self.addTrait('yCoord', y)
-        self.addTrait('color', QtCore.Qt.red)
+        self.addTrait('color', QtGui.QColor(BLUE_DARK))
         self.addTrait('style', QtCore.Qt.SolidPattern)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
         self.addTrait('abilities', {})
