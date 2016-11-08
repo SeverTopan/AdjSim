@@ -97,6 +97,17 @@ class Agent(Resource):
         self.traits['color'].value = value
         return
 
+# PROPERTY METHOD - STYLE
+#-------------------------------------------------------------------------------
+    @property
+    def style(self):
+        return self.traits['style'].value
+
+    @style.setter
+    def style(self, value):
+        self.traits['style'].value = value
+        return
+
 # PROPERTY METHOD - ABILITIIES
 #-------------------------------------------------------------------------------
     @property
@@ -121,6 +132,7 @@ class Agent(Resource):
         self.addTrait('xCoord', x)
         self.addTrait('yCoord', y)
         self.addTrait('color', QtCore.Qt.red)
+        self.addTrait('style', QtCore.Qt.SolidPattern)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
         self.addTrait('abilities', {})
 

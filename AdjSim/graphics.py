@@ -46,7 +46,7 @@ class AgentEllipse(QtGui.QGraphicsEllipseItem):
     def __init__(self, agent, scene):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, agent.size * 0.01, agent.size * 0.01)
         self.setAcceptsHoverEvents(True)
-        self.setBrush(QtGui.QBrush(agent.color, style = QtCore.Qt.SolidPattern))
+        self.setBrush(QtGui.QBrush(agent.color, style = agent.style))
         self.agent = agent
         self.oldXCoord = agent.xCoord
         self.oldYCoord = agent.yCoord
