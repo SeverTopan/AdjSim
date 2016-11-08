@@ -11,6 +11,7 @@ from tests import *
 from graphics import *
 import time
 import logging
+import re
 import sys, os
 
 #-------------------------------------------------------------------------------
@@ -23,8 +24,12 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     def __init__(self, argv, graphicsEnabled):
         AdjSim.printWelcome()
-        os.remove('debug.log')
-        logging.basicConfig(filename='debug.log', level=logging.DEBUG)
+
+        # setup debug logging
+        logPath = AdjSim.getLogPath()
+        if os.path.isfile(logPath):
+            os.remove(logPath)
+        logging.basicConfig(filename=logPath, level=logging.DEBUG)
 
         if graphicsEnabled:
             self.qApp = QtGui.QApplication(argv)
@@ -46,6 +51,15 @@ class AdjSim(object):
         # tests.generateTestClasses_planets(environment)
         environment.simulate(1000, thread)
         time.sleep(20)
+
+# METHOD GET LOG PATH
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def getLogPath():
+        debugPath = os.path.realpath(__file__)
+        debugPath = re.sub('core\.py', '', debugPath)
+        debugPath += 'debug.log'
+        return debugPath
 
 
 # METHOD PRINT WELCOME
