@@ -85,8 +85,7 @@ class AdjGraphicsView(QtGui.QGraphicsView):
         centerWidth = self.windowWidth / -2
         centerHeight = self.windowHeight / -2
 
-        self.scene = QtGui.QGraphicsScene(-250, -250, 1000, \
-            1000, self)
+        self.scene = QtGui.QGraphicsScene(-500, -500, 1000, 1000, self)
         self.setScene(self.scene)
 
         # init other member variables
