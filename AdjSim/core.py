@@ -11,7 +11,7 @@ from tests import *
 from graphics import *
 import time
 import logging
-import sys
+import sys, os
 
 #-------------------------------------------------------------------------------
 # CLASS ADJSIM
@@ -23,6 +23,7 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     def __init__(self, argv, graphicsEnabled):
         AdjSim.printWelcome()
+        os.remove('debug.log')
         logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
         if graphicsEnabled:
@@ -42,7 +43,8 @@ class AdjSim(object):
     @staticmethod
     def run(environment, thread=None):
         tests.generateTestClasses_bacteriaYogurt(environment)
-        environment.simulate(100, thread)
+        # tests.generateTestClasses_planets(environment)
+        environment.simulate(1000, thread)
         time.sleep(20)
 
 
