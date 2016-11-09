@@ -176,14 +176,14 @@ def generateTestClasses_planets(environment, identifier):
 
         environment.agentSet.add(planet)
 
-    if identifier is 'earth':
+    if identifier == 'earth':
         # earth/moon
         createPlanet('earth', 5.972e24, 5, QtGui.QColor(BLUE_DARK), 0, 0, 0.0 , 0, environment)
         createPlanet('moon', 7.3e22, 3, QtGui.QColor(GREY), 38, 0, 0.0, 1.02e3, environment)
 
         environment.addTrait('numPhysicsDependentAgents', 2)
 
-    elif identifier is 'jupiter':
+    elif identifier == 'jupiter':
         # jupiter system
         createPlanet('jupiter', 1.898e27, 10, QtGui.QColor(ORANGE), 0, 0, 0.0 , 0, environment, QtCore.Qt.Dense1Pattern)
         createPlanet('io', 8.9e22, 3, QtGui.QColor(GREY), 42, 0, 0.0, 17.38e3, environment)

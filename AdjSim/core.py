@@ -20,6 +20,10 @@ import sys, os
 class AdjSim(object):
     """docstring for AdjSim."""
 
+    environmentGenerationFunction = None
+    environmentGenerationIdentifierArg = None
+    simulationLength = None
+
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self, argv, graphicsEnabled):
@@ -30,6 +34,9 @@ class AdjSim(object):
         if os.path.isfile(logPath):
             os.remove(logPath)
         logging.basicConfig(filename=logPath, level=logging.DEBUG)
+
+        if not AdjSim.parseArgs(argv):
+            return
 
         if graphicsEnabled:
             self.qApp = QtGui.QApplication(argv)
@@ -47,9 +54,12 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     @staticmethod
     def run(environment, thread=None):
-        tests.generateTestClasses_bacteriaYogurt(environment)
-        # tests.generateTestClasses_planets(environment, 'jupiter')
-        environment.simulate(1000, thread)
+        if AdjSim.environmentGenerationIdentifierArg:
+            AdjSim.environmentGenerationFunction(environment, AdjSim.environmentGenerationIdentifierArg)
+        else:
+            AdjSim.environmentGenerationFunction(environment)
+
+        environment.simulate(AdjSim.simulationLength, thread)
         time.sleep(20)
 
 # METHOD GET LOG PATH
@@ -72,7 +82,40 @@ class AdjSim(object):
         print(welcomeMessage)
         print("-".rjust(len(welcomeMessage), "-"))
 
+# METHOD INVALID ARGS
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def printInvalidArgs():
+        print('Invalid Arguments - Usage: python <AdjSim directory> <simulation descriptor> <simulation length>')
+        print('Currently accepted simulation descriptors:')
+        print('     - demo_bacteria')
+        print('     - demo_planets_earth')
+        print('     - demo_planets_jupiter')
 
+
+# METHOD PARSE ARGS
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def parseArgs(argv):
+        if len(argv) < 3 or len(argv) > 3:
+            AdjSim.printInvalidArgs()
+            return False
+        else:
+            if argv[1] == 'demo_bacteria':
+                AdjSim.environmentGenerationFunction = tests.generateTestClasses_bacteriaYogurt
+            elif argv[1] == 'demo_planets_earth':
+                AdjSim.environmentGenerationFunction = tests.generateTestClasses_planets
+                AdjSim.environmentGenerationIdentifierArg = 'earth'
+            elif argv[1] == 'demo_planets_jupiter':
+                AdjSim.environmentGenerationFunction = tests.generateTestClasses_planets
+                AdjSim.environmentGenerationIdentifierArg = 'jupiter'
+            else:
+                AdjSim.printInvalidArgs()
+                return False
+
+            AdjSim.simulationLength = int(argv[2])
+
+            return True
 
 # METHOD PARSE CONFIG FILE
 #-------------------------------------------------------------------------------
