@@ -24,8 +24,8 @@ Planned Features:
  - Core functionality - decision module
 
 
- Installing AdjSim
- -----------------
+Installing AdjSim
+-----------------
 
  Make sure Python 3 and PyQt4 are installed
 
