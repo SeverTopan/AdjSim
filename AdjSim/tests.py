@@ -6,6 +6,7 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
+import random
 from environment import *
 from constants import *
 from PyQt4 import QtGui, QtCore
@@ -251,121 +252,41 @@ def generateTestClasses_bacteriaYogurt(environment):
         targets[1].blockedDuration = 1
     eat_blockerList = [eat_blocker_bacteria]
 
-    # ability - moveUp
-    def moveUp_predicate_self(target):
+    # ability - move
+    def move_predicate_self(target):
         if target.exists \
             and target.traits.get('type') is not None \
             and target.traits.get('interactRange') is not None \
             and target.traits.get('calories') is not None \
             and target.blockedDuration is 0 \
-            and target.abilities['moveUp'].blockedDuration is 0 \
+            and target.abilities['move'].blockedDuration is 0 \
             and target.blockedDuration is 0:
             return True
         else:
             return False
-    moveUp_predicateList = [(1, moveUp_predicate_self)]
+    move_predicateList = [(1, move_predicate_self)]
 
-    moveUp_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
+    move_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
 
-    def moveUp_effect_removeCalories(targets):
+    def move_effect_removeCalories(targets):
         targets[1].traits['calories'].value -= MOVEMENT_COST
-    def moveUp_effect_move(targets):
-        targets[1].yCoord += targets[1].traits['interactRange'].value * 2
-    moveUp_effectList = [moveUp_effect_removeCalories, moveUp_effect_move]
+    def move_effect_move(targets):
+        randX = random.uniform(-1, 1)
+        randY = random.uniform(-1, 1)
+        absRand = (randX**2 + randY**2)**0.5
+        movementMultiplier = targets[1].traits['interactRange'].value * 2
 
-    def moveUp_blocker_bacteria(targets):
-        targets[1].abilities['moveLeft'].blockedDuration = 1
-        targets[1].abilities['moveRight'].blockedDuration = 1
-        targets[1].abilities['moveUp'].blockedDuration = 1
-        targets[1].abilities['moveDown'].blockedDuration = 1
-    moveUp_blockerList = [moveUp_blocker_bacteria]
+        dx = (randX / absRand) * movementMultiplier
+        dy = (randY / absRand) * movementMultiplier
 
-    # ability - moveDown
-    def moveDown_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
-            and target.traits.get('interactRange') is not None \
-            and target.traits.get('calories') is not None \
-            and target.blockedDuration is 0 \
-            and target.abilities['moveDown'].blockedDuration is 0 \
-            and target.blockedDuration is 0:
-            return True
-        else:
-            return False
-    moveDown_predicateList = [(1, moveDown_predicate_self)]
+        targets[1].yCoord += dy
+        targets[1].xCoord += dx
+    move_effectList = [move_effect_removeCalories, move_effect_move]
 
-    moveDown_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
+    def move_blocker_bacteria(targets):
+        targets[1].abilities['move'].blockedDuration = 1
+    move_blockerList = [move_blocker_bacteria]
 
-    def moveDown_effect_removeCalories(targets):
-        targets[1].traits['calories'].value -= MOVEMENT_COST
-    def moveDown_effect_move(targets):
-        targets[1].yCoord -= targets[1].traits['interactRange'].value * 2
-    moveDown_effectList = [moveDown_effect_removeCalories, moveDown_effect_move]
-
-    def moveDown_blocker_bacteria(targets):
-        targets[1].abilities['moveLeft'].blockedDuration = 1
-        targets[1].abilities['moveRight'].blockedDuration = 1
-        targets[1].abilities['moveUp'].blockedDuration = 1
-        targets[1].abilities['moveDown'].blockedDuration = 1
-    moveDown_blockerList = [moveDown_blocker_bacteria]
-
-    # ability - moveLeft
-    def moveRight_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
-            and target.traits.get('interactRange') is not None \
-            and target.traits.get('calories') is not None \
-            and target.blockedDuration is 0 \
-            and target.abilities['moveRight'].blockedDuration is 0 \
-            and target.blockedDuration is 0:
-            return True
-        else:
-            return False
-    moveRight_predicateList = [(1, moveRight_predicate_self)]
-
-    moveRight_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
-
-    def moveRight_effect_removeCalories(targets):
-        targets[1].traits['calories'].value -= MOVEMENT_COST
-    def moveRight_effect_move(targets):
-        targets[1].xCoord += targets[1].traits['interactRange'].value * 2
-    moveRight_effectList = [moveRight_effect_removeCalories, moveRight_effect_move]
-
-    def moveRight_blocker_bacteria(targets):
-        targets[1].abilities['moveLeft'].blockedDuration = 1
-        targets[1].abilities['moveRight'].blockedDuration = 1
-        targets[1].abilities['moveUp'].blockedDuration = 1
-        targets[1].abilities['moveDown'].blockedDuration = 1
-    moveRight_blockerList = [moveRight_blocker_bacteria]
-
-    # ability - moveLeft
-    def moveLeft_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
-            and target.traits.get('interactRange') is not None \
-            and target.traits.get('calories') is not None \
-            and target.blockedDuration is 0 \
-            and target.abilities['moveLeft'].blockedDuration is 0 \
-            and target.blockedDuration is 0:
-            return True
-        else:
-            return False
-    moveLeft_predicateList = [(1, moveLeft_predicate_self)]
-
-    moveLeft_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
-
-    def moveLeft_effect_removeCalories(targets):
-        targets[1].traits['calories'].value -= MOVEMENT_COST
-    def moveLeft_effect_move(targets):
-        targets[1].xCoord -= targets[1].traits['interactRange'].value * 2
-    moveLeft_effectList = [moveLeft_effect_removeCalories, moveLeft_effect_move]
-
-    def moveLeft_blocker_bacteria(targets):
-        targets[1].abilities['moveLeft'].blockedDuration = 1
-        targets[1].abilities['moveRight'].blockedDuration = 1
-        targets[1].abilities['moveUp'].blockedDuration = 1
-        targets[1].abilities['moveDown'].blockedDuration = 1
-    moveLeft_blockerList = [moveLeft_blocker_bacteria]
 
     # ability - starve
     def starve_predicate_self(target):
@@ -428,14 +349,8 @@ def generateTestClasses_bacteriaYogurt(environment):
             divide_predicateList, divide_condition, divide_effectList, divide_blockerList)
         bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
             eat_condition, eat_effectList, eat_blockerList)
-        bacterium.abilities["moveUp"] = Ability(environment, "moveUp", bacterium, moveUp_predicateList, \
-            moveUp_condition, moveUp_effectList, moveUp_blockerList)
-        bacterium.abilities["moveDown"] = Ability(environment, "moveDown", bacterium, moveDown_predicateList, \
-            moveDown_condition, moveDown_effectList, moveDown_blockerList)
-        bacterium.abilities["moveRight"] = Ability(environment, "moveRight", bacterium, moveRight_predicateList, \
-            moveRight_condition, moveRight_effectList, moveRight_blockerList)
-        bacterium.abilities["moveLeft"] = Ability(environment, "moveLeft", bacterium, moveLeft_predicateList, \
-            moveLeft_condition, moveLeft_effectList, moveLeft_blockerList)
+        bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
+            move_condition, move_effectList, move_blockerList)
         bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
             starve_condition, starve_effectList, starve_blockerList)
 
@@ -456,14 +371,8 @@ def generateTestClasses_bacteriaYogurt(environment):
             # temporary prioritization hack
             bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
                 eat_condition, eat_effectList, eat_blockerList)
-            bacterium.abilities["moveUp"] = Ability(environment, "moveUp", bacterium, moveUp_predicateList, \
-                moveUp_condition, moveUp_effectList, moveUp_blockerList)
-            bacterium.abilities["moveDown"] = Ability(environment, "moveDown", bacterium, moveDown_predicateList, \
-                moveDown_condition, moveDown_effectList, moveDown_blockerList)
-            bacterium.abilities["moveRight"] = Ability(environment, "moveRight", bacterium, moveRight_predicateList, \
-                moveRight_condition, moveRight_effectList, moveRight_blockerList)
-            bacterium.abilities["moveLeft"] = Ability(environment, "moveLeft", bacterium, moveLeft_predicateList, \
-                moveLeft_condition, moveLeft_effectList, moveLeft_blockerList)
+            bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
+                move_condition, move_effectList, move_blockerList)
             bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
                 divide_predicateList, divide_condition, divide_effectList, divide_blockerList)
             bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
