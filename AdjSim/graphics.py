@@ -24,12 +24,11 @@ class AdjThread(QtCore.QThread):
 
 # METHOD INIT
 #-------------------------------------------------------------------------------
-    def __init__(self, app, updateMutex, updateCond):
+    def __init__(self, app, updateSemaphore):
         QtCore.QThread.__init__(self, parent=app)
         self.signal = QtCore.SIGNAL("update")
         self.environment = Environment()
-        self.updateMutex = updateMutex
-        self.updateCond = updateCond
+        self.updateSemaphore = updateSemaphore
 
 # METHOD RUN
 #-------------------------------------------------------------------------------
@@ -75,7 +74,7 @@ class AdjGraphicsView(QtGui.QGraphicsView):
 
 # METHOD init
 #-------------------------------------------------------------------------------
-    def __init__(self, screenGeometry, updateMutex, updateCond):
+    def __init__(self, screenGeometry, updateSemaphore):
         QtGui.QGraphicsView.__init__(self)
         # set Qt properties
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -94,8 +93,7 @@ class AdjGraphicsView(QtGui.QGraphicsView):
         self.graphicsItems = {}
         self.timeline = None
         self.animations = []
-        self.updateMutex = updateMutex
-        self.updateCond = updateCond
+        self.updateSemaphore = updateSemaphore
 
         # show
         self.show()
@@ -103,17 +101,13 @@ class AdjGraphicsView(QtGui.QGraphicsView):
 # METHOD TIMESTEP ANIMATION CALLBACK
 #-------------------------------------------------------------------------------
     def timestepAnimationCallback(self):
-        self.updateCond.wakeAll()
+        self.updateSemaphore.release(1)
 
 # METHOD UPDATE
 #-------------------------------------------------------------------------------
     def update(self, agentSet):
 
-        # sync
-        while self.updateMutex.tryLock():
-            pass
-        self.updateMutex.unlock()
-
+        # begin update function
         self.animations.clear()
         del self.timeline
         self.timeline = QtCore.QTimeLine(200)

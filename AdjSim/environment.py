@@ -547,10 +547,8 @@ class Environment(Agent):
             # wait for animaiton if graphics are intialized
             if thread:
                 print(time.time() - self.prevStepAnimationStart)
-                thread.updateMutex.lock()
-                thread.emit(thread.signal, self.agentSet)
-                thread.updateCond.wait(thread.updateMutex)
-                thread.updateMutex.unlock()
+                thread.updateSemaphore.acquire(1)
+                thread.emit(thread.signal, self.agentSet.copy())
                 self.prevStepAnimationStart = time.time()
 
         # log last index entry
