@@ -547,15 +547,15 @@ class Environment(Agent):
             # wait for animaiton if graphics are intialized
             if thread:
                 print(time.time() - self.prevStepAnimationStart)
-                while time.time() - self.prevStepAnimationStart < 0.2:
-                    pass
+                thread.updateMutex.lock()
                 thread.emit(thread.signal, self.agentSet)
+                thread.updateCond.wait(thread.updateMutex)
+                thread.updateMutex.unlock()
                 self.prevStepAnimationStart = time.time()
 
         # log last index entry
         for index in self.indices:
             index.logTimestepValues(numTimesteps)
-            print("_______________INDEX_______________")
             index.plot()
 
         # print footer

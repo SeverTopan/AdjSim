@@ -24,10 +24,12 @@ class AdjThread(QtCore.QThread):
 
 # METHOD INIT
 #-------------------------------------------------------------------------------
-    def __init__(self, app):
+    def __init__(self, app, updateMutex, updateCond):
         QtCore.QThread.__init__(self, parent=app)
         self.signal = QtCore.SIGNAL("update")
         self.environment = Environment()
+        self.updateMutex = updateMutex
+        self.updateCond = updateCond
 
 # METHOD RUN
 #-------------------------------------------------------------------------------
@@ -73,7 +75,7 @@ class AdjGraphicsView(QtGui.QGraphicsView):
 
 # METHOD init
 #-------------------------------------------------------------------------------
-    def __init__(self, screenGeometry):
+    def __init__(self, screenGeometry, updateMutex, updateCond):
         QtGui.QGraphicsView.__init__(self)
         # set Qt properties
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -92,19 +94,31 @@ class AdjGraphicsView(QtGui.QGraphicsView):
         self.graphicsItems = {}
         self.timeline = None
         self.animations = []
+        self.updateMutex = updateMutex
+        self.updateCond = updateCond
 
         # show
         self.show()
 
+# METHOD TIMESTEP ANIMATION CALLBACK
+#-------------------------------------------------------------------------------
+    def timestepAnimationCallback(self):
+        self.updateCond.wakeAll()
 
 # METHOD UPDATE
 #-------------------------------------------------------------------------------
     def update(self, agentSet):
 
+        # sync
+        while self.updateMutex.tryLock():
+            pass
+        self.updateMutex.unlock()
+
         self.animations.clear()
         del self.timeline
         self.timeline = QtCore.QTimeLine(200)
         self.timeline.setFrameRange(0, 200)
+        self.timeline.finished.connect(self.timestepAnimationCallback)
 
         # delete items whose animations are complete
         for ellipse in self.graphicsItems.values():

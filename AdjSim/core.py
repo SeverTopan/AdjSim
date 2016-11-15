@@ -41,11 +41,17 @@ class AdjSim(object):
 
         # perform threading initialization for graphics
         if graphicsEnabled:
+            self.updateMutex = QtCore.QMutex()
+            self.updateCond = QtCore.QWaitCondition()
+
             self.qApp = QtGui.QApplication(argv)
-            self.view = AdjGraphicsView(self.qApp.desktop().screenGeometry())
-            self.thread = AdjThread(self.qApp)
+            self.view = AdjGraphicsView(self.qApp.desktop().screenGeometry(), \
+                self.updateMutex, self.updateCond)
+            self.thread = AdjThread(self.qApp, self.updateMutex, self.updateCond)
+
             self.thread.finished.connect(self.qApp.exit)
             self.qApp.connect(self.thread, self.thread.signal, self.view.update)
+
             self.thread.start()
             sys.exit(self.qApp.exec_())
         else:
