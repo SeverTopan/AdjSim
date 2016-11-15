@@ -12,6 +12,7 @@ import inspect
 import random
 import logging
 import time
+import matplotlib.pyplot as plot
 from constants import *
 from PyQt4 import QtCore, QtGui
 
@@ -294,6 +295,60 @@ class Trait(Resource):
         self.value = value
 
 #-------------------------------------------------------------------------------
+# CLASS ANALYSIS INDEX
+#-------------------------------------------------------------------------------
+class AnalysisIndex(object):
+    """docstring for AnalysisIndex."""
+
+    ACCUMULATE_AGENTS = 1
+    # in future, allow for different index types here
+
+# METHOD __INIT__
+#-------------------------------------------------------------------------------
+    def __init__(self, environment, traitName, indexType):
+        super(AnalysisIndex, self).__init__()
+        self.environment = environment
+        self.traitName = traitName
+        self.indexType = indexType
+        self.index = {}
+
+# METHOD LOG TIMESTEP VALUES
+#-------------------------------------------------------------------------------
+    def logTimestepValues(self, timestep):
+        if self.indexType is AnalysisIndex.ACCUMULATE_AGENTS:
+            for agent in self.environment.agentSet:
+                trait = agent.traits.get(self.traitName)
+
+                # continue if trait index we are looking for is not found
+                if not trait:
+                    continue
+
+                # init index list if new
+                indexList = self.index.get(trait.value)
+                if not indexList:
+                    self.index[trait.value] = []
+                    indexList = self.index[trait.value]
+
+                # extend the list up until the current timestep,
+                # no agents were detected hence append 0
+                while len(indexList) <= timestep:
+                    indexList.append(0)
+
+                # append current timestep
+                indexList[timestep] += 1
+
+# METHOD LOG TIMESTEP VALUES
+#-------------------------------------------------------------------------------
+    def plot(self):
+        if self.indexType is AnalysisIndex.ACCUMULATE_AGENTS:
+            for key, val in self.index.items():
+                plot.plot(val, label=key)
+
+            plot.legend()
+            plot.show()
+
+
+#-------------------------------------------------------------------------------
 # CLASS ENVIRONMENT
 #-------------------------------------------------------------------------------
 class Environment(Agent):
@@ -307,6 +362,10 @@ class Environment(Agent):
         self.time = 0
         self.prevStepAnimationStart = time.time()
 
+        # initialize default indices
+        typeIndex = AnalysisIndex(self, 'type', AnalysisIndex.ACCUMULATE_AGENTS)
+        self.addTrait('indices', {typeIndex})
+
 # PROPERTY METHOD - AGENTSET
 #-------------------------------------------------------------------------------
     @property
@@ -316,6 +375,17 @@ class Environment(Agent):
     @agentSet.setter
     def agentSet(self, value):
         self.traits['agentSet'].value = value
+        return
+
+# PROPERTY METHOD - INDICES
+#-------------------------------------------------------------------------------
+    @property
+    def indices(self):
+        return self.traits['indices'].value
+
+    @indices.setter
+    def indices(self, value):
+        self.traits['indices'].value = value
         return
 
 
@@ -465,6 +535,11 @@ class Environment(Agent):
 
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
+            # log indices
+            for index in self.indices:
+                index.logTimestepValues(timeStep)
+
+            # perform agent operations
             self.cleanupNonExistentAgents()
             self.executeAbilities()
             self.executeTimestep()
@@ -477,7 +552,11 @@ class Environment(Agent):
                 thread.emit(thread.signal, self.agentSet)
                 self.prevStepAnimationStart = time.time()
 
-
+        # log last index entry
+        for index in self.indices:
+            index.logTimestepValues(numTimesteps)
+            print("_______________INDEX_______________")
+            index.plot()
 
         # print footer
         print("...Simulation Complete")

@@ -10,12 +10,14 @@ AdjSim is currently in its early stages of development. There are four core elem
 
  1. The first is the computation involved in agent interaction through ability casting and timestep iteration.
  2. The second is a translation module. The aim is to be able to write simulation scripts in a simple language (see sampleScript for a rough example) and have AdjSim translate it into the class structures it needs internally.
- 3. The third core element is a simple graphical representation of the simulation script.
- 4. The final core functionality is the decision making module for simulation agents. Agents will be able to choose which abilities to cast when. I am currently considering doing this with a genetic algorithm, testing possible ability combinations at each timestep and performing the one that maximizes the desires of each agent.
+ 3. A simple graphical representation of the simulation as it unfolds.
+ 4. Tools to analyze the simulation results after completion.
+ 5. The final core functionality is the decision making module for simulation agents. Agents will be able to choose which abilities to cast when. I am currently considering doing this with a genetic algorithm, testing possible ability combinations at each timestep and performing the one that maximizes the desires of each agent.
 
 Currently Implemented Features:
  - Core functionality - agent interaction through ability casting, timestep iterations
- - Core functionality - Graphical representation using PyQt4
+ - Core functionality - graphical representation using PyQt4
+ - Core functionality - post-simulation analysis tools
 
 Planned Features:
  - Improvement of agent interaction to reflect the framework structure listed below better.
@@ -27,10 +29,11 @@ Planned Features:
 Installing AdjSim
 -----------------
 
- Make sure Python 3 and PyQt4 are installed
+ Make sure Python 3, PyQt4 and MatPlotLib are installed
 
      sudo apt-get install python3
      sudo apt-get install python3-pyqt4
+     sudo apt-get install python3-matplotlib
 
 Clone the GitHub repository
 
@@ -63,6 +66,5 @@ The goal of this structure is to keep the fundamentals of a simulation in a simp
 
 A more detailed description of the Framework structure will be posted once the translation module is implemented.
 
----
 
 > Designed and developed by Sever Topan

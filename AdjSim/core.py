@@ -35,9 +35,11 @@ class AdjSim(object):
             os.remove(logPath)
         logging.basicConfig(filename=logPath, level=logging.DEBUG)
 
+        # check arguments
         if not AdjSim.parseArgs(argv):
             return
 
+        # perform threading initialization for graphics
         if graphicsEnabled:
             self.qApp = QtGui.QApplication(argv)
             self.view = AdjGraphicsView(self.qApp.desktop().screenGeometry())

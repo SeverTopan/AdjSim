@@ -154,9 +154,7 @@ class AdjGraphicsView(QtGui.QGraphicsView):
                     animation.setItem(self.graphicsItems[agent])
                     animation.setPosAt(0, QtCore.QPointF(self.graphicsItems[agent].oldXCoord, self.graphicsItems[agent].oldYCoord))
                     animation.setPosAt(1, QtCore.QPointF(agent.xCoord, agent.yCoord))
-                    # animation.setTranslationAt(1, 10, 10)
                     self.animations.append(animation)
-                    # self.graphicsItems[agent].moveBy(moveX, moveY)
 
                     self.graphicsItems[agent].oldXCoord = agent.xCoord
                     self.graphicsItems[agent].oldYCoord = agent.yCoord
