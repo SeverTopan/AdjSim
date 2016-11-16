@@ -429,6 +429,18 @@ class Environment(Agent):
                     ability.cast(chosenTargets)
                     oneOrMoreAbilitiesCast = True
 
+# METHOD PLOT INDICES
+#-------------------------------------------------------------------------------
+    def plotIndices(self):
+        for index in self.indices:
+            index.plot()
+
+# METHOD UPDATE INDICES
+#-------------------------------------------------------------------------------
+    def logIndices(self, timeStep):
+        for index in self.indices:
+            index.logTimestepValues(timeStep)
+
 # METHOD PRINT SNAPSHOT
 # * Prints all simulation environment information
 #-------------------------------------------------------------------------------
@@ -506,11 +518,8 @@ class Environment(Agent):
         for timeStep in range(numTimesteps):
             print("Timestep: ", timeStep)
 
-            # log indices
-            for index in self.indices:
-                index.logTimestepValues(timeStep)
-
             # perform agent operations
+            self.logIndices(timeStep)
             self.executeAbilities()
             self.executeTimestep()
 
@@ -521,10 +530,9 @@ class Environment(Agent):
                 thread.emit(thread.signal, self.agentSet.copy())
                 self.prevStepAnimationStart = time.time()
 
-        # log last index entry
-        for index in self.indices:
-            index.logTimestepValues(numTimesteps)
-            index.plot()
+        # log last index entry amd plot
+        self.logIndices(numTimesteps)
+        self.plotIndices()
 
         # print footer
         print("...Simulation Complete")
