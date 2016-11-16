@@ -141,17 +141,6 @@ class AdjGraphicsView(QtGui.QGraphicsView):
                 self.animations.append(animation)
 
                 self.scene.addItem(newEllipse)
-
-            elif not agent.exists:
-                # destroy object with exit animation
-                self.graphicsItems[agent].exitAnimationComplete = True
-                animation = QtGui.QGraphicsItemAnimation()
-                animation.setTimeLine(self.timeline)
-                animation.setItem(self.graphicsItems[agent])
-                animation.setScaleAt(1, 1, 1)
-                animation.setScaleAt(0, 100, 100)
-                self.animations.append(animation)
-
             else:
                 moveX = agent.xCoord - self.graphicsItems[agent].oldXCoord
                 moveY = agent.yCoord - self.graphicsItems[agent].oldYCoord
@@ -160,11 +149,24 @@ class AdjGraphicsView(QtGui.QGraphicsView):
                     animation = QtGui.QGraphicsItemAnimation()
                     animation.setTimeLine(self.timeline)
                     animation.setItem(self.graphicsItems[agent])
-                    animation.setPosAt(0, QtCore.QPointF(self.graphicsItems[agent].oldXCoord, self.graphicsItems[agent].oldYCoord))
+                    animation.setPosAt(0, QtCore.QPointF(self.graphicsItems[agent].oldXCoord, \
+                        self.graphicsItems[agent].oldYCoord))
                     animation.setPosAt(1, QtCore.QPointF(agent.xCoord, agent.yCoord))
                     self.animations.append(animation)
 
                     self.graphicsItems[agent].oldXCoord = agent.xCoord
                     self.graphicsItems[agent].oldYCoord = agent.yCoord
+
+        # remove graphics items whose agents are no longer in the agentset
+        for item in self.graphicsItems.values():
+            if item.agent not in agentSet:
+                # destroy object with exit animation
+                item.exitAnimationComplete = True
+                animation = QtGui.QGraphicsItemAnimation()
+                animation.setTimeLine(self.timeline)
+                animation.setItem(item)
+                animation.setScaleAt(1, 1, 1)
+                animation.setScaleAt(0, 100, 100)
+                self.animations.append(animation)
 
         self.timeline.start()

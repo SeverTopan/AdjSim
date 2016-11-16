@@ -23,8 +23,7 @@ def generateTestClasses_planets(environment, identifier):
     # !!! predicates will be grouped toget\er for ease of writing
     # !!! always sort predicate list before insertion into class
     def calculateSetup_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.traits.get('castLog_acc') is not None \
             and target.blockedDuration is 0 \
             and target.abilities['calculateSetup'].blockedDuration is 0:
@@ -33,7 +32,7 @@ def generateTestClasses_planets(environment, identifier):
             return False
 
     def calculateSetup_predicate_env(target):
-        return target.exists
+        return True
 
     calculateSetup_predicateList = [(0, calculateSetup_predicate_env), \
         (1, calculateSetup_predicate_self)]
@@ -60,8 +59,7 @@ def generateTestClasses_planets(environment, identifier):
     # !!! predicates will be grouped together for ease of writing
     # !!! always sort predicate list before insertion into class
     def calculateAcc_predicate_target(env, sel, target):
-        if target.exists \
-            and target is not env \
+        if target is not env \
             and target is not sel \
             and target.traits.get('type') is not None \
             and target.traits.get('mass') is not None:
@@ -70,8 +68,7 @@ def generateTestClasses_planets(environment, identifier):
             return False
 
     def calculateAcc_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.traits.get('castLog_acc') is not None \
             and target.blockedDuration is 0 \
             and target.abilities['calculateAcc'].blockedDuration is 0:
@@ -80,7 +77,7 @@ def generateTestClasses_planets(environment, identifier):
             return False
 
     def calculateAcc_predicate_env(target):
-        return target.exists
+        return True
 
     calculateAcc_predicateList = [(0, calculateAcc_predicate_env), \
         (1, calculateAcc_predicate_self), \
@@ -112,8 +109,7 @@ def generateTestClasses_planets(environment, identifier):
     # !!! predicates will be grouped together for ease of writing
     # !!! always sort predicate list before insertion into class
     def calculateVel_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.blockedDuration is 0 \
             and target.abilities['calculateVel'].blockedDuration is 0:
             return True
@@ -121,7 +117,7 @@ def generateTestClasses_planets(environment, identifier):
             return False
 
     def calculateVel_predicate_env(target):
-        return target.exists
+        return True
 
     calculateVel_predicateList = [(0, calculateVel_predicate_env), \
         (1, calculateVel_predicate_self)]
@@ -208,8 +204,7 @@ def generateTestClasses_bacteriaYogurt(environment):
     # !!! predicates will be grouped together for ease of writing
     # !!! always sort predicate list before insertion into class
     def eat_predicate_food(env, sel, target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.xCoord < sel.xCoord + sel.traits.get('interactRange').value \
             and target.xCoord > sel.xCoord - sel.traits.get('interactRange').value \
             and target.yCoord < sel.yCoord + sel.traits.get('interactRange').value \
@@ -220,8 +215,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             return False
 
     def eat_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.traits.get('interactRange') is not None \
             and target.traits.get('calories') is not None \
             and target.blockedDuration is 0 \
@@ -231,7 +225,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             return False
 
     def eat_predicate_env(target):
-        return target.exists
+        return True
 
     eat_predicateList = [(0, eat_predicate_env), \
         (1, eat_predicate_self), \
@@ -245,7 +239,7 @@ def generateTestClasses_bacteriaYogurt(environment):
     def eat_effect_addCalories(targets):
         targets[1].traits['calories'].value += targets[2].traits['calories'].value
     def eat_effect_killFood(targets):
-        targets[2].traits['exists'].value = False
+        targets[0].agentSet.remove(targets[2])
     eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 
     def eat_blocker_bacteria(targets):
@@ -254,8 +248,7 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     # ability - move
     def move_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.traits.get('interactRange') is not None \
             and target.traits.get('calories') is not None \
             and target.blockedDuration is 0 \
@@ -290,8 +283,7 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     # ability - starve
     def starve_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.traits.get('interactRange') is not None \
             and target.traits.get('calories') is not None \
             and target.blockedDuration is 0:
@@ -303,7 +295,7 @@ def generateTestClasses_bacteriaYogurt(environment):
     starve_condition = lambda targets: targets[1].traits['calories'].value <= MOVEMENT_COST
 
     def starve_effect_kill(targets):
-        targets[1].exists = False
+        targets[0].agentSet.remove(targets[1])
     starve_effectList = [starve_effect_kill]
 
     def starve_blocker_bacteria(targets):
@@ -312,8 +304,7 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     # ability - divide
     def divide_predicate_self(target):
-        if target.exists \
-            and target.traits.get('type') is not None \
+        if target.traits.get('type') is not None \
             and target.traits.get('interactRange') is not None \
             and target.traits.get('calories') is not None \
             and target.blockedDuration is 0 \
@@ -323,7 +314,7 @@ def generateTestClasses_bacteriaYogurt(environment):
             return False
 
     def divide_predicate_env(target):
-        return target.exists
+        return True
 
     divide_predicateList = [(0, divide_predicate_env), (1, divide_predicate_self)]
 
@@ -442,7 +433,7 @@ def generateTestClasses_dogApple(environment):
     def eat_effect_addCalories(targets):
         targets[1].traits['calories'].value += targets[2].traits['calories'].value
     def eat_effect_killFood(targets):
-        targets[2].traits['exists'].value = False
+        targets[0].agentSet.remove(targets[2])
     eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 
     def eat_blocker_dog(targets):

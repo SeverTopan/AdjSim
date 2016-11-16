@@ -41,7 +41,7 @@ class AdjSim(object):
 
         # perform threading initialization for graphics
         if graphicsEnabled:
-            self.updateSemaphore = QtCore.QSemaphore(1)
+            self.updateSemaphore = QtCore.QSemaphore(0)
 
             self.qApp = QtGui.QApplication(argv)
             self.view = AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)

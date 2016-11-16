@@ -65,17 +65,6 @@ class Agent(Resource):
         self.traits['yCoord'].value = value
         return
 
-# PROPERTY METHOD - EXISTS
-#-------------------------------------------------------------------------------
-    @property
-    def exists(self):
-        return self.traits['exists'].value
-
-    @exists.setter
-    def exists(self, value):
-        self.traits['exists'].value = value
-        return
-
 # PROPERTY METHOD - SIZE
 #-------------------------------------------------------------------------------
     @property
@@ -129,7 +118,6 @@ class Agent(Resource):
 # METHOD ADD MANDATORY TRAITS
 #-------------------------------------------------------------------------------
     def addMandatoryTraits(self, x, y):
-        self.addTrait('exists', True)
         self.addTrait('xCoord', x)
         self.addTrait('yCoord', y)
         self.addTrait('color', QtGui.QColor(BLUE_DARK))
@@ -410,9 +398,6 @@ class Environment(Agent):
 # METHOD EXECUTE ABILITIES
 #-------------------------------------------------------------------------------
     def executeAbilities(self):
-        # debug message
-        print("Timestep: ", self.time)
-
         # cast abilities
         for agent in self.agentSet.copy():
             # repeatedly cast abilities until no more abilities are cast
@@ -428,7 +413,7 @@ class Environment(Agent):
                 random.shuffle(shuffledAbilities)
                 for ability in shuffledAbilities:
                     # abort if blocked or non-existent
-                    if ability.blockedDuration > 0 or agent.blockedDuration > 0 or not agent.exists:
+                    if ability.blockedDuration > 0 or agent.blockedDuration > 0:
                         continue
 
                     potentialTargets = ability.getPotentialTargets()
@@ -443,22 +428,6 @@ class Environment(Agent):
 
                     ability.cast(chosenTargets)
                     oneOrMoreAbilitiesCast = True
-
-# METHOD CLEANUP NON EXISTENT AGENTS
-# * Removes all agents with their mandatory 'exists' trait set to False
-# * To be used at the end of each timestep cycle
-#-------------------------------------------------------------------------------
-    def cleanupNonExistentAgents(self):
-        discardSet = set()
-
-        for agent in self.agentSet:
-            # remove graphics link
-            if agent.traits['exists'].value is False:
-                 discardSet.add(agent)
-                 # debug message
-                 logging.debug("   ! Discarding %s", agent.name)
-
-        self.agentSet = self.agentSet - discardSet
 
 # METHOD PRINT SNAPSHOT
 # * Prints all simulation environment information
@@ -535,12 +504,13 @@ class Environment(Agent):
 
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
+            print("Timestep: ", timeStep)
+
             # log indices
             for index in self.indices:
                 index.logTimestepValues(timeStep)
 
             # perform agent operations
-            self.cleanupNonExistentAgents()
             self.executeAbilities()
             self.executeTimestep()
 
