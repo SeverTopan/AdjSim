@@ -397,37 +397,52 @@ class Environment(Agent):
 
 # METHOD EXECUTE ABILITIES
 #-------------------------------------------------------------------------------
-    def executeAbilities(self):
+    def executeAbilities(self, agent):
+        # repeatedly cast abilities until no more abilities are cast
+        oneOrMoreAbilitiesCast = True
+        while oneOrMoreAbilitiesCast:
+            oneOrMoreAbilitiesCast = False
+
+            # shuffle abilities to achieve random sequences
+            # * this is a temporary substitute for the lack of agent decisionmaking
+            # * infrastructure. It ensures that abilites like moveUp and moveDown
+            # * will be called in random order
+            shuffledAbilities = list(agent.abilities.values())
+            random.shuffle(shuffledAbilities)
+            for ability in shuffledAbilities:
+                # abort if blocked or non-existent
+                if ability.blockedDuration > 0 or agent.blockedDuration > 0:
+                    continue
+
+                potentialTargets = ability.getPotentialTargets()
+                if not potentialTargets:
+                    continue
+
+                chosenTargets = ability.chooseTargetSet(potentialTargets)
+                if not chosenTargets:
+                    continue
+
+                logging.debug("%s casting: %s", agent.name, ability.name)
+
+                ability.cast(chosenTargets)
+                oneOrMoreAbilitiesCast = True
+
+
+# METHOD EXECUTE ALL AGENT ABILITIES
+#-------------------------------------------------------------------------------
+    def executeAllAgentAbilities(self):
         # cast abilities
         for agent in self.agentSet.copy():
-            # repeatedly cast abilities until no more abilities are cast
-            oneOrMoreAbilitiesCast = True
-            while oneOrMoreAbilitiesCast:
-                oneOrMoreAbilitiesCast = False
+            # currently, the environment abilities will only be cast once after all
+            # agent abilities are complete
+            if agent == self:
+                continue
 
-                # shuffle abilities to achieve random sequences
-                # * this is a temporary substitute for the lack of agent decisionmaking
-                # * infrastructure. It ensures that abilites like moveUp and moveDown
-                # * will be called in random order
-                shuffledAbilities = list(agent.abilities.values())
-                random.shuffle(shuffledAbilities)
-                for ability in shuffledAbilities:
-                    # abort if blocked or non-existent
-                    if ability.blockedDuration > 0 or agent.blockedDuration > 0:
-                        continue
+            self.executeAbilities(agent)
 
-                    potentialTargets = ability.getPotentialTargets()
-                    if not potentialTargets:
-                        continue
+        # cast environment abilities
+        self.executeAbilities(self)
 
-                    chosenTargets = ability.chooseTargetSet(potentialTargets)
-                    if not chosenTargets:
-                        continue
-
-                    logging.debug("%s casting: %s", agent.name, ability.name)
-
-                    ability.cast(chosenTargets)
-                    oneOrMoreAbilitiesCast = True
 
 # METHOD PLOT INDICES
 #-------------------------------------------------------------------------------
@@ -520,7 +535,7 @@ class Environment(Agent):
 
             # perform agent operations
             self.logIndices(timeStep)
-            self.executeAbilities()
+            self.executeAllAgentAbilities()
             self.executeTimestep()
 
             # wait for animaiton if graphics are intialized
