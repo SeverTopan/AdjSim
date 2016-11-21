@@ -197,7 +197,7 @@ class Ability(Resource):
 
         for target, predicate in self.predicates:
             if target is 0:
-                # target = environment
+                # target = environment - check predicate
                 if not predicate(self.environment):
                     return None
 
@@ -253,20 +253,24 @@ class Ability(Resource):
         # for now, return first set in the list
         return validTargetSet[0]
 
-# METHOD CAST
+# METHOD
 #-------------------------------------------------------------------------------
-    def cast(self, targets):
+    def cast(self, conditionality, targets=None):
         # error check
-        if not targets:
-            raise Exception('No targets in method cast')
+        if not targets and conditionality is CONDITIONAL:
+            raise Exception('No targets in conditional method cast')
+
+        # set targets in unconditional cast
+        if conditionality is UNCONDITIONAL:
+            targets = [self.environment, self.agent]
 
         # perform target effects
         for effect in self.effects:
-            effect(targets)
+            effect(targets, conditionality)
 
         # perform target blocks
         for blocker in self.blockers:
-            blocker(targets)
+            blocker(targets, conditionality)
 
         return True
 
@@ -416,15 +420,18 @@ class Environment(Agent):
 
                 potentialTargets = ability.getPotentialTargets()
                 if not potentialTargets:
+                    ability.cast(UNCONDITIONAL)
                     continue
 
                 chosenTargets = ability.chooseTargetSet(potentialTargets)
                 if not chosenTargets:
+                    # this should never occur until the decsion module is implemented
+                    raise Exception("Chosen Targets not selected properly")
                     continue
 
                 logging.debug("%s casting: %s", agent.name, ability.name)
 
-                ability.cast(chosenTargets)
+                ability.cast(CONDITIONAL, chosenTargets)
                 oneOrMoreAbilitiesCast = True
 
 

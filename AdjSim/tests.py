@@ -40,16 +40,25 @@ def generateTestClasses_planets(environment, identifier):
 
     calculateSetup_condition = lambda targets: True
 
-    def calculateSetup_effect_setup(targets):
+    def calculateSetup_effect_setup(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['xAcc'].value = 0;
         targets[1].traits['yAcc'].value = 0;
 
-    def calculateSetup_effect_setCalculationStep(targets):
+    def calculateSetup_effect_setCalculationStep(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['castLog_acc'].value.clear()
     calculateSetup_effectList = [calculateSetup_effect_setup, \
         calculateSetup_effect_setCalculationStep]
 
-    def calculateSetup_blocker(targets):
+    def calculateSetup_blocker(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].abilities['calculateSetup'].blockedDuration = 1
         targets[1].abilities['calculateAcc'].blockedDuration = 0
         targets[1].abilities['calculateVel'].blockedDuration = 0
@@ -88,7 +97,10 @@ def generateTestClasses_planets(environment, identifier):
         and not targets[1].traits['castLog_acc'].value & {targets[2]} \
         and targets[0].traits['numPhysicsDependentAgents'].value > len(targets[1].traits['castLog_acc'].value)
 
-    def calculateAcc_effect_modifyAcc(targets):
+    def calculateAcc_effect_modifyAcc(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         xDist = (targets[2].xCoord - targets[1].xCoord) * DISTANCE_MULTIPLIER
         yDist = (targets[2].yCoord - targets[1].yCoord) * DISTANCE_MULTIPLIER
         absDist = (xDist**2 + yDist**2)**0.5
@@ -98,7 +110,10 @@ def generateTestClasses_planets(environment, identifier):
         targets[1].traits['yAcc'].value += absAcc * (yDist / absDist)
 
 
-    def calculateAcc_effect_setCalculationStep(targets):
+    def calculateAcc_effect_setCalculationStep(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['castLog_acc'].value.add(targets[2])
     calculateAcc_effectList = [calculateAcc_effect_modifyAcc, \
         calculateAcc_effect_setCalculationStep]
@@ -125,7 +140,10 @@ def generateTestClasses_planets(environment, identifier):
     calculateVel_condition = lambda targets: \
         targets[0].traits['numPhysicsDependentAgents'].value - 1 == len(targets[1].traits['castLog_acc'].value)
 
-    def calculateVel_effect_modifyVel(targets):
+    def calculateVel_effect_modifyVel(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['xVel'].value += targets[1].traits['xAcc'].value * TIMESTEP_LENGTH
         targets[1].traits['yVel'].value += targets[1].traits['yAcc'].value * TIMESTEP_LENGTH
 
@@ -144,7 +162,10 @@ def generateTestClasses_planets(environment, identifier):
 
     calculateVel_effectList = [calculateVel_effect_modifyVel]
 
-    def calculateVel_blocker(targets):
+    def calculateVel_blocker(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].abilities['calculateAcc'].blockedDuration = 2
         targets[1].abilities['calculateVel'].blockedDuration = 2
     calculateVel_blockerList = [calculateVel_blocker]
@@ -236,13 +257,24 @@ def generateTestClasses_bacteriaYogurt(environment):
         + (targets[2].traits['yCoord'].value - targets[1].traits['yCoord'].value)**2)**0.5 \
         < targets[1].traits['interactRange'].value
 
-    def eat_effect_addCalories(targets):
+    def eat_effect_addCalories(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['calories'].value += targets[2].traits['calories'].value
-    def eat_effect_killFood(targets):
+
+    def eat_effect_killFood(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[0].agentSet.remove(targets[2])
+
     eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 
-    def eat_blocker_bacteria(targets):
+    def eat_blocker_bacteria(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].blockedDuration = 1
     eat_blockerList = [eat_blocker_bacteria]
 
@@ -261,9 +293,15 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     move_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
 
-    def move_effect_removeCalories(targets):
+    def move_effect_removeCalories(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['calories'].value -= MOVEMENT_COST
-    def move_effect_move(targets):
+    def move_effect_move(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         randX = random.uniform(-1, 1)
         randY = random.uniform(-1, 1)
         absRand = (randX**2 + randY**2)**0.5
@@ -276,7 +314,10 @@ def generateTestClasses_bacteriaYogurt(environment):
         targets[1].xCoord += dx
     move_effectList = [move_effect_removeCalories, move_effect_move]
 
-    def move_blocker_bacteria(targets):
+    def move_blocker_bacteria(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].abilities['move'].blockedDuration = 1
     move_blockerList = [move_blocker_bacteria]
 
@@ -294,11 +335,17 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     starve_condition = lambda targets: targets[1].traits['calories'].value <= MOVEMENT_COST
 
-    def starve_effect_kill(targets):
+    def starve_effect_kill(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[0].agentSet.remove(targets[1])
     starve_effectList = [starve_effect_kill]
 
-    def starve_blocker_bacteria(targets):
+    def starve_blocker_bacteria(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].blockedDuration = 1
     starve_blockerList = [starve_blocker_bacteria]
 
@@ -320,13 +367,23 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     divide_condition = lambda targets: targets[1].traits['calories'].value > 150
 
-    def divide_blocker_bacteria(targets):
+    def divide_blocker_bacteria(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].blockedDuration = 2
     divide_blockerList = [divide_blocker_bacteria]
 
-    def divide_effect_addCalories(targets):
+    def divide_effect_addCalories(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['calories'].value -= 75
-    def divide_effect_createChild(targets):
+
+    def divide_effect_createChild(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         bacterium = Agent(environment, "bacterium_child", targets[1].xCoord + 10, targets[1].yCoord)
         bacterium.addTrait('type', 'bacteria')
         bacterium.addTrait('calories', 75)
@@ -430,13 +487,23 @@ def generateTestClasses_dogApple(environment):
         + (targets[2].traits['yCoord'].value - targets[1].traits['yCoord'].value)**2)**0.5 \
         < targets[1].traits['eatRange'].value
 
-    def eat_effect_addCalories(targets):
+    def eat_effect_addCalories(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].traits['calories'].value += targets[2].traits['calories'].value
-    def eat_effect_killFood(targets):
+
+    def eat_effect_killFood(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[0].agentSet.remove(targets[2])
     eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 
-    def eat_blocker_dog(targets):
+    def eat_blocker_dog(targets, conditionality):
+        if conditionality is UNCONDITIONAL:
+            return
+
         targets[1].blockedDuration = 10
     eat_blockerList = [eat_blocker_dog]
 
