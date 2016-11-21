@@ -52,17 +52,15 @@ def generateTestClasses_planets(environment, identifier):
             return
 
         targets[1].traits['castLog_acc'].value.clear()
-    calculateSetup_effectList = [calculateSetup_effect_setup, \
-        calculateSetup_effect_setCalculationStep]
-
-    def calculateSetup_blocker(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
 
         targets[1].abilities['calculateSetup'].blockedDuration = 1
         targets[1].abilities['calculateAcc'].blockedDuration = 0
         targets[1].abilities['calculateVel'].blockedDuration = 0
-    calculateSetup_blockerList = [calculateSetup_blocker]
+
+    calculateSetup_effectList = [calculateSetup_effect_setup, \
+        calculateSetup_effect_setCalculationStep]
+
+
 
     # ability - calculate acceleration
     # !!! predicates will be grouped together for ease of writing
@@ -118,8 +116,6 @@ def generateTestClasses_planets(environment, identifier):
     calculateAcc_effectList = [calculateAcc_effect_modifyAcc, \
         calculateAcc_effect_setCalculationStep]
 
-    calculateAcc_blockerList = []
-
     # ability - calculate velocity
     # !!! predicates will be grouped together for ease of writing
     # !!! always sort predicate list before insertion into class
@@ -160,15 +156,10 @@ def generateTestClasses_planets(environment, identifier):
         targets[1].xCoord += targets[1].traits['xVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
         targets[1].yCoord += targets[1].traits['yVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
 
-    calculateVel_effectList = [calculateVel_effect_modifyVel]
-
-    def calculateVel_blocker(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
         targets[1].abilities['calculateAcc'].blockedDuration = 2
         targets[1].abilities['calculateVel'].blockedDuration = 2
-    calculateVel_blockerList = [calculateVel_blocker]
+
+    calculateVel_effectList = [calculateVel_effect_modifyVel]
 
     def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, style = QtCore.Qt.SolidPattern):
         planet = Agent(environment, name, xPos, yPos)
@@ -184,11 +175,11 @@ def generateTestClasses_planets(environment, identifier):
         planet.style = style
 
         planet.abilities["calculateSetup"] = Ability(environment, "calculateSetup", planet, \
-            calculateSetup_predicateList, calculateSetup_condition, calculateSetup_effectList, calculateSetup_blockerList)
+            calculateSetup_predicateList, calculateSetup_condition, calculateSetup_effectList)
         planet.abilities["calculateAcc"] = Ability(environment, "calculateAcc", planet, \
-            calculateAcc_predicateList, calculateAcc_condition, calculateAcc_effectList, calculateAcc_blockerList)
+            calculateAcc_predicateList, calculateAcc_condition, calculateAcc_effectList)
         planet.abilities["calculateVel"] = Ability(environment, "calculateVel", planet, \
-            calculateVel_predicateList, calculateVel_condition, calculateVel_effectList, calculateVel_blockerList)
+            calculateVel_predicateList, calculateVel_condition, calculateVel_effectList)
         planet.abilities["calculateAcc"].blockedDuration = 2
         planet.abilities["calculateVel"].blockedDuration = 2
 
@@ -268,15 +259,9 @@ def generateTestClasses_bacteriaYogurt(environment):
             return
 
         targets[0].agentSet.remove(targets[2])
+        targets[1].blockedDuration = 1
 
     eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
-
-    def eat_blocker_bacteria(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
-        targets[1].blockedDuration = 1
-    eat_blockerList = [eat_blocker_bacteria]
 
     # ability - move
     def move_predicate_self(target):
@@ -312,15 +297,9 @@ def generateTestClasses_bacteriaYogurt(environment):
 
         targets[1].yCoord += dy
         targets[1].xCoord += dx
-    move_effectList = [move_effect_removeCalories, move_effect_move]
-
-    def move_blocker_bacteria(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
 
         targets[1].abilities['move'].blockedDuration = 1
-    move_blockerList = [move_blocker_bacteria]
-
+    move_effectList = [move_effect_removeCalories, move_effect_move]
 
     # ability - starve
     def starve_predicate_self(target):
@@ -340,14 +319,8 @@ def generateTestClasses_bacteriaYogurt(environment):
             return
 
         targets[0].agentSet.remove(targets[1])
-    starve_effectList = [starve_effect_kill]
-
-    def starve_blocker_bacteria(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
         targets[1].blockedDuration = 1
-    starve_blockerList = [starve_blocker_bacteria]
+    starve_effectList = [starve_effect_kill]
 
     # ability - divide
     def divide_predicate_self(target):
@@ -367,18 +340,12 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     divide_condition = lambda targets: targets[1].traits['calories'].value > 150
 
-    def divide_blocker_bacteria(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
-        targets[1].blockedDuration = 2
-    divide_blockerList = [divide_blocker_bacteria]
-
     def divide_effect_addCalories(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[1].traits['calories'].value -= 75
+        targets[1].blockedDuration = 2
 
     def divide_effect_createChild(targets, conditionality):
         if conditionality is UNCONDITIONAL:
@@ -394,13 +361,13 @@ def generateTestClasses_bacteriaYogurt(environment):
         targets[0].traits['agentSet'].value.add(bacterium)
 
         bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
-            divide_predicateList, divide_condition, divide_effectList, divide_blockerList)
+            divide_predicateList, divide_condition, divide_effectList)
         bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
-            eat_condition, eat_effectList, eat_blockerList)
+            eat_condition, eat_effectList)
         bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
-            move_condition, move_effectList, move_blockerList)
+            move_condition, move_effectList)
         bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
-            starve_condition, starve_effectList, starve_blockerList)
+            starve_condition, starve_effectList)
 
     divide_effectList = [divide_effect_createChild, divide_effect_addCalories]
 
@@ -418,13 +385,13 @@ def generateTestClasses_bacteriaYogurt(environment):
 
             # temporary prioritization hack
             bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
-                eat_condition, eat_effectList, eat_blockerList)
+                eat_condition, eat_effectList)
             bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
-                move_condition, move_effectList, move_blockerList)
+                move_condition, move_effectList)
             bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
-                divide_predicateList, divide_condition, divide_effectList, divide_blockerList)
+                divide_predicateList, divide_condition, divide_effectList)
             bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
-                starve_condition, starve_effectList, starve_blockerList)
+                starve_condition, starve_effectList)
 
     # create yogurt agents
     for i in range(20):
@@ -498,17 +465,12 @@ def generateTestClasses_dogApple(environment):
             return
 
         targets[0].agentSet.remove(targets[2])
-    eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
-
-    def eat_blocker_dog(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
 
         targets[1].blockedDuration = 10
-    eat_blockerList = [eat_blocker_dog]
+    eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 
     ability_eat = Ability(environment, "eat", dog, eat_predicateList, \
-        eat_condition, eat_effectList, eat_blockerList)
+        eat_condition, eat_effectList)
 
     dog.abilities["eat"] = ability_eat
 
