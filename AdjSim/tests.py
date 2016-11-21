@@ -40,25 +40,18 @@ def generateTestClasses_planets(environment, identifier):
 
     calculateSetup_condition = lambda targets: True
 
-    def calculateSetup_effect_setup(targets, conditionality):
+    def calculateSetup_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[1].traits['xAcc'].value = 0;
         targets[1].traits['yAcc'].value = 0;
 
-    def calculateSetup_effect_setCalculationStep(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
         targets[1].traits['castLog_acc'].value.clear()
 
         targets[1].abilities['calculateSetup'].blockedDuration = 1
         targets[1].abilities['calculateAcc'].blockedDuration = 0
         targets[1].abilities['calculateVel'].blockedDuration = 0
-
-    calculateSetup_effectList = [calculateSetup_effect_setup, \
-        calculateSetup_effect_setCalculationStep]
 
 
 
@@ -95,7 +88,7 @@ def generateTestClasses_planets(environment, identifier):
         and not targets[1].traits['castLog_acc'].value & {targets[2]} \
         and targets[0].traits['numPhysicsDependentAgents'].value > len(targets[1].traits['castLog_acc'].value)
 
-    def calculateAcc_effect_modifyAcc(targets, conditionality):
+    def calculateAcc_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
@@ -107,14 +100,8 @@ def generateTestClasses_planets(environment, identifier):
         targets[1].traits['xAcc'].value += absAcc * (xDist / absDist)
         targets[1].traits['yAcc'].value += absAcc * (yDist / absDist)
 
-
-    def calculateAcc_effect_setCalculationStep(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
         targets[1].traits['castLog_acc'].value.add(targets[2])
-    calculateAcc_effectList = [calculateAcc_effect_modifyAcc, \
-        calculateAcc_effect_setCalculationStep]
+
 
     # ability - calculate velocity
     # !!! predicates will be grouped together for ease of writing
@@ -136,30 +123,18 @@ def generateTestClasses_planets(environment, identifier):
     calculateVel_condition = lambda targets: \
         targets[0].traits['numPhysicsDependentAgents'].value - 1 == len(targets[1].traits['castLog_acc'].value)
 
-    def calculateVel_effect_modifyVel(targets, conditionality):
+    def calculateVel_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[1].traits['xVel'].value += targets[1].traits['xAcc'].value * TIMESTEP_LENGTH
         targets[1].traits['yVel'].value += targets[1].traits['yAcc'].value * TIMESTEP_LENGTH
 
-        # print("yvel: ", targets[1].traits['yVel'].value)
-        # print("xvel: ", targets[1].traits['xVel'].value)
-        #
-        # print("yacc: ", targets[1].traits['yAcc'].value)
-        # print("xacc: ", targets[1].traits['xAcc'].value)
-        #
-        # print("ypos: ", targets[1].traits['yCoord'].value)
-        # print("xpos: ", targets[1].traits['xCoord'].value)
-
-
         targets[1].xCoord += targets[1].traits['xVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
         targets[1].yCoord += targets[1].traits['yVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
 
         targets[1].abilities['calculateAcc'].blockedDuration = 2
         targets[1].abilities['calculateVel'].blockedDuration = 2
-
-    calculateVel_effectList = [calculateVel_effect_modifyVel]
 
     def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, style = QtCore.Qt.SolidPattern):
         planet = Agent(environment, name, xPos, yPos)
@@ -175,11 +150,11 @@ def generateTestClasses_planets(environment, identifier):
         planet.style = style
 
         planet.abilities["calculateSetup"] = Ability(environment, "calculateSetup", planet, \
-            calculateSetup_predicateList, calculateSetup_condition, calculateSetup_effectList)
+            calculateSetup_predicateList, calculateSetup_condition, calculateSetup_effect)
         planet.abilities["calculateAcc"] = Ability(environment, "calculateAcc", planet, \
-            calculateAcc_predicateList, calculateAcc_condition, calculateAcc_effectList)
+            calculateAcc_predicateList, calculateAcc_condition, calculateAcc_effect)
         planet.abilities["calculateVel"] = Ability(environment, "calculateVel", planet, \
-            calculateVel_predicateList, calculateVel_condition, calculateVel_effectList)
+            calculateVel_predicateList, calculateVel_condition, calculateVel_effect)
         planet.abilities["calculateAcc"].blockedDuration = 2
         planet.abilities["calculateVel"].blockedDuration = 2
 
@@ -248,20 +223,14 @@ def generateTestClasses_bacteriaYogurt(environment):
         + (targets[2].traits['yCoord'].value - targets[1].traits['yCoord'].value)**2)**0.5 \
         < targets[1].traits['interactRange'].value
 
-    def eat_effect_addCalories(targets, conditionality):
+    def eat_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[1].traits['calories'].value += targets[2].traits['calories'].value
 
-    def eat_effect_killFood(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
         targets[0].agentSet.remove(targets[2])
         targets[1].blockedDuration = 1
-
-    eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 
     # ability - move
     def move_predicate_self(target):
@@ -278,14 +247,11 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     move_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
 
-    def move_effect_removeCalories(targets, conditionality):
+    def move_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[1].traits['calories'].value -= MOVEMENT_COST
-    def move_effect_move(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
 
         randX = random.uniform(-1, 1)
         randY = random.uniform(-1, 1)
@@ -299,7 +265,6 @@ def generateTestClasses_bacteriaYogurt(environment):
         targets[1].xCoord += dx
 
         targets[1].abilities['move'].blockedDuration = 1
-    move_effectList = [move_effect_removeCalories, move_effect_move]
 
     # ability - starve
     def starve_predicate_self(target):
@@ -314,13 +279,12 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     starve_condition = lambda targets: targets[1].traits['calories'].value <= MOVEMENT_COST
 
-    def starve_effect_kill(targets, conditionality):
+    def starve_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[0].agentSet.remove(targets[1])
         targets[1].blockedDuration = 1
-    starve_effectList = [starve_effect_kill]
 
     # ability - divide
     def divide_predicate_self(target):
@@ -340,16 +304,12 @@ def generateTestClasses_bacteriaYogurt(environment):
 
     divide_condition = lambda targets: targets[1].traits['calories'].value > 150
 
-    def divide_effect_addCalories(targets, conditionality):
+    def divide_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[1].traits['calories'].value -= 75
         targets[1].blockedDuration = 2
-
-    def divide_effect_createChild(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
 
         bacterium = Agent(environment, "bacterium_child", targets[1].xCoord + 10, targets[1].yCoord)
         bacterium.addTrait('type', 'bacteria')
@@ -361,15 +321,14 @@ def generateTestClasses_bacteriaYogurt(environment):
         targets[0].traits['agentSet'].value.add(bacterium)
 
         bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
-            divide_predicateList, divide_condition, divide_effectList)
+            divide_predicateList, divide_condition, divide_effect)
         bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
-            eat_condition, eat_effectList)
+            eat_condition, eat_effect)
         bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
-            move_condition, move_effectList)
+            move_condition, move_effect)
         bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
-            starve_condition, starve_effectList)
+            starve_condition, starve_effect)
 
-    divide_effectList = [divide_effect_createChild, divide_effect_addCalories]
 
     # create bacteria agents
     for i in range(5):
@@ -385,13 +344,13 @@ def generateTestClasses_bacteriaYogurt(environment):
 
             # temporary prioritization hack
             bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
-                eat_condition, eat_effectList)
+                eat_condition, eat_effect)
             bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
-                move_condition, move_effectList)
+                move_condition, move_effect)
             bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
-                divide_predicateList, divide_condition, divide_effectList)
+                divide_predicateList, divide_condition, divide_effect)
             bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
-                starve_condition, starve_effectList)
+                starve_condition, starve_effect)
 
     # create yogurt agents
     for i in range(20):
@@ -454,23 +413,18 @@ def generateTestClasses_dogApple(environment):
         + (targets[2].traits['yCoord'].value - targets[1].traits['yCoord'].value)**2)**0.5 \
         < targets[1].traits['eatRange'].value
 
-    def eat_effect_addCalories(targets, conditionality):
+    def eat_effect(targets, conditionality):
         if conditionality is UNCONDITIONAL:
             return
 
         targets[1].traits['calories'].value += targets[2].traits['calories'].value
 
-    def eat_effect_killFood(targets, conditionality):
-        if conditionality is UNCONDITIONAL:
-            return
-
         targets[0].agentSet.remove(targets[2])
 
         targets[1].blockedDuration = 10
-    eat_effectList = [eat_effect_killFood, eat_effect_addCalories]
 
     ability_eat = Ability(environment, "eat", dog, eat_predicateList, \
-        eat_condition, eat_effectList)
+        eat_condition, eat_effect)
 
     dog.abilities["eat"] = ability_eat
 

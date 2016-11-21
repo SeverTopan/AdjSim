@@ -134,12 +134,12 @@ class Ability(Resource):
 # METHOD __INIT__
 # * pre-parsed version
 #-------------------------------------------------------------------------------
-    def __init__(self, environment, name, agent, predicates, condition, effects):
+    def __init__(self, environment, name, agent, predicates, condition, effect):
         super(Ability, self).__init__(environment, name)
         self.agent = agent
         self.predicates = predicates
         self.condition = condition
-        self.effects = effects
+        self.effect = effect
 
 # METHOD CHECK TARGET SET COMBINATIONS
 # * recursively checks all combinations of potential targets and yields valid
@@ -264,8 +264,7 @@ class Ability(Resource):
             targets = [self.environment, self.agent]
 
         # perform target effects
-        for effect in self.effects:
-            effect(targets, conditionality)
+        self.effect(targets, conditionality)
 
         return True
 
