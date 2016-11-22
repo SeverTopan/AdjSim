@@ -89,3 +89,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# TODO file
+TODO.md
+TODO.txt
