@@ -43,14 +43,14 @@ Clone the GitHub repository
 Running AdjSim
 --------------
 
-There are currently 3 demos available to run with AdjSim. The first is a simulation of bacteria exposed to a parcel of food (in this case yogurt). The second and third model the planetary interactions of Earth and Jupiter (respectively) with their moons. These are meant to exemplify the versatility of the framework, as it is designed for ecosystems, but is also able to model physics.
+There are currently 5 demos available to run with AdjSim. The first is a simulation of bacteria exposed to a parcel of food (in this case yogurt). The second and third model the planetary interactions of Earth and Jupiter (respectively) with their moons. These are meant to exemplify the versatility of the framework, as it is designed for ecosystems, but is also able to model physics.
 
-Run python3 on the base AdjSim directory, specifying first which demo to run and then the length of the simulation. Good numbers on simulation lengths are 100 for the bacteria simulations and over 500 for the planetary ones.
+Run python3 on the base AdjSim directory, specifying first which demo to run and then the length of the simulation. Good numbers on simulation lengths are 100 for the bacteria simulations, over 500 for the planetary ones, and around 1000 for the Game Of Life demos.
 
      cd AdjSim
      python3 AdjSim/ demo_bacteria 100
-     python3 AdjSim/ demo_planets_earth 500
-     python3 AdjSim/ demo_planets_jupiter 1000
+     python3 AdjSim/ demo_planets_jupiter 500
+     python3 AdjSim/ demo_gameOfLife_blockLayingSwitchEngine 1000
 
 
 Framework Structure
