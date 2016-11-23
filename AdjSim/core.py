@@ -99,6 +99,7 @@ class AdjSim(object):
         print('     - demo_planets_jupiter')
         print('     - demo_gameOfLife_blockLayingSwitchEngine')
         print('     - demo_gameOfLife_gosperGliderGun')
+        print('     - demo_gameOfLife_predatorPrey')
 
 # METHOD PARSE ARGS
 #-------------------------------------------------------------------------------
@@ -122,6 +123,8 @@ class AdjSim(object):
             elif argv[1] == 'demo_gameOfLife_gosperGliderGun':
                 AdjSim.environmentGenerationFunction = tests.generateTestClasses_gameOfLife
                 AdjSim.environmentGenerationIdentifierArg = 'gosperGliderGun'
+            elif argv[1] == 'demo_predatorPrey':
+                AdjSim.environmentGenerationFunction = tests.generateTestClasses_predatorPrey
             else:
                 AdjSim.printInvalidArgs()
                 return False
