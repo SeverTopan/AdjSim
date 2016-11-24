@@ -20,8 +20,6 @@ import sys, os
 class AdjSim(object):
     """docstring for AdjSim."""
 
-    environmentGenerationFunction = None
-    environmentGenerationIdentifierArg = None
     simulationLength = None
 
 # METHOD __INIT__
@@ -60,10 +58,8 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     @staticmethod
     def run(environment, thread=None):
-        if AdjSim.environmentGenerationIdentifierArg:
-            AdjSim.environmentGenerationFunction(environment, AdjSim.environmentGenerationIdentifierArg)
-        else:
-            AdjSim.environmentGenerationFunction(environment)
+
+        exec(open(sys.argv[1]).read(), locals())
 
         environment.simulate(AdjSim.simulationLength, thread)
         time.sleep(20)
@@ -92,14 +88,8 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     @staticmethod
     def printInvalidArgs():
-        print('Invalid Arguments - Usage: python <AdjSim directory> <simulation descriptor> <simulation length>')
-        print('Currently accepted simulation descriptors:')
-        print('     - demo_bacteria')
-        print('     - demo_planets_earth')
-        print('     - demo_planets_jupiter')
-        print('     - demo_gameOfLife_blockLayingSwitchEngine')
-        print('     - demo_gameOfLife_gosperGliderGun')
-        print('     - demo_gameOfLife_predatorPrey')
+        print('Invalid Arguments - Usage: python <AdjSim directory> <simulation script> <simulation length>')
+        print('For demo scripts, please see AdjSim/demo')
 
 # METHOD PARSE ARGS
 #-------------------------------------------------------------------------------
@@ -109,26 +99,12 @@ class AdjSim(object):
             AdjSim.printInvalidArgs()
             return False
         else:
-            if argv[1] == 'demo_bacteria':
-                AdjSim.environmentGenerationFunction = tests.generateTestClasses_bacteriaYogurt
-            elif argv[1] == 'demo_planets_earth':
-                AdjSim.environmentGenerationFunction = tests.generateTestClasses_planets
-                AdjSim.environmentGenerationIdentifierArg = 'earth'
-            elif argv[1] == 'demo_planets_jupiter':
-                AdjSim.environmentGenerationFunction = tests.generateTestClasses_planets
-                AdjSim.environmentGenerationIdentifierArg = 'jupiter'
-            elif argv[1] == 'demo_gameOfLife_blockLayingSwitchEngine':
-                AdjSim.environmentGenerationFunction = tests.generateTestClasses_gameOfLife
-                AdjSim.environmentGenerationIdentifierArg = 'blockLayingSwitchEngine'
-            elif argv[1] == 'demo_gameOfLife_gosperGliderGun':
-                AdjSim.environmentGenerationFunction = tests.generateTestClasses_gameOfLife
-                AdjSim.environmentGenerationIdentifierArg = 'gosperGliderGun'
-            elif argv[1] == 'demo_predatorPrey':
-                AdjSim.environmentGenerationFunction = tests.generateTestClasses_predatorPrey
-            else:
+            # parse simulation script
+            if not os.path.isfile(argv[1]):
                 AdjSim.printInvalidArgs()
                 return False
 
+            # parse simulation length
             AdjSim.simulationLength = int(argv[2])
 
             return True
