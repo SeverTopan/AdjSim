@@ -10,7 +10,6 @@ import sys
 import time
 import random
 
-import tests
 from constants import *
 from environment import *
 import core

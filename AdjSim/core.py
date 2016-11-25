@@ -7,7 +7,6 @@
 # IMPORTS
 #-------------------------------------------------------------------------------
 from environment import *
-from tests import *
 from graphics import *
 import time
 import logging
