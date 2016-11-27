@@ -124,6 +124,15 @@ class Agent(Resource):
         self.addTrait('style', QtCore.Qt.SolidPattern)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
         self.addTrait('abilities', {})
+#-------------------------------------------------------------------------------
+# CLASS TARGET SET
+#-------------------------------------------------------------------------------
+class TargetSet(object):
+    """docstring for TargetSet."""
+    def __init__(self, arg):
+        super(TargetSet, self).__init__()
+        self.arg = arg
+
 
 #-------------------------------------------------------------------------------
 # CLASS ABILITY
@@ -232,8 +241,14 @@ class Ability(Resource):
         logging.debug("      .")
 
 
-        # accumulate target sets for decision
-        self.checkTargetSetCombinations(potentialTargetSet, validTargetSet)
+        # accumulate target sets for decision if they are needed
+        if len(potentialTargetSet) > 2:
+            self.checkTargetSetCombinations(potentialTargetSet, validTargetSet)
+        else:
+            # only environment and self targets are required
+            if self.condition([self.environment, self.agent]):
+                validTargetSet = [[self.environment, self.agent]]
+
 
         if not validTargetSet:
             return None
