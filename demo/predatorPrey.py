@@ -6,7 +6,7 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
-import random
+import random, math
 from environment import *
 from constants import *
 from PyQt4 import QtGui, QtCore
@@ -15,10 +15,10 @@ from PyQt4 import QtGui, QtCore
 # CONSTANTS
 #-------------------------------------------------------------------------------
 
-MOVEMENT_COST = 10
+MOVEMENT_COST = 8
 PHOTOSYNTHESIS_AMOUNT = 15
-MOVEMENT_BOUND_X = 350
-MOVEMENT_BOUND_Y = 350
+PHOTOSYNTHESIS_BLOCK_RANGE = 5
+MOVEMENT_BOUND = 70000
 
 #-------------------------------------------------------------------------------
 # ABILITIES
@@ -58,6 +58,7 @@ def eat_effect(targets, conditionality):
        return
 
    targets[1].traits['calories'].value += targets[2].traits['calories'].value
+   # targets[1].abilities['eat'].blockedDuration = 1
 
    targets[0].agentSet.remove(targets[2])
 
@@ -81,8 +82,6 @@ def move_effect(targets, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[1].traits['calories'].value -= MOVEMENT_COST
-
    randX = random.uniform(-1, 1)
    randY = random.uniform(-1, 1)
    absRand = (randX**2 + randY**2)**0.5
@@ -91,10 +90,10 @@ def move_effect(targets, conditionality):
    newX = targets[1].xCoord + (randX / absRand) * movementMultiplier
    newY = targets[1].yCoord + (randY / absRand) * movementMultiplier
 
-   if newX < MOVEMENT_BOUND_X and newX > -MOVEMENT_BOUND_X:
+   if newX**2 + newY**2 < MOVEMENT_BOUND:
        targets[1].xCoord = newX
-   if newY < MOVEMENT_BOUND_Y and newY > -MOVEMENT_BOUND_Y:
        targets[1].yCoord = newY
+       targets[1].traits['calories'].value -= MOVEMENT_COST
 
    targets[1].abilities['move'].blockedDuration = 1
 
@@ -103,8 +102,7 @@ def move_effect(targets, conditionality):
 def starve_predicate_self(target):
    if target.traits.get('type') is not None \
        and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0:
+       and target.traits.get('calories') is not None:
        return True
    else:
        return False
@@ -143,25 +141,41 @@ def divide_effect(targets, conditionality):
        return
 
    if targets[1].traits['type'].value == 'predator':
-       createPredator(targets[0], targets[1].xCoord + 10, targets[1].yCoord, division=True)
+       createPredator(targets[0], targets[1].xCoord, targets[1].yCoord, division=True)
    else:
-       createPrey(targets[0], targets[1].xCoord + 10, targets[1].yCoord, division=True)
+       createPrey(targets[0], targets[1].xCoord, targets[1].yCoord, division=True)
 
    targets[1].traits['calories'].value -= targets[1].traits['divideCost'].value
-   targets[1].blockedDuration = 2
+   targets[1].blockedDuration = 1
 
 # ABILITY - PHOTOSYNTHESIZE
 #-------------------------------------------------------------------------------
 def photosynthesize_predicate_self(target):
    return True
 
-photosynthesize_predicateList = [(1, photosynthesize_predicate_self)]
+def photosynthesize_predicate_env(target):
+   return True
+
+photosynthesize_predicateList = [(0, photosynthesize_predicate_env),
+                                (1, photosynthesize_predicate_self)]
 
 photosynthesize_condition = lambda targets: True
 
 def photosynthesize_effect(targets, conditionality):
    if conditionality is UNCONDITIONAL:
        return
+
+   blockingAgents = 0
+   for agent in targets[0].agentSet:
+       if agent.xCoord > targets[1].xCoord - PHOTOSYNTHESIS_BLOCK_RANGE \
+            and agent.xCoord < targets[1].xCoord + PHOTOSYNTHESIS_BLOCK_RANGE \
+            and agent.yCoord > targets[1].yCoord - PHOTOSYNTHESIS_BLOCK_RANGE \
+            and agent.yCoord < targets[1].yCoord + PHOTOSYNTHESIS_BLOCK_RANGE:
+            blockingAgents += 1
+
+            if blockingAgents > 2:
+                targets[1].abilities['photosynthesize'].blockedDuration = 1
+                return
 
    targets[1].traits['calories'].value += PHOTOSYNTHESIS_AMOUNT
    targets[1].abilities['photosynthesize'].blockedDuration = 1
@@ -181,9 +195,9 @@ def createPredator(environment, x, y, division):
    predator.addTrait('type', 'predator')
    predator.addTrait('calories', calorieLevel)
    predator.addTrait('interactRange', 15)
-   predator.addTrait('divideThreshold', 150)
-   predator.addTrait('divideCost', 75)
-   predator.blockedDuration = 2
+   predator.addTrait('divideThreshold', 250)
+   predator.addTrait('divideCost', 125)
+   predator.blockedDuration = 1
    predator.size = 10
    predator.color = QtGui.QColor(RED_DARK)
    environment.traits['agentSet'].value.add(predator)
@@ -224,15 +238,18 @@ def createPrey(environment, x, y, division):
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
 
+# obtain theta value list
+thetaValues = [x*0.2 for x in range(1, 32)]
+
 # create predator agents
 SPACING = 75
-for i in range(-3,3):
-   for j in range(-3,3):
-       createPredator(environment, i*SPACING, j*SPACING, division=False)
+for theta in thetaValues:
+   for d in range(1,3):
+       createPredator(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
 
 
 # create prey agents
 SPACING = 25
-for i in range(-10,10):
-   for j in range(-10,10):
-       createPrey(environment, i*SPACING, j*SPACING, division=False)
+for theta in thetaValues:
+   for d in range(1,10):
+       createPrey(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
