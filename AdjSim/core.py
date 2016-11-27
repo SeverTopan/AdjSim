@@ -33,6 +33,7 @@ class AdjSim(object):
         if os.path.isfile(logPath):
             os.remove(logPath)
         logging.basicConfig(filename=logPath, level=logging.DEBUG)
+        logging.disable(logging.CRITICAL)
 
         # check arguments
         if not AdjSim.parseArgs(argv):
