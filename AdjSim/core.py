@@ -20,10 +20,12 @@ class AdjSim(object):
     """docstring for AdjSim."""
 
     simulationLength = None
+    graphicsEnabled = None
+    scriptPath = None
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
-    def __init__(self, argv, graphicsEnabled):
+    def __init__(self, argv):
         AdjSim.printWelcome()
 
         # setup debug logging
@@ -37,7 +39,7 @@ class AdjSim(object):
             return
 
         # perform threading initialization for graphics
-        if graphicsEnabled:
+        if AdjSim.graphicsEnabled:
             self.updateSemaphore = QtCore.QSemaphore(0)
 
             self.qApp = QtGui.QApplication(argv)
@@ -58,7 +60,7 @@ class AdjSim(object):
     @staticmethod
     def run(environment, thread=None):
 
-        exec(open(sys.argv[1]).read(), locals())
+        exec(open(AdjSim.scriptPath).read(), locals())
 
         environment.simulate(AdjSim.simulationLength, thread)
         time.sleep(20)
@@ -87,26 +89,45 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     @staticmethod
     def printInvalidArgs():
-        print('Invalid Arguments - Usage: python <AdjSim directory> <simulation script> <simulation length>')
+        print('Invalid Arguments - Usage: python <AdjSim directory> <options> <simulation script> <simulation length>')
         print('For demo scripts, please see AdjSim/demo')
+        print('Options: \n     -s : Suppress graphical simulation representation')
 
 # METHOD PARSE ARGS
 #-------------------------------------------------------------------------------
     @staticmethod
     def parseArgs(argv):
-        if len(argv) < 3 or len(argv) > 3:
-            AdjSim.printInvalidArgs()
-            return False
-        else:
-            # parse simulation script
-            if not os.path.isfile(argv[1]):
+        simLength = None
+
+        if len(argv) == 3:
+            AdjSim.graphicsEnabled = True
+            AdjSim.scriptPath = argv[1]
+            simLength = argv[2]
+        elif len(argv) == 4:
+            if argv[1] == '-s':
+                AdjSim.graphicsEnabled = False
+            else:
                 AdjSim.printInvalidArgs()
                 return False
+            AdjSim.scriptPath = argv[2]
+            simLength = argv[3]
+        else:
+            AdjSim.printInvalidArgs()
+            return False
 
-            # parse simulation length
-            AdjSim.simulationLength = int(argv[2])
+        # parse simulation script
+        if not os.path.isfile(AdjSim.scriptPath):
+            AdjSim.printInvalidArgs()
+            return False
 
-            return True
+        # parse simulation length
+        try:
+            AdjSim.simulationLength = int(simLength)
+        except:
+            AdjSim.printInvalidArgs()
+            return False
+
+        return True
 
 # METHOD PARSE CONFIG FILE
 #-------------------------------------------------------------------------------

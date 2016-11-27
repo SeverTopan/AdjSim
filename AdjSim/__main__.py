@@ -16,7 +16,7 @@ import sys
 def main(argv=sys.argv):
     """The main routine."""
 
-    adjSim = AdjSim(argv, True)
+    adjSim = AdjSim(argv)
 
     # get char press to exit
     # input("Press Enter to Termainate")
