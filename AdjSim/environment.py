@@ -395,7 +395,10 @@ class Environment(Agent):
 
 # METHOD EXECUTE ABILITIES
 #-------------------------------------------------------------------------------
-    def executeAbilities(self, agent):
+    def executeAbilities(self, agent=None):
+        if not agent:
+            agent = self
+
         # repeatedly cast abilities until no more abilities are cast
         oneOrMoreAbilitiesCast = True
         while oneOrMoreAbilitiesCast:
@@ -442,7 +445,7 @@ class Environment(Agent):
             self.executeAbilities(agent)
 
         # cast environment abilities
-        self.executeAbilities(self)
+        self.executeAbilities()
 
 
 # METHOD PLOT INDICES
