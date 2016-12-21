@@ -19,6 +19,7 @@ MOVEMENT_COST = 8
 PHOTOSYNTHESIS_AMOUNT = 15
 PHOTOSYNTHESIS_BLOCK_RANGE = 5
 MOVEMENT_BOUND = 70000
+CALORIE_UPPER_BOUND_PREDATOR = 400
 
 #-------------------------------------------------------------------------------
 # ABILITIES
@@ -59,6 +60,10 @@ def eat_effect(targets, conditionality):
 
    targets[1].traits['calories'].value += targets[2].traits['calories'].value
    # targets[1].abilities['eat'].blockedDuration = 1
+
+   # calorie upper bound
+   if targets[1].traits['calories'].value > CALORIE_UPPER_BOUND_PREDATOR:
+       targets[1].traits['calories'].value = CALORIE_UPPER_BOUND_PREDATOR
 
    targets[0].agentSet.remove(targets[2])
 
