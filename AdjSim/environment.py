@@ -36,6 +36,9 @@ class Resource(object):
 class Agent(Resource):
     """docstring for Agent."""
 
+    INTELLIGENCE_NONE = 0
+    INTELLIGENCE_GENETIC_ALGORITHM = 1
+
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self, environment, name, x = 0, y = 0):
@@ -124,6 +127,7 @@ class Agent(Resource):
         self.addTrait('style', QtCore.Qt.SolidPattern)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
         self.addTrait('abilities', {})
+        self.addTrait('intelligence', Agent.INTELLIGENCE_NONE)
 
 #-------------------------------------------------------------------------------
 # CLASS TARGET PREDICATE
@@ -298,6 +302,19 @@ class Ability(Resource):
         return True
 
 #-------------------------------------------------------------------------------
+# CLASS THOUGHT MUTABILITY
+#-------------------------------------------------------------------------------
+class ThoughtMutability(object):
+    """docstring for ThoughtMutability."""
+
+# METHOD __INIT__
+#-------------------------------------------------------------------------------
+    def __init__(self, acceptableValues):
+        super(ThoughtMutability, self).__init__()
+        # in future, accept continuous variables here
+        self.acceptableValues = acceptableValues
+
+#-------------------------------------------------------------------------------
 # CLASS TRAIT
 #-------------------------------------------------------------------------------
 class Trait(Resource):
@@ -305,9 +322,14 @@ class Trait(Resource):
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
-    def __init__(self, environment, name, value):
+    def __init__(self, environment, name, value, thoughtMutability = None):
         super(Trait, self).__init__(environment, name)
         self.value = value
+        self.thoughtMutability = thoughtMutability
+
+        # error check thought mutability types
+        if thoughtMutability and type(thoughtMutability) is not ThoughtMutability:
+            raise Exception("Incorrect ThoughtMutability object type")
 
 #-------------------------------------------------------------------------------
 # CLASS ANALYSIS INDEX
