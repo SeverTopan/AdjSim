@@ -30,11 +30,8 @@ CELL_SIZE = 5
 def calculateNeighbours_predicate_self(target):
    return target.abilities['calculateNeighbours'].blockedDuration is 0
 
-def calculateNeighbours_predicate_env(target):
-   return True
 
-calculateNeighbours_predicateList = [(0, calculateNeighbours_predicate_env), \
-   (1, calculateNeighbours_predicate_self)]
+calculateNeighbours_predicateList = [TargetPredicate(TargetPredicate.SOURCE, calculateNeighbours_predicate_self)]
 
 calculateNeighbours_condition = lambda targetSet: True
 
@@ -93,11 +90,7 @@ def calculateNeighbours_effect(targetSet, conditionality):
 def addNewAgents_predicate_self(target):
    return target.abilities['addNewAgents'].blockedDuration is 0
 
-def addNewAgents_predicate_env(target):
-   return True
-
-addNewAgents_predicateList = [(0, addNewAgents_predicate_env), \
-   (1, addNewAgents_predicate_self)]
+addNewAgents_predicateList = [TargetPredicate(TargetPredicate.SOURCE, addNewAgents_predicate_self)]
 
 addNewAgents_condition = lambda targetSet: True
 

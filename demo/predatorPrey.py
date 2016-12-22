@@ -46,9 +46,9 @@ def eat_predicate_self(target):
 def eat_predicate_env(target):
    return True
 
-eat_predicateList = [(0, eat_predicate_env), \
-   (1, eat_predicate_self), \
-   (2, eat_predicate_food)]
+eat_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, eat_predicate_env), \
+   TargetPredicate(TargetPredicate.SOURCE, eat_predicate_self), \
+   TargetPredicate(0, eat_predicate_food)]
 
 eat_condition = lambda targetSet: ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
    + (targetSet.targets[0].traits['yCoord'].value - targetSet.source.traits['yCoord'].value)**2)**0.5 \
@@ -79,7 +79,7 @@ def move_predicate_self(target):
        return True
    else:
        return False
-move_predicateList = [(1, move_predicate_self)]
+move_predicateList = [TargetPredicate(TargetPredicate.SOURCE, move_predicate_self)]
 
 move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
@@ -111,7 +111,7 @@ def starve_predicate_self(target):
        return True
    else:
        return False
-starve_predicateList = [(1, starve_predicate_self)]
+starve_predicateList = [TargetPredicate(TargetPredicate.SOURCE, starve_predicate_self)]
 
 starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
 
@@ -137,7 +137,8 @@ def divide_predicate_self(target):
 def divide_predicate_env(target):
    return True
 
-divide_predicateList = [(0, divide_predicate_env), (1, divide_predicate_self)]
+divide_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, divide_predicate_env), \
+    TargetPredicate(TargetPredicate.SOURCE, divide_predicate_self)]
 
 divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > targetSet.source.traits['divideThreshold'].value
 
@@ -155,14 +156,7 @@ def divide_effect(targetSet, conditionality):
 
 # ABILITY - PHOTOSYNTHESIZE
 #-------------------------------------------------------------------------------
-def photosynthesize_predicate_self(target):
-   return True
-
-def photosynthesize_predicate_env(target):
-   return True
-
-photosynthesize_predicateList = [(0, photosynthesize_predicate_env),
-                                (1, photosynthesize_predicate_self)]
+photosynthesize_predicateList = []
 
 photosynthesize_condition = lambda targetSet: True
 

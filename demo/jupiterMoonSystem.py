@@ -39,8 +39,8 @@ def calculateSetup_predicate_self(target):
 def calculateSetup_predicate_env(target):
    return True
 
-calculateSetup_predicateList = [(0, calculateSetup_predicate_env), \
-   (1, calculateSetup_predicate_self)]
+calculateSetup_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, calculateSetup_predicate_env), \
+   TargetPredicate(TargetPredicate.SOURCE, calculateSetup_predicate_self)]
 
 
 calculateSetup_condition = lambda targetSet: True
@@ -85,9 +85,9 @@ def calculateAcc_predicate_self(target):
 def calculateAcc_predicate_env(target):
    return True
 
-calculateAcc_predicateList = [(0, calculateAcc_predicate_env), \
-   (1, calculateAcc_predicate_self), \
-   (2, calculateAcc_predicate_target)]
+calculateAcc_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, calculateAcc_predicate_env), \
+   TargetPredicate(TargetPredicate.SOURCE, calculateAcc_predicate_self), \
+   TargetPredicate(0, calculateAcc_predicate_target)]
 
 
 calculateAcc_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'planet' \
@@ -124,8 +124,8 @@ def calculateVel_predicate_self(target):
 def calculateVel_predicate_env(target):
    return True
 
-calculateVel_predicateList = [(0, calculateVel_predicate_env), \
-   (1, calculateVel_predicate_self)]
+calculateVel_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, calculateVel_predicate_env), \
+   TargetPredicate(TargetPredicate.SOURCE, calculateVel_predicate_self)]
 
 calculateVel_condition = lambda targetSet: \
    targetSet.environment.traits['numPhysicsDependentAgents'].value - 1 == len(targetSet.source.traits['castLog_acc'].value)

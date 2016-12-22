@@ -124,6 +124,21 @@ class Agent(Resource):
         self.addTrait('style', QtCore.Qt.SolidPattern)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
         self.addTrait('abilities', {})
+
+#-------------------------------------------------------------------------------
+# CLASS TARGET PREDICATE
+#-------------------------------------------------------------------------------
+class TargetPredicate(object):
+    """docstring for TargetPredicate."""
+
+    ENVIRONMENT = -1
+    SOURCE = -2
+
+    def __init__(self, target, predicate):
+        super(TargetPredicate, self).__init__()
+        self.target = target
+        self.predicate = predicate
+
 #-------------------------------------------------------------------------------
 # CLASS TARGET SET
 #-------------------------------------------------------------------------------
@@ -206,25 +221,29 @@ class Ability(Resource):
         # debug message
         logging.debug("Obtaining Targets: %s", self.name)
 
-        for target, predicate in self.predicates:
-            if target is 0:
+        for targetPredicate in self.predicates:
+            if targetPredicate.target is TargetPredicate.ENVIRONMENT:
                 # target = environment - check predicate
-                if not predicate(self.environment):
+                if not targetPredicate.predicate(self.environment):
                     return None
 
-            elif target is 1:
+            elif targetPredicate.target is TargetPredicate.SOURCE:
                 # target = self - check predicate
-                if not predicate(self.agent):
+                if not targetPredicate.predicate(self.agent):
                     return None
 
             else:
-                newPotentialAgents = self.environment.getAgentsOnPredicate(self.agent, predicate)
+                newPotentialAgents = self.environment.getAgentsOnPredicate(self.agent, \
+                    targetPredicate.predicate)
 
                 # exit if no targets
                 if not newPotentialAgents:
                     return None
 
-                potentialTargetSet.targets.append(newPotentialAgents)
+                # so that predicates do not have to be listed in ascending order
+                while len(potentialTargetSet.targets) < targetPredicate.target + 1:
+                    potentialTargetSet.targets.append(None)
+                potentialTargetSet.targets[targetPredicate.target] = newPotentialAgents
 
         logging.debug("   Potential Target Set: ")
         for targetSet in potentialTargetSet.targets:
