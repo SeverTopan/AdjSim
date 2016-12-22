@@ -36,14 +36,14 @@ def calculateNeighbours_predicate_env(target):
 calculateNeighbours_predicateList = [(0, calculateNeighbours_predicate_env), \
    (1, calculateNeighbours_predicate_self)]
 
-calculateNeighbours_condition = lambda targets: True
+calculateNeighbours_condition = lambda targetSet: True
 
-def calculateNeighbours_effect(targets, conditionality):
+def calculateNeighbours_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   x = targets[1].xCoord
-   y = targets[1].yCoord
+   x = targetSet.source.xCoord
+   y = targetSet.source.yCoord
 
    neighbourSet = set()
    possibleNeighbourSet = {(x, y + CELL_SIZE),
@@ -57,9 +57,9 @@ def calculateNeighbours_effect(targets, conditionality):
 
 
    # scan for adjacent agents and store into neighbourSet set
-   for agent in targets[0].agentSet:
+   for agent in targetSet.environment.agentSet:
        # ignore environment and self
-       if agent is targets[0] or agent is targets[1]:
+       if agent is targetSet.environment or agent is targetSet.source:
            continue
 
        # check bounding boxes
@@ -75,15 +75,15 @@ def calculateNeighbours_effect(targets, conditionality):
    emptyNeighbourSet = possibleNeighbourSet - neighbourSet
 
    for item in emptyNeighbourSet:
-       if targets[0].traits['emptyNeighboursDict'].value.get(item) is None:
-           targets[0].traits['emptyNeighboursDict'].value[item] = 1
+       if targetSet.environment.traits['emptyNeighboursDict'].value.get(item) is None:
+           targetSet.environment.traits['emptyNeighboursDict'].value[item] = 1
        else:
-           targets[0].traits['emptyNeighboursDict'].value[item] += 1
+           targetSet.environment.traits['emptyNeighboursDict'].value[item] += 1
 
    # record num neighbours
-   targets[1].traits['numNeighbours'].value = len(neighbourSet)
+   targetSet.source.traits['numNeighbours'].value = len(neighbourSet)
 
-   targets[1].abilities['calculateNeighbours'].blockedDuration = 1
+   targetSet.source.abilities['calculateNeighbours'].blockedDuration = 1
 
 
 # ABILITY - ADD NEW
@@ -99,27 +99,27 @@ def addNewAgents_predicate_env(target):
 addNewAgents_predicateList = [(0, addNewAgents_predicate_env), \
    (1, addNewAgents_predicate_self)]
 
-addNewAgents_condition = lambda targets: True
+addNewAgents_condition = lambda targetSet: True
 
-def addNewAgents_effect(targets, conditionality):
+def addNewAgents_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
    # delete agents
-   targets[1].agentSet = {agent for agent in targets[1].agentSet \
-       if agent is targets[1] \
+   targetSet.source.agentSet = {agent for agent in targetSet.source.agentSet \
+       if agent is targetSet.source \
        or agent.traits['numNeighbours'].value is 2 \
        or agent.traits['numNeighbours'].value is 3 }
 
    # add new agents
-   emptyNeighboursDict = targets[0].traits['emptyNeighboursDict'].value
+   emptyNeighboursDict = targetSet.environment.traits['emptyNeighboursDict'].value
    for key, value in emptyNeighboursDict.items():
        if value is 3:
-           createCell(targets[1], key[0], key[1])
+           createCell(targetSet.source, key[0], key[1])
 
    emptyNeighboursDict.clear()
 
-   targets[1].abilities['addNewAgents'].blockedDuration = 1
+   targetSet.source.abilities['addNewAgents'].blockedDuration = 1
 
 #-------------------------------------------------------------------------------
 # AGENT GENERATION FUNCTIONS

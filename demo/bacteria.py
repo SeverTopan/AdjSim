@@ -55,19 +55,19 @@ eat_predicateList = [(0, eat_predicate_env), \
    (1, eat_predicate_self), \
    (2, eat_predicate_food)]
 
-eat_condition = lambda targets: targets[2].traits['type'].value is 'food' \
-   and ((targets[2].traits['xCoord'].value - targets[1].traits['xCoord'].value)**2 \
-   + (targets[2].traits['yCoord'].value - targets[1].traits['yCoord'].value)**2)**0.5 \
-   < targets[1].traits['interactRange'].value
+eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'food' \
+   and ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
+   + (targetSet.targets[0].traits['yCoord'].value - targetSet.source.traits['yCoord'].value)**2)**0.5 \
+   < targetSet.source.traits['interactRange'].value
 
-def eat_effect(targets, conditionality):
+def eat_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[1].traits['calories'].value += targets[2].traits['calories'].value
+   targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
 
-   targets[0].agentSet.remove(targets[2])
-   targets[1].blockedDuration = 1
+   targetSet.environment.agentSet.remove(targetSet.targets[0])
+   targetSet.source.blockedDuration = 1
 
 # ABILITY - MOVE
 #-------------------------------------------------------------------------------
@@ -83,26 +83,26 @@ def move_predicate_self(target):
        return False
 move_predicateList = [(1, move_predicate_self)]
 
-move_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
+move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
-def move_effect(targets, conditionality):
+def move_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[1].traits['calories'].value -= MOVEMENT_COST
+   targetSet.source.traits['calories'].value -= MOVEMENT_COST
 
    randX = random.uniform(-1, 1)
    randY = random.uniform(-1, 1)
    absRand = (randX**2 + randY**2)**0.5
-   movementMultiplier = targets[1].traits['interactRange'].value * 2
+   movementMultiplier = targetSet.source.traits['interactRange'].value * 2
 
    dx = (randX / absRand) * movementMultiplier
    dy = (randY / absRand) * movementMultiplier
 
-   targets[1].yCoord += dy
-   targets[1].xCoord += dx
+   targetSet.source.yCoord += dy
+   targetSet.source.xCoord += dx
 
-   targets[1].abilities['move'].blockedDuration = 1
+   targetSet.source.abilities['move'].blockedDuration = 1
 
 # ABILITY - STARVE
 #-------------------------------------------------------------------------------
@@ -116,14 +116,14 @@ def starve_predicate_self(target):
        return False
 starve_predicateList = [(1, starve_predicate_self)]
 
-starve_condition = lambda targets: targets[1].traits['calories'].value <= MOVEMENT_COST
+starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
 
-def starve_effect(targets, conditionality):
+def starve_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[0].agentSet.remove(targets[1])
-   targets[1].blockedDuration = 1
+   targetSet.environment.agentSet.remove(targetSet.source)
+   targetSet.source.blockedDuration = 1
 
 # ABILITY - DIVIDE
 #-------------------------------------------------------------------------------
@@ -142,16 +142,16 @@ def divide_predicate_env(target):
 
 divide_predicateList = [(0, divide_predicate_env), (1, divide_predicate_self)]
 
-divide_condition = lambda targets: targets[1].traits['calories'].value > 150
+divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > 150
 
-def divide_effect(targets, conditionality):
+def divide_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[1].traits['calories'].value -= 75
-   targets[1].blockedDuration = 2
+   targetSet.source.traits['calories'].value -= 75
+   targetSet.source.blockedDuration = 2
 
-   createBacteria(targets[0], targets[1].xCoord + 10, targets[1].yCoord)
+   createBacteria(targetSet.environment, targetSet.source.xCoord + 10, targetSet.source.yCoord)
 
 #-------------------------------------------------------------------------------
 # AGENT GENERATION FUNCTIONS

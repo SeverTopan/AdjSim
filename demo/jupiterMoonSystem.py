@@ -43,20 +43,20 @@ calculateSetup_predicateList = [(0, calculateSetup_predicate_env), \
    (1, calculateSetup_predicate_self)]
 
 
-calculateSetup_condition = lambda targets: True
+calculateSetup_condition = lambda targetSet: True
 
-def calculateSetup_effect(targets, conditionality):
+def calculateSetup_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[1].traits['xAcc'].value = 0;
-   targets[1].traits['yAcc'].value = 0;
+   targetSet.source.traits['xAcc'].value = 0;
+   targetSet.source.traits['yAcc'].value = 0;
 
-   targets[1].traits['castLog_acc'].value.clear()
+   targetSet.source.traits['castLog_acc'].value.clear()
 
-   targets[1].abilities['calculateSetup'].blockedDuration = 1
-   targets[1].abilities['calculateAcc'].blockedDuration = 0
-   targets[1].abilities['calculateVel'].blockedDuration = 0
+   targetSet.source.abilities['calculateSetup'].blockedDuration = 1
+   targetSet.source.abilities['calculateAcc'].blockedDuration = 0
+   targetSet.source.abilities['calculateVel'].blockedDuration = 0
 
 
 
@@ -90,23 +90,23 @@ calculateAcc_predicateList = [(0, calculateAcc_predicate_env), \
    (2, calculateAcc_predicate_target)]
 
 
-calculateAcc_condition = lambda targets: targets[2].traits['type'].value is 'planet' \
-   and not targets[1].traits['castLog_acc'].value & {targets[2]} \
-   and targets[0].traits['numPhysicsDependentAgents'].value > len(targets[1].traits['castLog_acc'].value)
+calculateAcc_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'planet' \
+   and not targetSet.source.traits['castLog_acc'].value & {targetSet.targets[0]} \
+   and targetSet.environment.traits['numPhysicsDependentAgents'].value > len(targetSet.source.traits['castLog_acc'].value)
 
-def calculateAcc_effect(targets, conditionality):
+def calculateAcc_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   xDist = (targets[2].xCoord - targets[1].xCoord) * DISTANCE_MULTIPLIER
-   yDist = (targets[2].yCoord - targets[1].yCoord) * DISTANCE_MULTIPLIER
+   xDist = (targetSet.targets[0].xCoord - targetSet.source.xCoord) * DISTANCE_MULTIPLIER
+   yDist = (targetSet.targets[0].yCoord - targetSet.source.yCoord) * DISTANCE_MULTIPLIER
    absDist = (xDist**2 + yDist**2)**0.5
-   absAcc = targets[2].traits['mass'].value * GRAV_CONSTANT / (absDist**2)
+   absAcc = targetSet.targets[0].traits['mass'].value * GRAV_CONSTANT / (absDist**2)
 
-   targets[1].traits['xAcc'].value += absAcc * (xDist / absDist)
-   targets[1].traits['yAcc'].value += absAcc * (yDist / absDist)
+   targetSet.source.traits['xAcc'].value += absAcc * (xDist / absDist)
+   targetSet.source.traits['yAcc'].value += absAcc * (yDist / absDist)
 
-   targets[1].traits['castLog_acc'].value.add(targets[2])
+   targetSet.source.traits['castLog_acc'].value.add(targetSet.targets[0])
 
 
 # ABILITY - CALCULATE VELOCITY
@@ -127,21 +127,21 @@ def calculateVel_predicate_env(target):
 calculateVel_predicateList = [(0, calculateVel_predicate_env), \
    (1, calculateVel_predicate_self)]
 
-calculateVel_condition = lambda targets: \
-   targets[0].traits['numPhysicsDependentAgents'].value - 1 == len(targets[1].traits['castLog_acc'].value)
+calculateVel_condition = lambda targetSet: \
+   targetSet.environment.traits['numPhysicsDependentAgents'].value - 1 == len(targetSet.source.traits['castLog_acc'].value)
 
-def calculateVel_effect(targets, conditionality):
+def calculateVel_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[1].traits['xVel'].value += targets[1].traits['xAcc'].value * TIMESTEP_LENGTH
-   targets[1].traits['yVel'].value += targets[1].traits['yAcc'].value * TIMESTEP_LENGTH
+   targetSet.source.traits['xVel'].value += targetSet.source.traits['xAcc'].value * TIMESTEP_LENGTH
+   targetSet.source.traits['yVel'].value += targetSet.source.traits['yAcc'].value * TIMESTEP_LENGTH
 
-   targets[1].xCoord += targets[1].traits['xVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
-   targets[1].yCoord += targets[1].traits['yVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
+   targetSet.source.xCoord += targetSet.source.traits['xVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
+   targetSet.source.yCoord += targetSet.source.traits['yVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
 
-   targets[1].abilities['calculateAcc'].blockedDuration = 2
-   targets[1].abilities['calculateVel'].blockedDuration = 2
+   targetSet.source.abilities['calculateAcc'].blockedDuration = 2
+   targetSet.source.abilities['calculateVel'].blockedDuration = 2
 
 #-------------------------------------------------------------------------------
 # AGENT GENERATION FUNCTIONS

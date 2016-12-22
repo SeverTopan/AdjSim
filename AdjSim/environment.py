@@ -129,9 +129,13 @@ class Agent(Resource):
 #-------------------------------------------------------------------------------
 class TargetSet(object):
     """docstring for TargetSet."""
-    def __init__(self, arg):
+    def __init__(self, environment, source, targets = None):
         super(TargetSet, self).__init__()
-        self.arg = arg
+        self.environment = environment
+        self.source = source
+        if targets == None:
+            targets = []
+        self.targets = targets
 
 
 #-------------------------------------------------------------------------------
@@ -155,50 +159,49 @@ class Ability(Resource):
 # * target combination sets. Function is recursive, since its complexity is
 # * O(n^k), where k is the number of potential targets
 #-------------------------------------------------------------------------------
-    def checkTargetSetCombinations(self, potentialTargetSet, validTargetSet, targetIndex = None):
+    def checkTargetSetCombinations(self, potentialTargetSet, validTargetList, targetIndex = None):
         # init default argument to a mutable varible
         if targetIndex is None:
-            targetIndex = [0]
+            targetIndex = TargetSet(potentialTargetSet.environment, potentialTargetSet.source, [0])
 
         # init current index
-        currIndex = len(targetIndex) - 1
+        currIndex = len(targetIndex.targets) - 1
 
         # error check
         if not potentialTargetSet:
             raise Exception('Invalid potentialTargetSet')
 
-        for currTarget in potentialTargetSet[currIndex]:
-            targetIndex[currIndex] = currTarget
+        for currTarget in potentialTargetSet.targets[currIndex]:
+            targetIndex.targets[currIndex] = currTarget
             # if at end of recursion expansion, check condition, if not, keep
             # recursing until end is reached
-            if currIndex + 1 is len(potentialTargetSet):
+            if currIndex + 1 is len(potentialTargetSet.targets):
                 # at end of recursion expansion
                 logging.debug("   At end of recursion expansion:")
-                for target in targetIndex:
-                    logging.debug("     %s", target.name)
+                for target in targetIndex.targets:
+                    logging.debug("     - %s", target.name)
 
 
                 if self.condition(targetIndex):
                     logging.debug("   -> yielding")
-                    validTargetSet.append([item for item in targetIndex])
+                    outputTargetSet = TargetSet(targetIndex.environment, targetIndex.source, \
+                        [item for item in targetIndex.targets])
+                    validTargetList.append(outputTargetSet)
             else:
                 # init next targetIndex Entry
-                if len(targetIndex) is currIndex + 1:
-                    targetIndex.append(0)
+                while len(targetIndex.targets) <= currIndex + 1:
+                    targetIndex.targets.append(0)
 
                 # recurse
-                return self.checkTargetSetCombinations(potentialTargetSet, validTargetSet, targetIndex)
+                return self.checkTargetSetCombinations(potentialTargetSet, validTargetList, targetIndex)
 
-        # exit condition
-        if currIndex + 1 is len(potentialTargetSet):
-            return
 
 # METHOD GET POTENTIAL TARGET SET
 # * returns a list of sets of valid targets on which to perfrom actions
 #-------------------------------------------------------------------------------
     def getPotentialTargets(self):
-        potentialTargetSet = [{self.environment}, {self.agent}]
-        validTargetSet = []
+        potentialTargetSet = TargetSet(self.environment, self.agent)
+        validTargetList = []
 
         # debug message
         logging.debug("Obtaining Targets: %s", self.name)
@@ -221,20 +224,10 @@ class Ability(Resource):
                 if not newPotentialAgents:
                     return None
 
-                # insert new potential agents into potentialTargetSet
-                # !!! tuple element 0 of predictes must be in sorted order
-                if len(potentialTargetSet) == target:
-                    potentialTargetSet.append(newPotentialAgents)
-                else:
-                    potentialTargetSet[target] = \
-                        potentialTargetSet[target] & newPotentialAgents
-
-                # check if intersection yields null set
-                if not potentialTargetSet[target]:
-                    return None
+                potentialTargetSet.targets.append(newPotentialAgents)
 
         logging.debug("   Potential Target Set: ")
-        for targetSet in potentialTargetSet:
+        for targetSet in potentialTargetSet.targets:
             logging.debug("      .")
             for agent in targetSet:
                 logging.debug("     %s", agent.name)
@@ -242,30 +235,32 @@ class Ability(Resource):
 
 
         # accumulate target sets for decision if they are needed
-        if len(potentialTargetSet) > 2:
-            self.checkTargetSetCombinations(potentialTargetSet, validTargetSet)
+        if len(potentialTargetSet.targets) > 0:
+            self.checkTargetSetCombinations(potentialTargetSet, validTargetList)
         else:
             # only environment and self targets are required
-            if self.condition([self.environment, self.agent]):
-                validTargetSet = [[self.environment, self.agent]]
+            # only one possible target for source and environment,
+            # therefore potentialTargetSet contains correct target set combination by default
+            if self.condition(potentialTargetSet):
+                validTargetList = [potentialTargetSet]
 
 
-        if not validTargetSet:
+        if len(validTargetList) == 0:
             return None
         else:
-            return validTargetSet
+            return validTargetList
 
 # METHOD CHOOSE TARGET SET
 # * performs decision making to determine which target set to perform an ability on
 #-------------------------------------------------------------------------------
-    def chooseTargetSet(self, validTargetSet):
+    def chooseTargetSet(self, validTargetList):
         # error check
-        if not validTargetSet:
-            raise Exception('Empty validTargetSet in method chooseTargetSet')
+        if not validTargetList:
+            raise Exception('Empty validTargetList in method chooseTargetSet')
 
         # here, insert logic for higher level decision making
         # for now, return first set in the list
-        return validTargetSet[0]
+        return validTargetList[0]
 
 # METHOD
 #-------------------------------------------------------------------------------
@@ -276,7 +271,7 @@ class Ability(Resource):
 
         # set targets in unconditional cast
         if conditionality is UNCONDITIONAL:
-            targets = [self.environment, self.agent]
+            targets = TargetSet(self.environment, self.agent)
 
         # perform target effects
         self.effect(targets, conditionality)

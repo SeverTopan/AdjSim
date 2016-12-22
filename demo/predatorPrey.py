@@ -50,22 +50,22 @@ eat_predicateList = [(0, eat_predicate_env), \
    (1, eat_predicate_self), \
    (2, eat_predicate_food)]
 
-eat_condition = lambda targets: ((targets[2].traits['xCoord'].value - targets[1].traits['xCoord'].value)**2 \
-   + (targets[2].traits['yCoord'].value - targets[1].traits['yCoord'].value)**2)**0.5 \
-   < targets[1].traits['interactRange'].value
+eat_condition = lambda targetSet: ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
+   + (targetSet.targets[0].traits['yCoord'].value - targetSet.source.traits['yCoord'].value)**2)**0.5 \
+   < targetSet.source.traits['interactRange'].value
 
-def eat_effect(targets, conditionality):
+def eat_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[1].traits['calories'].value += targets[2].traits['calories'].value
-   # targets[1].abilities['eat'].blockedDuration = 1
+   targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
+   # targetSet.source.abilities['eat'].blockedDuration = 1
 
    # calorie upper bound
-   if targets[1].traits['calories'].value > CALORIE_UPPER_BOUND_PREDATOR:
-       targets[1].traits['calories'].value = CALORIE_UPPER_BOUND_PREDATOR
+   if targetSet.source.traits['calories'].value > CALORIE_UPPER_BOUND_PREDATOR:
+       targetSet.source.traits['calories'].value = CALORIE_UPPER_BOUND_PREDATOR
 
-   targets[0].agentSet.remove(targets[2])
+   targetSet.environment.agentSet.remove(targetSet.targets[0])
 
 # ABILITY - MOVE
 #-------------------------------------------------------------------------------
@@ -81,26 +81,26 @@ def move_predicate_self(target):
        return False
 move_predicateList = [(1, move_predicate_self)]
 
-move_condition = lambda targets: targets[1].traits['calories'].value > MOVEMENT_COST
+move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
-def move_effect(targets, conditionality):
+def move_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
    randX = random.uniform(-1, 1)
    randY = random.uniform(-1, 1)
    absRand = (randX**2 + randY**2)**0.5
-   movementMultiplier = targets[1].traits['interactRange'].value * 2
+   movementMultiplier = targetSet.source.traits['interactRange'].value * 2
 
-   newX = targets[1].xCoord + (randX / absRand) * movementMultiplier
-   newY = targets[1].yCoord + (randY / absRand) * movementMultiplier
+   newX = targetSet.source.xCoord + (randX / absRand) * movementMultiplier
+   newY = targetSet.source.yCoord + (randY / absRand) * movementMultiplier
 
    if newX**2 + newY**2 < MOVEMENT_BOUND:
-       targets[1].xCoord = newX
-       targets[1].yCoord = newY
-       targets[1].traits['calories'].value -= MOVEMENT_COST
+       targetSet.source.xCoord = newX
+       targetSet.source.yCoord = newY
+       targetSet.source.traits['calories'].value -= MOVEMENT_COST
 
-   targets[1].abilities['move'].blockedDuration = 1
+   targetSet.source.abilities['move'].blockedDuration = 1
 
 # ABILITY - STARVE
 #-------------------------------------------------------------------------------
@@ -113,14 +113,14 @@ def starve_predicate_self(target):
        return False
 starve_predicateList = [(1, starve_predicate_self)]
 
-starve_condition = lambda targets: targets[1].traits['calories'].value <= MOVEMENT_COST
+starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
 
-def starve_effect(targets, conditionality):
+def starve_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targets[0].agentSet.remove(targets[1])
-   targets[1].blockedDuration = 1
+   targetSet.environment.agentSet.remove(targetSet.source)
+   targetSet.source.blockedDuration = 1
 
 # ABILITY - DIVIDE
 #-------------------------------------------------------------------------------
@@ -139,19 +139,19 @@ def divide_predicate_env(target):
 
 divide_predicateList = [(0, divide_predicate_env), (1, divide_predicate_self)]
 
-divide_condition = lambda targets: targets[1].traits['calories'].value > targets[1].traits['divideThreshold'].value
+divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > targetSet.source.traits['divideThreshold'].value
 
-def divide_effect(targets, conditionality):
+def divide_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   if targets[1].traits['type'].value == 'predator':
-       createPredator(targets[0], targets[1].xCoord, targets[1].yCoord, division=True)
+   if targetSet.source.traits['type'].value == 'predator':
+       createPredator(targetSet.environment, targetSet.source.xCoord, targetSet.source.yCoord, division=True)
    else:
-       createPrey(targets[0], targets[1].xCoord, targets[1].yCoord, division=True)
+       createPrey(targetSet.environment, targetSet.source.xCoord, targetSet.source.yCoord, division=True)
 
-   targets[1].traits['calories'].value -= targets[1].traits['divideCost'].value
-   targets[1].blockedDuration = 1
+   targetSet.source.traits['calories'].value -= targetSet.source.traits['divideCost'].value
+   targetSet.source.blockedDuration = 1
 
 # ABILITY - PHOTOSYNTHESIZE
 #-------------------------------------------------------------------------------
@@ -164,26 +164,26 @@ def photosynthesize_predicate_env(target):
 photosynthesize_predicateList = [(0, photosynthesize_predicate_env),
                                 (1, photosynthesize_predicate_self)]
 
-photosynthesize_condition = lambda targets: True
+photosynthesize_condition = lambda targetSet: True
 
-def photosynthesize_effect(targets, conditionality):
+def photosynthesize_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
    blockingAgents = 0
-   for agent in targets[0].agentSet:
-       if agent.xCoord > targets[1].xCoord - PHOTOSYNTHESIS_BLOCK_RANGE \
-            and agent.xCoord < targets[1].xCoord + PHOTOSYNTHESIS_BLOCK_RANGE \
-            and agent.yCoord > targets[1].yCoord - PHOTOSYNTHESIS_BLOCK_RANGE \
-            and agent.yCoord < targets[1].yCoord + PHOTOSYNTHESIS_BLOCK_RANGE:
+   for agent in targetSet.environment.agentSet:
+       if agent.xCoord > targetSet.source.xCoord - PHOTOSYNTHESIS_BLOCK_RANGE \
+            and agent.xCoord < targetSet.source.xCoord + PHOTOSYNTHESIS_BLOCK_RANGE \
+            and agent.yCoord > targetSet.source.yCoord - PHOTOSYNTHESIS_BLOCK_RANGE \
+            and agent.yCoord < targetSet.source.yCoord + PHOTOSYNTHESIS_BLOCK_RANGE:
             blockingAgents += 1
 
             if blockingAgents > 2:
-                targets[1].abilities['photosynthesize'].blockedDuration = 1
+                targetSet.source.abilities['photosynthesize'].blockedDuration = 1
                 return
 
-   targets[1].traits['calories'].value += PHOTOSYNTHESIS_AMOUNT
-   targets[1].abilities['photosynthesize'].blockedDuration = 1
+   targetSet.source.traits['calories'].value += PHOTOSYNTHESIS_AMOUNT
+   targetSet.source.abilities['photosynthesize'].blockedDuration = 1
 
 
 
