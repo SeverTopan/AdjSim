@@ -112,6 +112,28 @@ class Agent(Resource):
         self.traits['abilities'].value = value
         return
 
+# PROPERTY METHOD - INTELLIGENCE
+#-------------------------------------------------------------------------------
+    @property
+    def intelligence(self):
+        return self.traits['intelligence'].value
+
+    @intelligence.setter
+    def intelligence(self, value):
+        self.traits['intelligence'].value = value
+        return
+
+# PROPERTY METHOD - GOALS
+#-------------------------------------------------------------------------------
+    @property
+    def goals(self):
+        return self.traits['goals'].value
+
+    @goals.setter
+    def goals(self, value):
+        self.traits['goals'].value = value
+        return
+
 # METHOD ADD TRAIT
 #-------------------------------------------------------------------------------
     def addTrait(self, name, value):
@@ -128,6 +150,7 @@ class Agent(Resource):
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
         self.addTrait('abilities', {})
         self.addTrait('intelligence', Agent.INTELLIGENCE_NONE)
+        self.addTrait('goals', [])
 
 #-------------------------------------------------------------------------------
 # CLASS TARGET PREDICATE
@@ -300,6 +323,25 @@ class Ability(Resource):
         self.effect(targets, conditionality)
 
         return True
+
+#-------------------------------------------------------------------------------
+# CLASS GOAL
+#-------------------------------------------------------------------------------
+class Goal(object):
+    """docstring for Goal."""
+
+# METHOD __INIT__
+#-------------------------------------------------------------------------------
+    def __init__(self, agent, traitName, evaluationFunction):
+        super(Goal, self).__init__()
+        self.trait = agent.traits[traitName]
+        self.evaluationFunction = evaluationFunction
+
+# METHOD evaluate
+# * return weighted goal result
+#-------------------------------------------------------------------------------
+    def evaluate(self):
+        return self.evaluationFunction(self.trait)
 
 #-------------------------------------------------------------------------------
 # CLASS THOUGHT MUTABILITY
