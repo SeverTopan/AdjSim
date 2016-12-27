@@ -139,6 +139,11 @@ class Agent(Resource):
     def addTrait(self, name, value):
         self.traits[name] = Trait(self.environment, name, value)
 
+# METHOD GET TRAIT
+#-------------------------------------------------------------------------------
+    def getTrait(self, name, value):
+        return self.traits.get(name).value
+
 
 # METHOD ADD MANDATORY TRAITS
 #-------------------------------------------------------------------------------
@@ -618,7 +623,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def simulate(self, numTimesteps, thread=None):
         # print header
-        self.printSnapshot()
+        # self.printSnapshot()
         print("Simulating: ", numTimesteps, " time steps")
 
         # draw initial frame
@@ -648,4 +653,4 @@ class Environment(Agent):
 
         # print footer
         print("...Simulation Complete")
-        self.environment.printSnapshot()
+        # self.environment.printSnapshot()
