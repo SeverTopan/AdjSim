@@ -98,10 +98,17 @@ def addNewAgents_effect(targetSet, conditionality):
        return
 
    # delete agents
-   targetSet.source.agentSet = {agent for agent in targetSet.source.agentSet \
-       if agent is targetSet.source \
-       or agent.traits['numNeighbours'].value is 2 \
-       or agent.traits['numNeighbours'].value is 3 }
+   removeList = []
+
+   for agent in targetSet.source.agentSet:
+       if agent is not targetSet.source \
+           and agent.traits['numNeighbours'].value != 2 \
+           and agent.traits['numNeighbours'].value != 3:
+           removeList.append(agent)
+
+   for agent in removeList:
+       targetSet.source.removeAgent(agent)
+
 
    # add new agents
    emptyNeighboursDict = targetSet.environment.traits['emptyNeighboursDict'].value

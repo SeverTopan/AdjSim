@@ -473,6 +473,11 @@ class Environment(Agent):
         return
 
 
+# METHOD REMOVE AGENT
+#-------------------------------------------------------------------------------
+    def removeAgent(self, agent):
+        self.agentSet.remove(agent)
+
 # METHOD EXECUTE TIMESTEP
 #-------------------------------------------------------------------------------
     def executeTimestep(self):

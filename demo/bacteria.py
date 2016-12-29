@@ -66,7 +66,7 @@ def eat_effect(targetSet, conditionality):
 
    targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
 
-   targetSet.environment.agentSet.remove(targetSet.targets[0])
+   targetSet.environment.removeAgent(targetSet.targets[0])
    targetSet.source.blockedDuration = 1
 
 # ABILITY - MOVE
@@ -122,7 +122,7 @@ def starve_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targetSet.environment.agentSet.remove(targetSet.source)
+   targetSet.environment.removeAgent(targetSet.source)
    targetSet.source.blockedDuration = 1
 
 # ABILITY - DIVIDE

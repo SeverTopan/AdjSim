@@ -65,7 +65,7 @@ def eat_effect(targetSet, conditionality):
    if targetSet.source.traits['calories'].value > CALORIE_UPPER_BOUND_PREDATOR:
        targetSet.source.traits['calories'].value = CALORIE_UPPER_BOUND_PREDATOR
 
-   targetSet.environment.agentSet.remove(targetSet.targets[0])
+   targetSet.environment.removeAgent(targetSet.targets[0])
 
 # ABILITY - MOVE
 #-------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ def starve_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targetSet.environment.agentSet.remove(targetSet.source)
+   targetSet.environment.removeAgent(targetSet.source)
    targetSet.source.blockedDuration = 1
 
 # ABILITY - DIVIDE
