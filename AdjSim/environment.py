@@ -38,6 +38,7 @@ class Agent(Resource):
 
     INTELLIGENCE_NONE = 0
     INTELLIGENCE_GENETIC_ALGORITHM = 1
+    INTELLIGENCE_Q_LEARNING = 2
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
@@ -77,6 +78,17 @@ class Agent(Resource):
     @size.setter
     def size(self, value):
         self.traits['size'].value = value
+        return
+
+# PROPERTY METHOD - TYPE
+#-------------------------------------------------------------------------------
+    @property
+    def type(self):
+        return self.traits['type'].value
+
+    @type.setter
+    def type(self, value):
+        self.traits['type'].value = value
         return
 
 # PROPERTY METHOD - COLOR
@@ -134,16 +146,47 @@ class Agent(Resource):
         self.traits['goals'].value = value
         return
 
+# PROPERTY METHOD - PERCEPTION
+#-------------------------------------------------------------------------------
+    @property
+    def perception(self):
+        return self.traits['perception'].value
+
+    @perception.setter
+    def perception(self, value):
+        self.traits['perception'].value = value
+        return
+
+# PROPERTY METHOD - HISTORY
+#-------------------------------------------------------------------------------
+    @property
+    def history(self):
+        return self.traits['history'].value
+
+    @history.setter
+    def history(self, value):
+        self.traits['history'].value = value
+        return
+
 # METHOD ADD TRAIT
 #-------------------------------------------------------------------------------
-    def addTrait(self, name, value):
-        self.traits[name] = Trait(self.environment, name, value)
+    def addTrait(self, name, value, thoughtMutability = None):
+        self.traits[name] = Trait(self.environment, name, value, thoughtMutability)
 
 # METHOD GET TRAIT
 #-------------------------------------------------------------------------------
-    def getTrait(self, name, value):
+    def getTrait(self, name):
         return self.traits.get(name).value
 
+# METHOD EVALUATE GOALS
+#-------------------------------------------------------------------------------
+    def evaluateGoals(self):
+        result = 0;
+
+        for goal in self.goals:
+            result += goal.evaluate()
+
+        return result
 
 # METHOD ADD MANDATORY TRAITS
 #-------------------------------------------------------------------------------
@@ -153,9 +196,12 @@ class Agent(Resource):
         self.addTrait('color', QtGui.QColor(BLUE_DARK))
         self.addTrait('style', QtCore.Qt.SolidPattern)
         self.addTrait('size', DEFAULT_OBJECT_RADIUS)
+        self.addTrait('type', self.name)
         self.addTrait('abilities', {})
         self.addTrait('intelligence', Agent.INTELLIGENCE_NONE)
         self.addTrait('goals', [])
+        self.addTrait('perception', None)
+        self.addTrait('history', [])
 
 #-------------------------------------------------------------------------------
 # CLASS TARGET PREDICATE
@@ -330,6 +376,42 @@ class Ability(Resource):
         return True
 
 #-------------------------------------------------------------------------------
+# CLASS HISTORY
+#-------------------------------------------------------------------------------
+class HistoricTimestep(object):
+    """docstring for HistoricTimestep."""
+
+# METHOD __INIT__
+#-------------------------------------------------------------------------------
+    def __init__(self):
+        super(HistoricTimestep, self).__init__()
+        self.abilitiesCast = []
+        self.thoughtMutableTraitValues = []
+        self.perceptionTuple = None
+        self.goalEvaluationAchieved = 0
+        self.moveScore = 0
+
+
+#-------------------------------------------------------------------------------
+# CLASS PERCEPTION
+#-------------------------------------------------------------------------------
+class Perception(object):
+    """docstring for Perception."""
+
+# METHOD __INIT__
+#-------------------------------------------------------------------------------
+    def __init__(self, evaluator):
+        super(Perception, self).__init__()
+        self.evaluator = evaluator
+
+# METHOD evaluate
+# * return list of percieved values
+#-------------------------------------------------------------------------------
+    def evaluate(self, source, agentSet):
+        return self.evaluator(source, agentSet)
+
+
+#-------------------------------------------------------------------------------
 # CLASS GOAL
 #-------------------------------------------------------------------------------
 class Goal(object):
@@ -433,10 +515,47 @@ class AnalysisIndex(object):
 
 
 #-------------------------------------------------------------------------------
+# CLASS Q LEARNING
+# * static container class for q learning related constants
+#-------------------------------------------------------------------------------
+class QLearning(object):
+    """docstring for QLearning."""
+
+    GAMMA = 0.1
+
+# METHOD __INIT__
+#-------------------------------------------------------------------------------
+    def __init__(self):
+        super(QLearning, self).__init__()
+
+# METHOD EVALUATE GAMMA
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def evaluateDiscountFactor(depth):
+        return QLearning.GAMMA**depth
+
+# METHOD EVALUATE BEST MOVES
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def evaluateBestMoves(historyBank, bestMoveDict):
+        for agentType, agentHistoryArray in historyBank.items():
+            for agentHistory in agentHistoryArray:
+                for historicTimestep in agentHistory:
+                    bestMove = bestMoveDict.get(historicTimestep.perceptionTuple)
+
+                    if not bestMove or bestMove.moveScore < historicTimestep.moveScore:
+                        bestMoveDict[historicTimestep.perceptionTuple] = historicTimestep
+
+#-------------------------------------------------------------------------------
 # CLASS ENVIRONMENT
 #-------------------------------------------------------------------------------
 class Environment(Agent):
     """docstring for Environment."""
+
+    SIMULATION_TYPE_TRAIN = 0
+    SIMULATION_TYPE_TEST = 1
+
+    simulationType = SIMULATION_TYPE_TRAIN
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
@@ -449,6 +568,11 @@ class Environment(Agent):
         # initialize default indices
         typeIndex = AnalysisIndex(self, 'type', AnalysisIndex.ACCUMULATE_AGENTS)
         self.addTrait('indices', {typeIndex})
+
+        # initialize q learning matrix for intelligent agents
+        self.addTrait('bestMoveDict', {})
+        self.addTrait('historyBank', {})
+
 
 # PROPERTY METHOD - AGENTSET
 #-------------------------------------------------------------------------------
@@ -472,10 +596,46 @@ class Environment(Agent):
         self.traits['indices'].value = value
         return
 
+# PROPERTY METHOD - AGENT TYPE Q MATRIX
+#-------------------------------------------------------------------------------
+    @property
+    def bestMoveDict(self):
+        return self.traits['bestMoveDict'].value
+
+    @bestMoveDict.setter
+    def bestMoveDict(self, value):
+        self.traits['bestMoveDict'].value = value
+        return
+
+# PROPERTY METHOD - HISTORY BANK
+#-------------------------------------------------------------------------------
+    @property
+    def historyBank(self):
+        return self.traits['historyBank'].value
+
+    @historyBank.setter
+    def historyBank(self, value):
+        self.traits['historyBank'].value = value
+        return
+
+# METHOD BANK HISTORY
+#-------------------------------------------------------------------------------
+    def bankHistory(self, agent):
+        if agent.history:
+            historyBank = self.historyBank.get(agent.type)
+
+            if not historyBank:
+                self.historyBank[agent.type] = [agent.history]
+            else:
+                historyBank.append(agent.history)
 
 # METHOD REMOVE AGENT
 #-------------------------------------------------------------------------------
     def removeAgent(self, agent):
+        # store history in historyBank for later evaluation if training
+        if Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
+            self.bankHistory(agent)
+
         self.agentSet.remove(agent)
 
 # METHOD EXECUTE TIMESTEP
@@ -501,6 +661,64 @@ class Environment(Agent):
     def executeAbilities(self, agent=None):
         if not agent:
             agent = self
+
+        # delegate ability cast call based on agent intelligence type
+        if agent.intelligence == Agent.INTELLIGENCE_NONE:
+            return self.executeAbilities_intelligenceNone(agent)
+        elif agent.intelligence == Agent.INTELLIGENCE_Q_LEARNING:
+            return self.executeAbilities_intelligenceQLearning(agent)
+        else:
+            raise Exception("Unidentified agent intelligence type")
+            return
+
+# METHOD EXECUTE ABILITIES - Q LEARNING AGENT INTELLIGENCE
+#-------------------------------------------------------------------------------
+    def executeAbilities_intelligenceQLearning(self, agent):
+
+        # error check
+        if not agent.perception:
+            raise Exception("Q learning for agent without perception")
+        if not agent.goals:
+            raise Exception("Q learning for agent without goals")
+
+        # init newest history log frame
+        agent.history.append(HistoricTimestep())
+
+        # init type based best move dict if not already present
+        if not self.bestMoveDict.get(agent.type):
+            self.bestMoveDict[agent.type] = {}
+
+        # obtain agent perception information
+        currentPerceptionTuple = tuple(agent.perception.evaluate(agent, self.agentSet))
+
+        # perform actions:
+        # testing mode
+        if Environment.simulationType == Environment.SIMULATION_TYPE_TEST:
+            bestMove = self.bestMoveDict[agent.type].get(currentPerceptionTuple)
+            if not bestMove:
+                self.executeAbilities_intelligenceNone(agent)
+            else:
+                print('best move ability execution not implemented')
+        # training mode
+        elif Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
+            self.executeAbilities_intelligenceNone(agent, logHistory=True)
+
+            # evaluate agent goal attainment value
+            goalValue = agent.evaluateGoals()
+            agent.history[-1].goalEvaluationAchieved = goalValue
+            agent.history[-1].perceptionTuple = currentPerceptionTuple
+
+            for index, historicTimestep in enumerate(agent.history[-10:]):
+                historicTimestep.goalEvaluationAchieved += \
+                    QLearning.evaluateDiscountFactor(len(agent.history) - index) * goalValue
+
+        else:
+            raise Exception('Unknown Environment Simulation Type')
+
+
+# METHOD EXECUTE ABILITIES - NO AGENT INTELLIGENCE
+#-------------------------------------------------------------------------------
+    def executeAbilities_intelligenceNone(self, agent, logHistory=False):
 
         # repeatedly cast abilities until no more abilities are cast
         oneOrMoreAbilitiesCast = True
@@ -531,8 +749,19 @@ class Environment(Agent):
 
                 logging.debug("%s casting: %s", agent.name, ability.name)
 
+                # random choice of thought mutable trait values
+                for trait in agent.traits.values():
+                    if trait.thoughtMutability:
+                        trait.value = random.choice(trait.thoughtMutability.acceptableValues)
+
                 ability.cast(CONDITIONAL, chosenTargets)
                 oneOrMoreAbilitiesCast = True
+
+                # log history
+                if logHistory:
+                    agent.history[-1].abilitiesCast.append(ability.name)
+                    agent.history[-1].thoughtMutableTraitValues.append( \
+                        [t.value for t in agent.traits.values() if t.thoughtMutability])
 
 
 # METHOD EXECUTE ALL AGENT ABILITIES
@@ -549,7 +778,6 @@ class Environment(Agent):
 
         # cast environment abilities
         self.executeAbilities()
-
 
 # METHOD PLOT INDICES
 #-------------------------------------------------------------------------------
@@ -652,7 +880,22 @@ class Environment(Agent):
                 thread.emit(thread.signal, self.agentSet.copy())
                 self.prevStepAnimationStart = time.time()
 
-        # log last index entry amd plot
+        # log best moves given training simulation
+        if Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
+            print('logging best moves...')
+
+            # bank
+            for agent in self.agentSet:
+                self.bankHistory(agent)
+
+            # evaluate
+            QLearning.evaluateBestMoves(self.historyBank, self.bestMoveDict)
+
+            # debug printing of best moves
+            for perception, bestMove in self.bestMoveDict.items():
+                print(perception, " : ", bestMove)
+
+        # log last index entry and plot
         self.logIndices(numTimesteps)
         self.plotIndices()
 
