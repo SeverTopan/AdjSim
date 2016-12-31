@@ -179,13 +179,17 @@ def perception_bacterium_evaluator(source, agentSet):
         return (0, 0)
 
     # return normalized coordinates
-    dx = (closestAgent.xCoord - source.xCoord) / closestAgentDistance**0.5
-    dy = (closestAgent.yCoord - source.yCoord) / closestAgentDistance**0.5
+    # dx = (closestAgent.xCoord - source.xCoord) / closestAgentDistance**0.5
+    # dy = (closestAgent.yCoord - source.yCoord) / closestAgentDistance**0.5
 
-    # theta = math.tan((closestAgent.yCoord - source.yCoord)/(closestAgent.xCoord - source.xCoord))
-    # r = closestAgentDistance**0.5
+    # handle division by 0
+    if closestAgent.xCoord - source.xCoord == 0:
+        theta = math.copysign(math.pi, (closestAgent.yCoord - source.yCoord))
+    else:
+        theta = math.atan((closestAgent.yCoord - source.yCoord)/(closestAgent.xCoord - source.xCoord))
+    r = closestAgentDistance**0.5
 
-    return (round(dx, 1), round(dy, 1))
+    return (round(theta, 1), round(r, -1))
 
 
 #-------------------------------------------------------------------------------
