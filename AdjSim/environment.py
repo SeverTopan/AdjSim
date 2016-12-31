@@ -6,12 +6,13 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
-import sys
+import sys, os
 import re
 import inspect
 import random
 import logging
 import time
+import pickle
 import matplotlib.pyplot as plot
 from constants import *
 from PyQt4 import QtCore, QtGui
@@ -521,7 +522,7 @@ class AnalysisIndex(object):
 class QLearning(object):
     """docstring for QLearning."""
 
-    GAMMA = 0.1
+    GAMMA = 0.9
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
@@ -534,6 +535,59 @@ class QLearning(object):
     def evaluateDiscountFactor(depth):
         return QLearning.GAMMA**depth
 
+# METHOD LOAD BEST MOVES
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def loadBestMoves(environment):
+        # print ui messages
+        if os.path.isfile('pickle'):
+            print('Q Learning training data found; loading...')
+        else:
+            print('Q Learning training data not found.')
+            return
+
+        # load data
+        environment.bestMoveDict = pickle.load(open('pickle', 'rb'))
+
+        # ui messages
+        print('...done.')
+
+        # print a debug snapshot of the learned moves
+        for agentType, bestMoveList in environment.bestMoveDict.items():
+            print(agentType, ': ')
+            for perception, bestMove in bestMoveList.items():
+                print('   ', perception, " : ", bestMove.moveScore)
+
+
+# METHOD LOG BEST MOVES
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def logBestMoves(environment):
+        print('logging best moves...')
+
+        # bank
+        for agent in environment.agentSet:
+            environment.bankHistory(agent)
+
+        # evaluate
+        QLearning.evaluateBestMoves(environment.historyBank, environment.bestMoveDict)
+
+        # remove old file if still prevStepAnimationStart
+        if os.path.isfile('pickle'):
+            os.remove('pickle')
+
+        # write to file
+        pickle.dump(environment.bestMoveDict, open('pickle', 'wb'), pickle.HIGHEST_PROTOCOL)
+
+        print('...done.')
+
+        # debug printing of best moves
+        for agentType, bestMoveList in environment.bestMoveDict.items():
+            print(agentType, ': ')
+            for perception, bestMove in bestMoveList.items():
+                print('   ', perception, " : ", bestMove.moveScore)
+
+
 # METHOD EVALUATE BEST MOVES
 #-------------------------------------------------------------------------------
     @staticmethod
@@ -541,10 +595,15 @@ class QLearning(object):
         for agentType, agentHistoryArray in historyBank.items():
             for agentHistory in agentHistoryArray:
                 for historicTimestep in agentHistory:
-                    bestMove = bestMoveDict.get(historicTimestep.perceptionTuple)
+                    # init type based best move dict if not already present
+                    if not bestMoveDict.get(agentType):
+                        bestMoveDict[agentType] = {}
+
+                    # populate with best moves
+                    bestMove = bestMoveDict[agentType].get(historicTimestep.perceptionTuple)
 
                     if not bestMove or bestMove.moveScore < historicTimestep.moveScore:
-                        bestMoveDict[historicTimestep.perceptionTuple] = historicTimestep
+                        bestMoveDict[agentType][historicTimestep.perceptionTuple] = historicTimestep
 
 #-------------------------------------------------------------------------------
 # CLASS ENVIRONMENT
@@ -555,7 +614,7 @@ class Environment(Agent):
     SIMULATION_TYPE_TRAIN = 0
     SIMULATION_TYPE_TEST = 1
 
-    simulationType = SIMULATION_TYPE_TRAIN
+    simulationType = SIMULATION_TYPE_TEST
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
@@ -684,21 +743,60 @@ class Environment(Agent):
         # init newest history log frame
         agent.history.append(HistoricTimestep())
 
-        # init type based best move dict if not already present
-        if not self.bestMoveDict.get(agent.type):
-            self.bestMoveDict[agent.type] = {}
-
         # obtain agent perception information
         currentPerceptionTuple = tuple(agent.perception.evaluate(agent, self.agentSet))
 
         # perform actions:
         # testing mode
         if Environment.simulationType == Environment.SIMULATION_TYPE_TEST:
-            bestMove = self.bestMoveDict[agent.type].get(currentPerceptionTuple)
-            if not bestMove:
+            # obtain best move, cast non-intelligent function otherwise
+            agentTypeMoveDict = self.bestMoveDict.get(agent.type)
+            if not agentTypeMoveDict:
+                print('q learning selected but no', agent.type, 'training data found')
+                for agentType, bestMoveList in self.bestMoveDict.items():
+                    print(agentType, ': ')
                 self.executeAbilities_intelligenceNone(agent)
-            else:
-                print('best move ability execution not implemented')
+                return
+
+            bestMove = agentTypeMoveDict.get(currentPerceptionTuple)
+            if not bestMove:
+                print('no q learning option for perception tuple ', currentPerceptionTuple)
+                self.executeAbilities_intelligenceNone(agent)
+                return
+
+            # the following details the best move ability execution.
+            # the abilities from the learned best move are cast in order.
+            # if an ability cannot be cast, it will still be attempted!
+            for i in range(len(bestMove.abilitiesCast)):
+                # set thought mutable traits
+                for name, value in bestMove.thoughtMutableTraitValues[i]:
+                    agent.traits.get(name).value = value
+
+                # attempt ability cast
+                ability = agent.abilities.get(bestMove.abilitiesCast[i])
+                if not ability:
+                    raise Exception('Best move ability from training data not known by agent')
+
+                # abort if blocked or non-existent
+                if ability.blockedDuration > 0 or agent.blockedDuration > 0:
+                    print('learned ability uncastable - blocked')
+                    continue
+
+                potentialTargets = ability.getPotentialTargets()
+                if not potentialTargets:
+                    ability.cast(UNCONDITIONAL)
+                    print('learned ability', ability.name, 'uncastable - no potential targets')
+                    continue
+
+                chosenTargets = ability.chooseTargetSet(potentialTargets)
+                if not chosenTargets:
+                    # this should never occur until the decsion module is implemented
+                    raise Exception("Chosen Targets in q learning not selected properly")
+                    continue
+
+                logging.debug("%s casting: %s", agent.name, ability.name)
+                ability.cast(CONDITIONAL, chosenTargets)
+
         # training mode
         elif Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
             self.executeAbilities_intelligenceNone(agent, logHistory=True)
@@ -708,8 +806,8 @@ class Environment(Agent):
             agent.history[-1].goalEvaluationAchieved = goalValue
             agent.history[-1].perceptionTuple = currentPerceptionTuple
 
-            for index, historicTimestep in enumerate(agent.history[-10:]):
-                historicTimestep.goalEvaluationAchieved += \
+            for index, historicTimestep in enumerate(agent.history[-20:]):
+                historicTimestep.moveScore += \
                     QLearning.evaluateDiscountFactor(len(agent.history) - index) * goalValue
 
         else:
@@ -744,7 +842,7 @@ class Environment(Agent):
                 chosenTargets = ability.chooseTargetSet(potentialTargets)
                 if not chosenTargets:
                     # this should never occur until the decsion module is implemented
-                    raise Exception("Chosen Targets not selected properly")
+                    raise Exception("Chosen Targets in nointelligence not selected properly")
                     continue
 
                 logging.debug("%s casting: %s", agent.name, ability.name)
@@ -759,9 +857,15 @@ class Environment(Agent):
 
                 # log history
                 if logHistory:
+                    # log ability
                     agent.history[-1].abilitiesCast.append(ability.name)
-                    agent.history[-1].thoughtMutableTraitValues.append( \
-                        [t.value for t in agent.traits.values() if t.thoughtMutability])
+
+                    # log thought mutable traits
+                    traitDict = []
+                    for traitKey, trait in agent.traits.items():
+                        if trait.thoughtMutability:
+                            traitDict.append((traitKey, trait.value))
+                    agent.history[-1].thoughtMutableTraitValues.append(traitDict)
 
 
 # METHOD EXECUTE ALL AGENT ABILITIES
@@ -864,6 +968,9 @@ class Environment(Agent):
             thread.emit(thread.signal, self.agentSet)
             time.sleep(1)
 
+        # load learned Data
+        QLearning.loadBestMoves(self)
+
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
             print("Timestep: ", timeStep)
@@ -882,22 +989,11 @@ class Environment(Agent):
 
         # log best moves given training simulation
         if Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
-            print('logging best moves...')
-
-            # bank
-            for agent in self.agentSet:
-                self.bankHistory(agent)
-
-            # evaluate
-            QLearning.evaluateBestMoves(self.historyBank, self.bestMoveDict)
-
-            # debug printing of best moves
-            for perception, bestMove in self.bestMoveDict.items():
-                print(perception, " : ", bestMove)
+            QLearning.logBestMoves(self)
 
         # log last index entry and plot
         self.logIndices(numTimesteps)
-        self.plotIndices()
+        # self.plotIndices()
 
         # print footer
         print("...Simulation Complete")
