@@ -524,6 +524,11 @@ class QLearning(object):
 
     GAMMA = 0.9
 
+    SIMULATION_TYPE_TRAIN = 0
+    SIMULATION_TYPE_TEST = 1
+
+    SIMULATION_TYPE = SIMULATION_TYPE_TEST
+
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self):
@@ -611,11 +616,6 @@ class QLearning(object):
 class Environment(Agent):
     """docstring for Environment."""
 
-    SIMULATION_TYPE_TRAIN = 0
-    SIMULATION_TYPE_TEST = 1
-
-    simulationType = SIMULATION_TYPE_TEST
-
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self):
@@ -692,7 +692,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def removeAgent(self, agent):
         # store history in historyBank for later evaluation if training
-        if Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
+        if QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
             self.bankHistory(agent)
 
         self.agentSet.remove(agent)
@@ -748,7 +748,7 @@ class Environment(Agent):
 
         # perform actions:
         # testing mode
-        if Environment.simulationType == Environment.SIMULATION_TYPE_TEST:
+        if QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TEST:
             # obtain best move, cast non-intelligent function otherwise
             agentTypeMoveDict = self.bestMoveDict.get(agent.type)
             if not agentTypeMoveDict:
@@ -798,7 +798,7 @@ class Environment(Agent):
                 ability.cast(CONDITIONAL, chosenTargets)
 
         # training mode
-        elif Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
+        elif QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
             self.executeAbilities_intelligenceNone(agent, logHistory=True)
 
             # evaluate agent goal attainment value
@@ -988,7 +988,7 @@ class Environment(Agent):
                 self.prevStepAnimationStart = time.time()
 
         # log best moves given training simulation
-        if Environment.simulationType == Environment.SIMULATION_TYPE_TRAIN:
+        if QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
             QLearning.logBestMoves(self)
 
         # log last index entry and plot
