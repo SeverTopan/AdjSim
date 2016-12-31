@@ -63,7 +63,6 @@ class AdjSim(object):
         exec(open(AdjSim.scriptPath).read(), locals())
 
         environment.simulate(AdjSim.simulationLength, thread)
-        time.sleep(20)
 
 # METHOD GET LOG PATH
 #-------------------------------------------------------------------------------
