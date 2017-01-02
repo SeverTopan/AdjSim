@@ -522,7 +522,8 @@ class AnalysisIndex(object):
 class QLearning(object):
     """docstring for QLearning."""
 
-    GAMMA = 0.9
+    GAMMA = 0.8
+    LOOKAHEAD_CAP = 20
 
     SIMULATION_TYPE_TRAIN = 0
     SIMULATION_TYPE_TEST = 1
@@ -555,13 +556,8 @@ class QLearning(object):
         environment.bestMoveDict = pickle.load(open('pickle', 'rb'))
 
         # ui messages
+        # environment.printBestMoveDict()
         print('...done.')
-
-        # print a debug snapshot of the learned moves
-        for agentType, bestMoveList in environment.bestMoveDict.items():
-            print(agentType, ': ')
-            for perception, bestMove in bestMoveList.items():
-                print('   ', perception, " : ", bestMove.moveScore)
 
 
 # METHOD LOG BEST MOVES
@@ -584,13 +580,9 @@ class QLearning(object):
         # write to file
         pickle.dump(environment.bestMoveDict, open('pickle', 'wb'), pickle.HIGHEST_PROTOCOL)
 
+        # environment.printBestMoveDict()
         print('...done.')
 
-        # debug printing of best moves
-        for agentType, bestMoveList in environment.bestMoveDict.items():
-            print(agentType, ': ')
-            for perception, bestMove in bestMoveList.items():
-                print('   ', perception, " : ", bestMove.moveScore)
 
 
 # METHOD EVALUATE BEST MOVES
@@ -677,6 +669,16 @@ class Environment(Agent):
         self.traits['historyBank'].value = value
         return
 
+# METHOD PRINT BEST MOVE DICT
+#-------------------------------------------------------------------------------
+    def printBestMoveDict(self):
+        for agentType, bestMoveList in self.bestMoveDict.items():
+            print(agentType, ': ')
+            for perception, bestMove in bestMoveList.items():
+                print('   ', perception, " : ", bestMove.moveScore)
+                for i in range(len(bestMove.abilitiesCast)):
+                    print('      ', bestMove.abilitiesCast[i], \
+                        ' - ', bestMove.thoughtMutableTraitValues[i])
 # METHOD BANK HISTORY
 #-------------------------------------------------------------------------------
     def bankHistory(self, agent):
@@ -740,9 +742,6 @@ class Environment(Agent):
         if not agent.goals:
             raise Exception("Q learning for agent without goals")
 
-        # init newest history log frame
-        agent.history.append(HistoricTimestep())
-
         # obtain agent perception information
         currentPerceptionTuple = tuple(agent.perception.evaluate(agent, self.agentSet))
 
@@ -799,6 +798,10 @@ class Environment(Agent):
 
         # training mode
         elif QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
+
+            # init newest history log frame
+            agent.history.append(HistoricTimestep())
+
             self.executeAbilities_intelligenceNone(agent, logHistory=True)
 
             # evaluate agent goal attainment value
@@ -806,7 +809,9 @@ class Environment(Agent):
             agent.history[-1].goalEvaluationAchieved = goalValue
             agent.history[-1].perceptionTuple = currentPerceptionTuple
 
-            for index, historicTimestep in enumerate(agent.history[-20:]):
+            # modify q values for past moves
+            # only modify LOOKAHEAD_CAP number of moves backwards
+            for index, historicTimestep in enumerate(agent.history[-QLearning.LOOKAHEAD_CAP:]):
                 historicTimestep.moveScore += \
                     QLearning.evaluateDiscountFactor(len(agent.history) - index) * goalValue
 
