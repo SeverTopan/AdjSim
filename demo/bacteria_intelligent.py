@@ -16,6 +16,7 @@ from PyQt4 import QtGui, QtCore
 #-------------------------------------------------------------------------------
 
 MOVEMENT_COST = 5
+STARVE_COST = 2
 
 #-------------------------------------------------------------------------------
 # ABILITIES
@@ -38,22 +39,7 @@ def eat_predicate_food(env, sel, target):
    else:
        return False
 
-def eat_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['eat'].blockedDuration is 0:
-       return True
-   else:
-       return False
-
-def eat_predicate_env(target):
-   return True
-
-eat_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, eat_predicate_env), \
-   TargetPredicate(TargetPredicate.SOURCE, eat_predicate_self), \
-   TargetPredicate(0, eat_predicate_food)]
+eat_predicateList = [TargetPredicate(0, eat_predicate_food)]
 
 eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'food' \
    and ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
@@ -72,12 +58,7 @@ def eat_effect(targetSet, conditionality):
 # ABILITY - MOVE
 #-------------------------------------------------------------------------------
 def move_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['move'].blockedDuration is 0 \
-       and target.blockedDuration is 0:
+   if target.abilities['move'].blockedDuration is 0:
        return True
    else:
        return False
@@ -106,32 +87,32 @@ def move_effect(targetSet, conditionality):
 # ABILITY - STARVE
 #-------------------------------------------------------------------------------
 def starve_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0:
-       return True
-   else:
-       return False
+   return True
+
 starve_predicateList = [TargetPredicate(TargetPredicate.SOURCE, starve_predicate_self)]
 
-starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
+starve_condition = lambda targetSet: True
 
 def starve_effect(targetSet, conditionality):
    if conditionality is UNCONDITIONAL:
        return
 
-   targetSet.environment.removeAgent(targetSet.source)
+   removalSet = set()
+   for agent in targetSet.source.agentSet:
+       if agent.type == 'bacteria':
+           agent.traits['calories'].value -= STARVE_COST
+           if agent.traits['calories'].value <= 0:
+               removalSet.add(agent)
+
+   for agent in removalSet:
+       targetSet.source.removeAgent(agent)
+
    targetSet.source.blockedDuration = 1
 
 # ABILITY - DIVIDE
 #-------------------------------------------------------------------------------
 def divide_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['divide'].blockedDuration is 0:
+   if target.abilities['divide'].blockedDuration is 0:
        return True
    else:
        return False
@@ -178,10 +159,6 @@ def perception_bacterium_evaluator(source, agentSet):
     if not closestAgent:
         return (0, 0)
 
-    # return normalized coordinates
-    # dx = (closestAgent.xCoord - source.xCoord) / closestAgentDistance**0.5
-    # dy = (closestAgent.yCoord - source.yCoord) / closestAgentDistance**0.5
-
     # handle division by 0
     if closestAgent.xCoord - source.xCoord == 0:
         theta = math.copysign(math.pi, (closestAgent.yCoord - source.yCoord))
@@ -219,8 +196,6 @@ def createBacteria(environment, x, y):
         eat_condition, eat_effect)
     bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
         move_condition, move_effect)
-    bacterium.abilities["starve"] = Ability(environment, "starve", bacterium, starve_predicateList, \
-        starve_condition, starve_effect)
 
 
     # goals
@@ -236,7 +211,7 @@ def createBacteria(environment, x, y):
 # create bacteria agents
 for i in range(5):
    for j in range(5):
-       createBacteria(environment, 10 * i, 10 * j)
+       createBacteria(environment, 10 * i, 10* j)
 
 # create yogurt agents
 for i in range(20):
@@ -248,3 +223,8 @@ for i in range(20):
        yogurt.size = 5
        yogurt.color = QtGui.QColor(PINK)
        environment.agentSet.add(yogurt)
+
+
+# init environment
+environment.abilities["starve"] = Ability(environment, "starve", environment, \
+    starve_predicateList, starve_condition, starve_effect)
