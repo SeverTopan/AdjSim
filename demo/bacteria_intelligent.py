@@ -35,6 +35,21 @@ def eat_predicate_food(env, sel, target):
        and target.yCoord < sel.yCoord + sel.traits.get('interactRange').value \
        and target.yCoord > sel.yCoord - sel.traits.get('interactRange').value \
        and target.traits.get('calories') is not None:
+
+       # eat only closest
+       closestAgentDistance = (target.xCoord - sel.xCoord)**2 + (target.yCoord - sel.yCoord)**2
+       closestAgent = target
+
+       for agent in env.agentSet:
+           if agent.type != 'food' or agent == target:
+               continue
+
+           currDist = (agent.xCoord - sel.xCoord)**2 + (agent.yCoord - sel.yCoord)**2
+           if currDist < closestAgentDistance:
+               closestAgentDistance = currDist
+               closestAgent = agent
+               return False
+
        return True
    else:
        return False
@@ -51,6 +66,7 @@ def eat_effect(targetSet, conditionality):
        return
 
    targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
+   targetSet.source.traits['dcal'].value += targetSet.targets[0].traits['calories'].value
 
    targetSet.environment.removeAgent(targetSet.targets[0])
    targetSet.source.blockedDuration = 1
@@ -71,6 +87,7 @@ def move_effect(targetSet, conditionality):
        return
 
    targetSet.source.traits['calories'].value -= MOVEMENT_COST
+   targetSet.source.traits['dcal'].value -= MOVEMENT_COST
 
    movementMultiplier = targetSet.source.traits['interactRange'].value * 2
    moveTheta = math.radians(targetSet.source.getTrait('moveTheta'))
@@ -101,13 +118,14 @@ def starve_effect(targetSet, conditionality):
    for agent in targetSet.source.agentSet:
        if agent.type == 'bacteria':
            agent.traits['calories'].value -= STARVE_COST
+           agent.traits['dcal'].value = -STARVE_COST
            if agent.traits['calories'].value <= 0:
                removalSet.add(agent)
 
    for agent in removalSet:
        targetSet.source.removeAgent(agent)
 
-   targetSet.source.blockedDuration = 1
+   targetSet.source.abilities['starve'].blockedDuration = 1
 
 # ABILITY - DIVIDE
 #-------------------------------------------------------------------------------
@@ -130,6 +148,7 @@ def divide_effect(targetSet, conditionality):
        return
 
    targetSet.source.traits['calories'].value -= 75
+   targetSet.source.traits['dcal'].value -= 75
    targetSet.source.blockedDuration = 2
 
    createBacteria(targetSet.environment, targetSet.source.xCoord + 10, targetSet.source.yCoord)
@@ -139,7 +158,7 @@ def divide_effect(targetSet, conditionality):
 # goal evaluation function
 #-------------------------------------------------------------------------------
 def goal_bacterium_evaluation(trait):
-    return trait.value * 10
+    return trait.value
 
 # perception evaluation function
 #-------------------------------------------------------------------------------
@@ -166,7 +185,12 @@ def perception_bacterium_evaluator(source, agentSet):
         theta = math.atan((closestAgent.yCoord - source.yCoord)/(closestAgent.xCoord - source.xCoord))
     r = closestAgentDistance**0.5
 
-    return (round(theta, 1), round(r, -1))
+    # state discrimination traits
+    canMove = source.abilities['move'].blockedDuration > 0
+    # canDivide = source.abilities['divide'].blockedDuration > 0
+    canEat = source.abilities['eat'].blockedDuration > 0
+
+    return (round(theta, 2), round(r), canMove, canEat)
 
 
 #-------------------------------------------------------------------------------
@@ -179,9 +203,9 @@ def createBacteria(environment, x, y):
     bacterium = Agent(environment, "bacterium", x, y)
     bacterium.addTrait('type', 'bacteria')
     bacterium.addTrait('calories', 75)
+    bacterium.addTrait('dcal', 0)
     bacterium.addTrait('interactRange', 10)
     bacterium.intelligence = Agent.INTELLIGENCE_Q_LEARNING
-    bacterium.blockedDuration = 2
     bacterium.size = 10
     bacterium.color = QtGui.QColor(GREEN)
     environment.traits['agentSet'].value.add(bacterium)
@@ -190,8 +214,8 @@ def createBacteria(environment, x, y):
     bacterium.addTrait('moveTheta', 0, ThoughtMutability([x for x in range(0, 360, 20)]))
     bacterium.addTrait('moveR', 0, ThoughtMutability([y/10 for y in range(11)]))
 
-    bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
-        divide_predicateList, divide_condition, divide_effect)
+    # bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
+    #     divide_predicateList, divide_condition, divide_effect)
     bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
         eat_condition, eat_effect)
     bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
@@ -199,7 +223,7 @@ def createBacteria(environment, x, y):
 
 
     # goals
-    bacterium.goals.append(Goal(bacterium, 'calories', goal_bacterium_evaluation))
+    bacterium.goals.append(Goal(bacterium, 'dcal', goal_bacterium_evaluation))
 
     # perception
     bacterium.addTrait('perception', Perception(perception_bacterium_evaluator))
@@ -224,6 +248,9 @@ for i in range(20):
        yogurt.color = QtGui.QColor(PINK)
        environment.agentSet.add(yogurt)
 
+# for _ in range(20):
+#     createBacteria(environment, 0, 30)
+# createBacteria(environment, 0, 30)
 
 # init environment
 environment.abilities["starve"] = Ability(environment, "starve", environment, \
