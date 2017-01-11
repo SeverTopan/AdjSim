@@ -246,8 +246,7 @@ class Agent(Resource):
         if not ability:
             timeStepLookBack = 0
             elementLookBack = 0
-            while timeStepLookBack < QLearning.LOOKAHEAD_CAP \
-                and elementLookBack < len(self.history):
+            while elementLookBack < len(self.history):
                 accessElement = len(self.history) - elementLookBack - 1
 
                 # incr timestep counter on new ability chain that falls within a timestep
@@ -255,6 +254,10 @@ class Agent(Resource):
                 if self.history[accessElement].abilityCast == Ability.NONE \
                     and elementLookBack > 0:
                     timeStepLookBack += 1
+
+                    # exit condition given lookahead cap
+                    if timeStepLookBack > QLearning.LOOKAHEAD_CAP:
+                        break
 
                 self.history[accessElement].moveScore += \
                     QLearning.evaluateDiscountFactor(timeStepLookBack) * goalValue
@@ -584,11 +587,13 @@ class QLearning(object):
 
     GAMMA = .95
     LOOKAHEAD_CAP = 50
+    EPSILON_GREEDY_FACTOR = .7
 
     SIMULATION_TYPE_TRAIN = 0
     SIMULATION_TYPE_TEST = 1
 
     SIMULATION_TYPE = SIMULATION_TYPE_TEST
+    PRINT_DEBUG = False
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
@@ -616,7 +621,8 @@ class QLearning(object):
         environment.bestMoveDict = pickle.load(open('pickle', 'rb'))
 
         # ui messages
-        environment.printBestMoveDict()
+        if QLearning.PRINT_DEBUG:
+            environment.printBestMoveDict()
         print('...done.')
 
 
@@ -640,7 +646,10 @@ class QLearning(object):
         # write to file
         pickle.dump(environment.bestMoveDict, open('pickle', 'wb'), pickle.HIGHEST_PROTOCOL)
 
-        # environment.printBestMoveDict()
+        # print messages
+        if QLearning.PRINT_DEBUG:
+            environment.printBestMoveDict()
+
         print('...done.')
 
 
@@ -652,8 +661,13 @@ class QLearning(object):
         for agentType, agentHistoryArray in historyBank.items():
             for agentHistory in agentHistoryArray:
                 for historicTimestep in agentHistory:
-                    print('scanning: ', historicTimestep.perceptionTuple, ' : ', historicTimestep.abilityCast, ' - ', \
-                            historicTimestep.thoughtMutableTraitValues, ' - ', historicTimestep.moveScore, ' - ', historicTimestep.goalEvaluationAchieved)
+                    # debug message
+                    if QLearning.PRINT_DEBUG:
+                        print('scanning: ', historicTimestep.perceptionTuple, ' : ', \
+                            historicTimestep.abilityCast, ' - ', \
+                            historicTimestep.thoughtMutableTraitValues, ' - ', \
+                            historicTimestep.moveScore, ' - ', \
+                            historicTimestep.goalEvaluationAchieved)
 
                     # init type based best move dict if not already present
                     if not bestMoveDict.get(agentType):
@@ -664,8 +678,18 @@ class QLearning(object):
 
                     if not bestMove or bestMove.moveScore < historicTimestep.moveScore:
                         bestMoveDict[agentType][historicTimestep.perceptionTuple] = historicTimestep
-                        print('inserting: ', historicTimestep.perceptionTuple, ' : ', historicTimestep.abilityCast, ' - ', \
-                                historicTimestep.thoughtMutableTraitValues, ' - ', historicTimestep.moveScore,  ' - ', historicTimestep.goalEvaluationAchieved)
+
+                        # debug message
+                        if QLearning.PRINT_DEBUG:
+                            print('inserting.')
+
+                    # debug message
+                    if QLearning.PRINT_DEBUG and bestMove and bestMove.moveScore > historicTimestep.moveScore:
+                        print('previous move better: ', bestMove.perceptionTuple, ' : ', \
+                            bestMove.abilityCast, ' - ', \
+                            bestMove.thoughtMutableTraitValues, ' - ', \
+                            bestMove.moveScore, ' - ', \
+                            bestMove.goalEvaluationAchieved)
 
 #-------------------------------------------------------------------------------
 # CLASS ENVIRONMENT
@@ -801,7 +825,6 @@ class Environment(Agent):
 # METHOD EXECUTE ABILITIES - Q LEARNING AGENT INTELLIGENCE
 #-------------------------------------------------------------------------------
     def executeAbilities_intelligenceQLearning(self, agent):
-
         # error check
         if not agent.perception:
             raise Exception("Q learning for agent without perception")
@@ -820,78 +843,108 @@ class Environment(Agent):
                 self.executeAbilities_intelligenceNone(agent)
                 return
 
-            # the following details the best move ability execution.
-            # the abilities from the learned best move are cast in order.
-            # if an ability cannot be cast, it will still be attempted!
-            castCount = 0
-            while True:
+            # execute ability
+            self.executeAbilities_intelligenceQLearning_bestMove(agent, agentTypeMoveDict)
 
-                # obtain agent perception information
-                currentPerceptionTuple = agent.getPerceptionTuple(castCount)
-                bestMove = agentTypeMoveDict.get(currentPerceptionTuple)
-                castCount += 1
-
-                # exit condition
-                # check if best move exists
-                if not bestMove:
-                    print('no q learning option for perception tuple ', currentPerceptionTuple)
-                    self.executeAbilities_intelligenceNone(agent)
-                    return
-
-                print('found ', currentPerceptionTuple, ' - ', bestMove.abilityCast)
-
-                # exit condition
-                # done for given timestep
-                if bestMove.abilityCast == Ability.NONE:
-                    return
-
-                # set thought mutable traits
-                for name, value in bestMove.thoughtMutableTraitValues:
-                    agent.traits.get(name).value = value
-
-                # attempt ability cast
-                ability = agent.abilities.get(bestMove.abilityCast)
-                if not ability:
-                    raise Exception('Best move ability from training data not known by agent')
-
-                # abort if blocked or non-existent
-                if ability.blockedDuration > 0 or agent.blockedDuration > 0:
-                    print('learned ability uncastable - blocked')
-                    continue
-
-                potentialTargets = ability.getPotentialTargets()
-                if not potentialTargets:
-                    ability.cast(UNCONDITIONAL)
-                    print('learned ability', ability.name, 'uncastable - no potential targets')
-                    continue
-
-                chosenTargets = ability.chooseTargetSet(potentialTargets)
-                if not chosenTargets:
-                    # this should never occur until the decsion module is implemented
-                    raise Exception("Chosen Targets in q learning not selected properly")
-                    continue
-
-                # print(bestMove.perceptionTuple, ' casting ', ability.name, ' with traits ', bestMove.thoughtMutableTraitValues)
-                logging.debug("%s casting: %s", agent.name, ability.name)
-                ability.cast(CONDITIONAL, chosenTargets)
 
         # training mode
         elif QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
-            self.executeAbilities_intelligenceNone(agent, logHistory=True)
+            # obtain best known move if it already exists for the situation
+            agentTypeMoveDict = self.bestMoveDict.get(agent.type)
+            if not agentTypeMoveDict:
+                self.executeAbilities_intelligenceNone(agent, logHistory=True)
+                return
+
+            currentPerceptionTuple = agent.getPerceptionTuple()
+            bestMove = agentTypeMoveDict.get(currentPerceptionTuple)
+
+            # if a best move exists
+            if not bestMove or random.random() > QLearning.EPSILON_GREEDY_FACTOR:
+                self.executeAbilities_intelligenceNone(agent, logHistory=True)
+            else:
+                self.executeAbilities_intelligenceQLearning_bestMove(agent, agentTypeMoveDict, logHistory=True)
 
         else:
             raise Exception('Unknown Environment Simulation Type')
 
 
+# METHOD EXECUTE ABILITIES - Q LEARNING AGENT INTELLIGENCE
+#-------------------------------------------------------------------------------
+    def executeAbilities_intelligenceQLearning_bestMove(self, agent, agentTypeMoveDict, logHistory=False):
+        # the abilities from the learned best move are cast in order.
+        castCount = 0
+
+        # execution loop
+        while True:
+            # obtain agent perception information
+            currentPerceptionTuple = agent.getPerceptionTuple(castCount)
+            bestMove = agentTypeMoveDict.get(currentPerceptionTuple)
+
+            # exit condition
+            # check if best move exists
+            if not bestMove:
+                if QLearning.PRINT_DEBUG:
+                    print('no q learning option for perception tuple ', currentPerceptionTuple)
+                self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
+                return
+
+            if QLearning.PRINT_DEBUG:
+                print(bestMove.perceptionTuple, ' casting ', bestMove.abilityCast, ' with traits ', bestMove.thoughtMutableTraitValues)
+
+            # exit condition
+            # done for given timestep
+            if bestMove.abilityCast == Ability.NONE:
+                if logHistory:
+                    agent.logHistory(None, currentPerceptionTuple)
+                return
+
+            # attempt ability cast
+            ability = agent.abilities.get(bestMove.abilityCast)
+            if not ability:
+                raise Exception('Best move ability from training data not known by agent')
+
+            # abort if blocked or non-existent
+            if ability.blockedDuration > 0 or agent.blockedDuration > 0:
+                if QLearning.PRINT_DEBUG:
+                    print('learned ability uncastable - blocked')
+                self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
+                return
+
+            potentialTargets = ability.getPotentialTargets()
+            if not potentialTargets:
+                ability.cast(UNCONDITIONAL)
+                if QLearning.PRINT_DEBUG:
+                    print('learned ability', ability.name, 'uncastable - no potential targets')
+                self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
+                return
+
+            chosenTargets = ability.chooseTargetSet(potentialTargets)
+            if not chosenTargets:
+                # this should never occur until the decsion module is implemented
+                raise Exception("Chosen Targets in q learning not selected properly")
+                return
+
+            # set thought mutable traits
+            for name, value in bestMove.thoughtMutableTraitValues:
+                agent.traits.get(name).value = value
+
+            logging.debug("%s casting: %s", agent.name, ability.name)
+            ability.cast(CONDITIONAL, chosenTargets)
+
+            if logHistory:
+                agent.logHistory(ability, currentPerceptionTuple)
+
+            castCount += 1
+
 # METHOD EXECUTE ABILITIES - NO AGENT INTELLIGENCE
 #-------------------------------------------------------------------------------
-    def executeAbilities_intelligenceNone(self, agent, logHistory=False):
+    def executeAbilities_intelligenceNone(self, agent, initialCastCount=0, logHistory=False):
         # - a None ability cast entails an agent decision to cease ability
         #   casting in a given timestep
         # - env abilities are mandatory hence do not allow for decision to not
         #   execute an ability when casting env abilities
         abilityList = list(agent.abilities.values()) + [None]
-        castCount = 0
+        castCount = initialCastCount
 
         # repeatedly cast abilities until None ability is reached
         while True:

@@ -186,11 +186,12 @@ def perception_bacterium_evaluator(source, agentSet):
     r = closestAgentDistance**0.5
 
     # state discrimination traits
-    canMove = source.abilities['move'].blockedDuration > 0
+    canMove = source.abilities['move'].blockedDuration == 0
     # canDivide = source.abilities['divide'].blockedDuration > 0
-    canEat = source.abilities['eat'].blockedDuration > 0
+    canEat = source.abilities['eat'].blockedDuration == 0
+    isBlocked = source.blockedDuration > 0
 
-    return (round(theta, 2), round(r), canMove, canEat)
+    return (round(theta, 2), round(r), canMove, canEat, isBlocked)
 
 
 #-------------------------------------------------------------------------------
