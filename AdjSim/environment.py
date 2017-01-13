@@ -6,16 +6,22 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
-import sys, os
+# standard
+import sys
+import os
 import re
 import inspect
 import random
 import logging
 import time
 import pickle
+
+# third party
 import matplotlib.pyplot as plot
-from constants import *
 from PyQt4 import QtCore, QtGui
+
+# local
+import constants
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -194,9 +200,9 @@ class Agent(Resource):
     def addMandatoryTraits(self, x, y):
         self.addTrait('xCoord', x)
         self.addTrait('yCoord', y)
-        self.addTrait('color', QtGui.QColor(BLUE_DARK))
+        self.addTrait('color', QtGui.QColor(constants.BLUE_DARK))
         self.addTrait('style', QtCore.Qt.SolidPattern)
-        self.addTrait('size', DEFAULT_OBJECT_RADIUS)
+        self.addTrait('size', constants.DEFAULT_OBJECT_RADIUS)
         self.addTrait('type', self.name)
         self.addTrait('abilities', {})
         self.addTrait('intelligence', Agent.INTELLIGENCE_NONE)
@@ -427,11 +433,11 @@ class Ability(Resource):
 #-------------------------------------------------------------------------------
     def cast(self, conditionality, targets=None):
         # error check
-        if not targets and conditionality is CONDITIONAL:
+        if not targets and conditionality is constants.CONDITIONAL:
             raise Exception('No targets in conditional method cast')
 
         # set targets in unconditional cast
-        if conditionality is UNCONDITIONAL:
+        if conditionality is constants.UNCONDITIONAL:
             targets = TargetSet(self.environment, self.agent)
 
         # perform target effects
@@ -912,7 +918,7 @@ class Environment(Agent):
 
             potentialTargets = ability.getPotentialTargets()
             if not potentialTargets:
-                ability.cast(UNCONDITIONAL)
+                ability.cast(constants.UNCONDITIONAL)
                 if QLearning.PRINT_DEBUG:
                     print('learned ability', ability.name, 'uncastable - no potential targets')
                 self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
@@ -929,7 +935,7 @@ class Environment(Agent):
                 agent.traits.get(name).value = value
 
             logging.debug("%s casting: %s", agent.name, ability.name)
-            ability.cast(CONDITIONAL, chosenTargets)
+            ability.cast(constants.CONDITIONAL, chosenTargets)
 
             if logHistory:
                 agent.logHistory(ability, currentPerceptionTuple)
@@ -964,7 +970,7 @@ class Environment(Agent):
 
             potentialTargets = ability.getPotentialTargets()
             if not potentialTargets:
-                ability.cast(UNCONDITIONAL)
+                ability.cast(constants.UNCONDITIONAL)
                 continue
 
             chosenTargets = ability.chooseTargetSet(potentialTargets)
@@ -986,7 +992,7 @@ class Environment(Agent):
             if logHistory:
                 perceptionTuple = agent.getPerceptionTuple(castCount)
 
-            ability.cast(CONDITIONAL, chosenTargets)
+            ability.cast(constants.CONDITIONAL, chosenTargets)
 
             # log history
             if logHistory:
@@ -1005,7 +1011,7 @@ class Environment(Agent):
 
             potentialTargets = ability.getPotentialTargets()
             if not potentialTargets:
-                ability.cast(UNCONDITIONAL)
+                ability.cast(constants.UNCONDITIONAL)
                 continue
 
             chosenTargets = ability.chooseTargetSet(potentialTargets)
@@ -1015,7 +1021,7 @@ class Environment(Agent):
                 continue
 
             logging.debug("%s casting: %s", self.name, ability.name)
-            ability.cast(CONDITIONAL, chosenTargets)
+            ability.cast(constants.CONDITIONAL, chosenTargets)
 
 
 # METHOD EXECUTE ALL AGENT ABILITIES

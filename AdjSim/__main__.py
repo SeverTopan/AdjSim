@@ -6,8 +6,8 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
-from core import *
-from graphics import *
+# standard
+import core
 import sys
 
 #-------------------------------------------------------------------------------
@@ -16,10 +16,7 @@ import sys
 def main(argv=sys.argv):
     """The main routine."""
 
-    adjSim = AdjSim(argv)
-
-    # get char press to exit
-    # input("Press Enter to Termainate")
+    adjSim = core.AdjSim(argv)
 
 
 # EXECUTION CALLBACK

@@ -6,15 +6,17 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
+# standard
 import sys
 import time
 import random
 
-from constants import *
-from environment import *
-import core
-
+# third party
 from PyQt4 import QtGui, QtCore
+
+# local
+import environment
+import core
 
 #-------------------------------------------------------------------------------
 # CLASS ADJTHREAD
@@ -26,7 +28,7 @@ class AdjThread(QtCore.QThread):
     def __init__(self, app, updateSemaphore):
         QtCore.QThread.__init__(self, parent=app)
         self.signal = QtCore.SIGNAL("update")
-        self.environment = Environment()
+        self.environment = environment.Environment()
         self.updateSemaphore = updateSemaphore
 
 # METHOD RUN

@@ -6,11 +6,19 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
-from graphics import *
+# standard
 import time
 import logging
 import re
-import sys, os
+import sys
+import os
+
+# third party
+from PyQt4 import QtGui, QtCore
+
+# local
+import graphics
+import environment
 
 #-------------------------------------------------------------------------------
 # CLASS ADJSIM
@@ -43,8 +51,8 @@ class AdjSim(object):
             self.updateSemaphore = QtCore.QSemaphore(0)
 
             self.qApp = QtGui.QApplication(argv)
-            self.view = AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
-            self.thread = AdjThread(self.qApp, self.updateSemaphore)
+            self.view = graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
+            self.thread = graphics.AdjThread(self.qApp, self.updateSemaphore)
 
             self.thread.finished.connect(self.qApp.exit)
             self.qApp.connect(self.thread, self.thread.signal, self.view.update)
@@ -52,7 +60,7 @@ class AdjSim(object):
             self.thread.start()
             sys.exit(self.qApp.exec_())
         else:
-            self.environment = Environment()
+            self.environment = environment.Environment()
             AdjSim.run(self.environment)
 
 # METHOD RUN
