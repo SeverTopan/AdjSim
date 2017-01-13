@@ -21,104 +21,75 @@ CELL_SIZE = 5
 # ABILITIES
 #-------------------------------------------------------------------------------
 
-
-# ABILITY - CALCULATE NEIGHBOURS
+# ABILITY - COMPUTE
 #-------------------------------------------------------------------------------
-# function calculateNeighbours
-# !!! predicates will be grouped together for ease of writing
-# !!! always sort predicate list before insertion into class
-def calculateNeighbours_predicate_self(target):
-   return target.abilities['calculateNeighbours'].blockedDuration is 0
+def compute_predicate_self(target):
+   return target.abilities['compute'].blockedDuration is 0
 
-calculateNeighbours_predicateList = [TargetPredicate(TargetPredicate.SOURCE, calculateNeighbours_predicate_self)]
+compute_predicateList = [TargetPredicate(TargetPredicate.SOURCE, compute_predicate_self)]
 
-calculateNeighbours_condition = lambda targetSet: True
+compute_condition = lambda targetSet: True
 
-def calculateNeighbours_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
-       return
+def compute_effect(targetSet, conditionality):
+    if conditionality is UNCONDITIONAL:
+        return
 
-   x = targetSet.source.xCoord
-   y = targetSet.source.yCoord
+    # calculate neighbour
+    globalNeighbourDict = {}
 
-   neighbourSet = set()
-   possibleNeighbourSet = {(x, y + CELL_SIZE),
-                   (x, y - CELL_SIZE),
-                   (x + CELL_SIZE, y),
-                   (x - CELL_SIZE, y),
-                   (x + CELL_SIZE, y + CELL_SIZE),
-                   (x - CELL_SIZE, y + CELL_SIZE),
-                   (x + CELL_SIZE, y - CELL_SIZE),
-                   (x - CELL_SIZE, y - CELL_SIZE)}
+    # update globalNeighbourDict
+    for agent in targetSet.source.agentSet:
+        if agent == targetSet.source:
+            continue
 
+        x = agent.xCoord
+        y = agent.yCoord
+        localNeighbourCoordList = [(x, y + CELL_SIZE),
+                (x, y - CELL_SIZE),
+                (x + CELL_SIZE, y),
+                (x - CELL_SIZE, y),
+                (x + CELL_SIZE, y + CELL_SIZE),
+                (x - CELL_SIZE, y + CELL_SIZE),
+                (x + CELL_SIZE, y - CELL_SIZE),
+                (x - CELL_SIZE, y - CELL_SIZE)]
 
-   # scan for adjacent agents and store into neighbourSet set
-   for agent in targetSet.environment.agentSet:
-       # ignore environment and self
-       if agent is targetSet.environment or agent is targetSet.source:
-           continue
+        for localNeighbourCoord in localNeighbourCoordList:
+            globalNeighbourCount = globalNeighbourDict.get(localNeighbourCoord)
+            if globalNeighbourCount:
+                globalNeighbourDict[localNeighbourCoord] += 1
+            else:
+                globalNeighbourDict[localNeighbourCoord] = 1
 
-       # check bounding boxes
-       if agent.xCoord > x + CELL_SIZE or agent.xCoord < x - CELL_SIZE \
-           or agent.yCoord > y + CELL_SIZE or agent.yCoord < y - CELL_SIZE:
-           continue
+    # update neighbourCount and kill overpopulated agents
+    removeList = []
+    for agent in targetSet.source.agentSet:
+        if agent == targetSet.source:
+            continue
 
-       for targetX, targetY in possibleNeighbourSet:
-           if agent.xCoord == targetX and agent.yCoord == targetY:
-               neighbourSet.add((agent.xCoord, agent.yCoord));
+        coordTuple = (agent.xCoord, agent.yCoord)
+        neighbourCount = globalNeighbourDict.get(coordTuple)
 
-   # record empty agents within agentSet
-   emptyNeighbourSet = possibleNeighbourSet - neighbourSet
+        if not neighbourCount:
+            neighbourCount = 0
+        else:
+            del globalNeighbourDict[coordTuple]
 
-   for item in emptyNeighbourSet:
-       if targetSet.environment.traits['emptyNeighboursDict'].value.get(item) is None:
-           targetSet.environment.traits['emptyNeighboursDict'].value[item] = 1
-       else:
-           targetSet.environment.traits['emptyNeighboursDict'].value[item] += 1
+        if neighbourCount < 2 or neighbourCount > 3:
+            removeList.append(agent)
 
-   # record num neighbours
-   targetSet.source.traits['numNeighbours'].value = len(neighbourSet)
+    # delete agents
+    for agent in removeList:
+        if agent == targetSet.source:
+            continue
 
-   targetSet.source.abilities['calculateNeighbours'].blockedDuration = 1
+        targetSet.source.removeAgent(agent)
 
+    # add new agents
+    for key, value in globalNeighbourDict.items():
+        if value is 3:
+            createCell(targetSet.source, key[0], key[1])
 
-# ABILITY - ADD NEW
-#-------------------------------------------------------------------------------
-# !!! predicates will be grouped toget\er for ease of writing
-# !!! always sort predicate list before insertion into class
-def addNewAgents_predicate_self(target):
-   return target.abilities['addNewAgents'].blockedDuration is 0
-
-addNewAgents_predicateList = [TargetPredicate(TargetPredicate.SOURCE, addNewAgents_predicate_self)]
-
-addNewAgents_condition = lambda targetSet: True
-
-def addNewAgents_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
-       return
-
-   # delete agents
-   removeList = []
-
-   for agent in targetSet.source.agentSet:
-       if agent is not targetSet.source \
-           and agent.traits['numNeighbours'].value != 2 \
-           and agent.traits['numNeighbours'].value != 3:
-           removeList.append(agent)
-
-   for agent in removeList:
-       targetSet.source.removeAgent(agent)
-
-
-   # add new agents
-   emptyNeighboursDict = targetSet.environment.traits['emptyNeighboursDict'].value
-   for key, value in emptyNeighboursDict.items():
-       if value is 3:
-           createCell(targetSet.source, key[0], key[1])
-
-   emptyNeighboursDict.clear()
-
-   targetSet.source.abilities['addNewAgents'].blockedDuration = 1
+    targetSet.source.abilities['compute'].blockedDuration = 1
 
 #-------------------------------------------------------------------------------
 # AGENT GENERATION FUNCTIONS
@@ -129,14 +100,9 @@ def addNewAgents_effect(targetSet, conditionality):
 def createCell(environment, x, y):
    cell = Agent(environment, "cell", x, y)
    cell.addTrait('type', 'live_cell')
-   cell.addTrait('numNeighbours', 0)
    cell.size = CELL_SIZE
    cell.color = QtGui.QColor(BLUE_DARK)
    environment.agentSet.add(cell)
-
-   cell.abilities["calculateNeighbours"] = Ability(environment, "calculateNeighbours", cell, \
-       calculateNeighbours_predicateList, calculateNeighbours_condition, \
-       calculateNeighbours_effect)
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
@@ -152,7 +118,6 @@ initialCondition_blockLayingSwitchEngine = [(0,0),                          # 1s
 for coord in initialCondition_blockLayingSwitchEngine:
    createCell(environment, coord[0] * CELL_SIZE, coord[1] * CELL_SIZE)
 
-environment.addTrait('emptyNeighboursDict', {})
-environment.abilities['addNewAgents'] = Ability(environment, "addNewAgents", environment, \
-   addNewAgents_predicateList, addNewAgents_condition, \
-   addNewAgents_effect)
+environment.abilities['compute'] = Ability(environment, "compute", environment, \
+   compute_predicateList, compute_condition, \
+   compute_effect)
