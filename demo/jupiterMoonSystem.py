@@ -23,125 +23,55 @@ DISTANCE_MULTIPLIER = 10000000
 # ABILITIES
 #-------------------------------------------------------------------------------
 
-# ABILITY - SETUP
+# ABILITY - APPLY GRAVITY
 #-------------------------------------------------------------------------------
-# !!! predicates will be grouped toget\er for ease of writing
-# !!! always sort predicate list before insertion into class
-def calculateSetup_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('castLog_acc') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['calculateSetup'].blockedDuration is 0:
-       return True
-   else:
-       return False
+applyGravity_predicateList = []
 
-def calculateSetup_predicate_env(target):
-   return True
+applyGravity_condition = lambda targetSet : True
 
-calculateSetup_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, calculateSetup_predicate_env), \
-   TargetPredicate(TargetPredicate.SOURCE, calculateSetup_predicate_self)]
+def applyGravity_effect(targetSet, conditionality):
+    if conditionality is UNCONDITIONAL:
+        return
 
+    # reset acceleration
+    for agent in targetSet.source.agentSet:
+        if agent == targetSet.source:
+            continue
 
-calculateSetup_condition = lambda targetSet: True
+        agent.traits['xAcc'].value = 0
+        agent.traits['yAcc'].value = 0
 
-def calculateSetup_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
-       return
+    # calculate new accelleration
+    for baseAgent in targetSet.source.agentSet:
+        if baseAgent == targetSet.source:
+            continue
 
-   targetSet.source.traits['xAcc'].value = 0;
-   targetSet.source.traits['yAcc'].value = 0;
+        for targetAgent in targetSet.source.agentSet:
+            if targetAgent == targetSet.source or targetAgent == baseAgent:
+                continue
 
-   targetSet.source.traits['castLog_acc'].value.clear()
+            xDist = (baseAgent.xCoord - targetAgent.xCoord) * DISTANCE_MULTIPLIER
+            yDist = (baseAgent.yCoord - targetAgent.yCoord) * DISTANCE_MULTIPLIER
+            absDist = (xDist**2 + yDist**2)**0.5
+            absAcc = baseAgent.traits['mass'].value * GRAV_CONSTANT / (absDist**2)
 
-   targetSet.source.abilities['calculateSetup'].blockedDuration = 1
-   targetSet.source.abilities['calculateAcc'].blockedDuration = 0
-   targetSet.source.abilities['calculateVel'].blockedDuration = 0
-
-
-
-# ABILITY - CALCULATE ACCELERATION
-#-------------------------------------------------------------------------------
-# !!! predicates will be grouped together for ease of writing
-# !!! always sort predicate list before insertion into class
-def calculateAcc_predicate_target(env, sel, target):
-   if target is not env \
-       and target is not sel \
-       and target.traits.get('type') is not None \
-       and target.traits.get('mass') is not None:
-       return True
-   else:
-       return False
-
-def calculateAcc_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('castLog_acc') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['calculateAcc'].blockedDuration is 0:
-       return True
-   else:
-       return False
-
-def calculateAcc_predicate_env(target):
-   return True
-
-calculateAcc_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, calculateAcc_predicate_env), \
-   TargetPredicate(TargetPredicate.SOURCE, calculateAcc_predicate_self), \
-   TargetPredicate(0, calculateAcc_predicate_target)]
+            targetAgent.traits['xAcc'].value += absAcc * (xDist / absDist)
+            targetAgent.traits['yAcc'].value += absAcc * (yDist / absDist)
 
 
-calculateAcc_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'planet' \
-   and not targetSet.source.traits['castLog_acc'].value & {targetSet.targets[0]} \
-   and targetSet.environment.traits['numPhysicsDependentAgents'].value > len(targetSet.source.traits['castLog_acc'].value)
+    # calculate new velocity and position
+    for agent in targetSet.source.agentSet:
+        if agent == targetSet.source:
+            continue
 
-def calculateAcc_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
-       return
+        agent.traits['xVel'].value += agent.traits['xAcc'].value * TIMESTEP_LENGTH
+        agent.traits['yVel'].value += agent.traits['yAcc'].value * TIMESTEP_LENGTH
 
-   xDist = (targetSet.targets[0].xCoord - targetSet.source.xCoord) * DISTANCE_MULTIPLIER
-   yDist = (targetSet.targets[0].yCoord - targetSet.source.yCoord) * DISTANCE_MULTIPLIER
-   absDist = (xDist**2 + yDist**2)**0.5
-   absAcc = targetSet.targets[0].traits['mass'].value * GRAV_CONSTANT / (absDist**2)
-
-   targetSet.source.traits['xAcc'].value += absAcc * (xDist / absDist)
-   targetSet.source.traits['yAcc'].value += absAcc * (yDist / absDist)
-
-   targetSet.source.traits['castLog_acc'].value.add(targetSet.targets[0])
+        agent.xCoord += agent.traits['xVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
+        agent.yCoord += agent.traits['yVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
 
 
-# ABILITY - CALCULATE VELOCITY
-#-------------------------------------------------------------------------------
-# !!! predicates will be grouped together for ease of writing
-# !!! always sort predicate list before insertion into class
-def calculateVel_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['calculateVel'].blockedDuration is 0:
-       return True
-   else:
-       return False
-
-def calculateVel_predicate_env(target):
-   return True
-
-calculateVel_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, calculateVel_predicate_env), \
-   TargetPredicate(TargetPredicate.SOURCE, calculateVel_predicate_self)]
-
-calculateVel_condition = lambda targetSet: \
-   targetSet.environment.traits['numPhysicsDependentAgents'].value - 1 == len(targetSet.source.traits['castLog_acc'].value)
-
-def calculateVel_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
-       return
-
-   targetSet.source.traits['xVel'].value += targetSet.source.traits['xAcc'].value * TIMESTEP_LENGTH
-   targetSet.source.traits['yVel'].value += targetSet.source.traits['yAcc'].value * TIMESTEP_LENGTH
-
-   targetSet.source.xCoord += targetSet.source.traits['xVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
-   targetSet.source.yCoord += targetSet.source.traits['yVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
-
-   targetSet.source.abilities['calculateAcc'].blockedDuration = 2
-   targetSet.source.abilities['calculateVel'].blockedDuration = 2
+    targetSet.source.abilities['applyGravity'].blockedDuration = 1
 
 #-------------------------------------------------------------------------------
 # AGENT GENERATION FUNCTIONS
@@ -149,7 +79,6 @@ def calculateVel_effect(targetSet, conditionality):
 
 # PLANET CREATION FUNCTION
 #-------------------------------------------------------------------------------
-
 def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, style = QtCore.Qt.SolidPattern):
    planet = Agent(environment, name, xPos, yPos)
    planet.addTrait('type', 'planet')
@@ -162,15 +91,6 @@ def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, s
    planet.size = size
    planet.color = color
    planet.style = style
-
-   planet.abilities["calculateSetup"] = Ability(environment, "calculateSetup", planet, \
-       calculateSetup_predicateList, calculateSetup_condition, calculateSetup_effect)
-   planet.abilities["calculateAcc"] = Ability(environment, "calculateAcc", planet, \
-       calculateAcc_predicateList, calculateAcc_condition, calculateAcc_effect)
-   planet.abilities["calculateVel"] = Ability(environment, "calculateVel", planet, \
-       calculateVel_predicateList, calculateVel_condition, calculateVel_effect)
-   planet.abilities["calculateAcc"].blockedDuration = 2
-   planet.abilities["calculateVel"].blockedDuration = 2
 
    environment.agentSet.add(planet)
 
@@ -185,4 +105,5 @@ createPlanet('europa', 4.8e22, 3, QtGui.QColor(BLUE_LIGHT), 67, 0, 0.0, 13.7e3, 
 createPlanet('ganymede', 1.48e23, 5, QtGui.QColor(RED_DARK), 107, 0, 0.0, 10.88e3, environment)
 createPlanet('callisto', 1.08e23, 4, QtGui.QColor(BROWN_LIGHT), 188, 0, 0.0, 8.21e3, environment)
 
-environment.addTrait('numPhysicsDependentAgents', 5)
+environment.abilities["applyGravity"] = Ability(environment, "applyGravity", environment, \
+    applyGravity_predicateList, applyGravity_condition, applyGravity_effect)
