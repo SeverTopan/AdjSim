@@ -18,8 +18,8 @@ from PyQt4 import QtGui, QtCore
 from matplotlib import pyplot
 
 # local
-from . import graphics
-from . import environment
+from . import Graphics
+from . import Simulation
 
 #-------------------------------------------------------------------------------
 # CLASS ADJSIM
@@ -40,7 +40,7 @@ class AdjSim(object):
         logging.disable(logging.CRITICAL)
 
         # init environment
-        self.environment = environment.Environment()
+        self.environment = Simulation.Environment()
 
         # pyplot multitheading
         AdjSim.pyplotMultithreadingHack()
@@ -90,7 +90,7 @@ class AdjSim(object):
 #-------------------------------------------------------------------------------
     def clearEnvironment(self):
         del self.environment
-        self.environment = environment.Environment()
+        self.environment = Simulation.Environment()
 
 
 # METHOD SIMULATE
@@ -100,8 +100,8 @@ class AdjSim(object):
             # perform threading initialization for graphics
             self.updateSemaphore = QtCore.QSemaphore(0)
             self.qApp = QtGui.QApplication([]) # no sys.argv provided
-            self.view = graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
-            self.thread = graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices)
+            self.view = Graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
+            self.thread = Graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices)
 
             self.thread.finished.connect(self.qApp.exit)
             self.qApp.connect(self.thread, self.thread.updateSignal, self.view.update)

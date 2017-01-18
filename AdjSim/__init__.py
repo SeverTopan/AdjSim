@@ -4,8 +4,8 @@
 #-------------------------------------------------------------------------------
 
 # import * statement
-__all__ = ['core']
+__all__ = ['Core']
 
 # imports
-from . import core
-from . import environment
+from . import Core
+from . import Simulation

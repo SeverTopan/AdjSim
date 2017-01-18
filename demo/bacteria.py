@@ -52,9 +52,9 @@ def eat_predicate_self(target):
 def eat_predicate_env(target):
    return True
 
-eat_predicateList = [AdjSim.environment.TargetPredicate(AdjSim.environment.TargetPredicate.ENVIRONMENT, eat_predicate_env), \
-   AdjSim.environment.TargetPredicate(AdjSim.environment.TargetPredicate.SOURCE, eat_predicate_self), \
-   AdjSim.environment.TargetPredicate(0, eat_predicate_food)]
+eat_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.ENVIRONMENT, eat_predicate_env), \
+   AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, eat_predicate_self), \
+   AdjSim.Simulation.TargetPredicate(0, eat_predicate_food)]
 
 eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'food' \
    and ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
@@ -62,7 +62,7 @@ eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is '
    < targetSet.source.traits['interactRange'].value
 
 def eat_effect(targetSet, conditionality):
-   if conditionality is AdjSim.constants.UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
@@ -82,12 +82,12 @@ def move_predicate_self(target):
        return True
    else:
        return False
-move_predicateList = [AdjSim.environment.TargetPredicate(AdjSim.environment.TargetPredicate.SOURCE, move_predicate_self)]
+move_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, move_predicate_self)]
 
 move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
 def move_effect(targetSet, conditionality):
-   if conditionality is AdjSim.constants.UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.source.traits['calories'].value -= MOVEMENT_COST
@@ -115,12 +115,12 @@ def starve_predicate_self(target):
        return True
    else:
        return False
-starve_predicateList = [AdjSim.environment.TargetPredicate(AdjSim.environment.TargetPredicate.SOURCE, starve_predicate_self)]
+starve_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, starve_predicate_self)]
 
 starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
 
 def starve_effect(targetSet, conditionality):
-   if conditionality is AdjSim.constants.UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.environment.removeAgent(targetSet.source)
@@ -141,13 +141,13 @@ def divide_predicate_self(target):
 def divide_predicate_env(target):
    return True
 
-divide_predicateList = [AdjSim.environment.TargetPredicate(AdjSim.environment.TargetPredicate.ENVIRONMENT, divide_predicate_env), \
-    AdjSim.environment.TargetPredicate(AdjSim.environment.TargetPredicate.SOURCE, divide_predicate_self)]
+divide_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.ENVIRONMENT, divide_predicate_env), \
+    AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, divide_predicate_self)]
 
 divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > 150
 
 def divide_effect(targetSet, conditionality):
-   if conditionality is AdjSim.constants.UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.source.traits['calories'].value -= 75
@@ -162,22 +162,22 @@ def divide_effect(targetSet, conditionality):
 # BACTERIA CREATION FUNCTION
 #-------------------------------------------------------------------------------
 def createBacteria(environment, x, y):
-    bacterium = AdjSim.environment.Agent(environment, "bacterium", x, y)
+    bacterium = AdjSim.Simulation.Agent(environment, "bacterium", x, y)
     bacterium.addTrait('type', 'bacteria')
     bacterium.addTrait('calories', 75)
     bacterium.addTrait('interactRange', 10)
     bacterium.blockedDuration = 2
     bacterium.size = 10
-    bacterium.color = QtGui.QColor(AdjSim.constants.GREEN)
+    bacterium.color = QtGui.QColor(AdjSim.Constants.GREEN)
     environment.traits['agentSet'].value.add(bacterium)
 
-    bacterium.abilities["divide"] = AdjSim.environment.Ability(environment, "divide", bacterium, \
+    bacterium.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", bacterium, \
         divide_predicateList, divide_condition, divide_effect)
-    bacterium.abilities["eat"] = AdjSim.environment.Ability(environment, "eat", bacterium, eat_predicateList, \
+    bacterium.abilities["eat"] = AdjSim.Simulation.Ability(environment, "eat", bacterium, eat_predicateList, \
         eat_condition, eat_effect)
-    bacterium.abilities["move"] = AdjSim.environment.Ability(environment, "move", bacterium, move_predicateList, \
+    bacterium.abilities["move"] = AdjSim.Simulation.Ability(environment, "move", bacterium, move_predicateList, \
         move_condition, move_effect)
-    bacterium.abilities["starve"] = AdjSim.environment.Ability(environment, "starve", bacterium, starve_predicateList, \
+    bacterium.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", bacterium, starve_predicateList, \
         starve_condition, starve_effect)
 
 def generateEnv(environment):
@@ -190,17 +190,17 @@ def generateEnv(environment):
     for i in range(20):
        for j in range(20):
            name = "yogurt   "
-           yogurt = AdjSim.environment.Agent(environment, name, 5 * i, 5 * j + 50)
+           yogurt = AdjSim.Simulation.Agent(environment, name, 5 * i, 5 * j + 50)
            yogurt.addTrait('type', 'food')
            yogurt.addTrait('calories', 30)
            yogurt.size = 5
-           yogurt.color = QtGui.QColor(AdjSim.constants.PINK)
+           yogurt.color = QtGui.QColor(AdjSim.Constants.PINK)
            environment.agentSet.add(yogurt)
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
-adjSim = AdjSim.core.AdjSim()
+adjSim = AdjSim.Core.AdjSim()
 
 adjSim.clearEnvironment()
 generateEnv(adjSim.environment)

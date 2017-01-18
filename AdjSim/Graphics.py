@@ -15,7 +15,7 @@ import random
 from PyQt4 import QtGui, QtCore
 
 # local
-from . import environment
+from . import Simulation
 
 #-------------------------------------------------------------------------------
 # CLASS ADJTHREAD
