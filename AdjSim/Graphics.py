@@ -24,7 +24,7 @@ class AdjThread(QtCore.QThread):
 
 # METHOD INIT
 #-------------------------------------------------------------------------------
-    def __init__(self, app, updateSemaphore, environment, simulationLength, plotIndices):
+    def __init__(self, app, updateSemaphore, environment, simulationLength, plotIndices, simulationType):
         QtCore.QThread.__init__(self, parent=app)
         self.updateSignal = QtCore.SIGNAL("update")
         self.plotSignal = QtCore.SIGNAL("plot")
@@ -32,11 +32,12 @@ class AdjThread(QtCore.QThread):
         self.updateSemaphore = updateSemaphore
         self.simulationLength = simulationLength
         self.plotIndices = plotIndices
+        self.simulationType = simulationType
 
 # METHOD RUN
 #-------------------------------------------------------------------------------
     def run(self):
-        self.environment.simulate(self.simulationLength, self, self.plotIndices)
+        self.environment.simulate(self.simulationLength, self, self.plotIndices, self.simulationType)
 
 
 #-------------------------------------------------------------------------------

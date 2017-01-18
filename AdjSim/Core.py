@@ -20,6 +20,7 @@ from matplotlib import pyplot
 # local
 from . import Graphics
 from . import Simulation
+from . import Intelligence
 
 #-------------------------------------------------------------------------------
 # CLASS ADJSIM
@@ -95,13 +96,13 @@ class AdjSim(object):
 
 # METHOD SIMULATE
 #-------------------------------------------------------------------------------
-    def simulate(self, length, graphicsEnabled=False, plotIndices=False):
+    def simulate(self, length, graphicsEnabled=False, plotIndices=False, simulationType=Intelligence.SIMULATION_TYPE_TRAIN):
         if graphicsEnabled:
             # perform threading initialization for graphics
             self.updateSemaphore = QtCore.QSemaphore(0)
             self.qApp = QtGui.QApplication([]) # no sys.argv provided
             self.view = Graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
-            self.thread = Graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices)
+            self.thread = Graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices, simulationType)
 
             self.thread.finished.connect(self.qApp.exit)
             self.qApp.connect(self.thread, self.thread.updateSignal, self.view.update)
@@ -120,4 +121,4 @@ class AdjSim(object):
 
         else:
             # begin simulation
-            self.environment.simulate(length, plotIndices=plotIndices)
+            self.environment.simulate(length, plotIndices=plotIndices, simulationType=simulationType)

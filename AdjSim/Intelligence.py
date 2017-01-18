@@ -10,6 +10,13 @@
 import os
 import pickle
 
+#-------------------------------------------------------------------------------
+# GLOBAL MODULE VARIABLES
+#-------------------------------------------------------------------------------
+SIMULATION_TYPE_TRAIN = 0
+SIMULATION_TYPE_TEST = 1
+
+SIMULATION_TYPE = SIMULATION_TYPE_TEST
 
 #-------------------------------------------------------------------------------
 # CLASS PERCEPTION
@@ -74,10 +81,6 @@ class QLearning(object):
     LOOKAHEAD_CAP = 50
     EPSILON_GREEDY_FACTOR = .7
 
-    SIMULATION_TYPE_TRAIN = 0
-    SIMULATION_TYPE_TEST = 1
-
-    SIMULATION_TYPE = SIMULATION_TYPE_TEST
     PRINT_DEBUG = False
 
 # METHOD __INIT__

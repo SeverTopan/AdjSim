@@ -621,7 +621,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def removeAgent(self, agent):
         # store history in historyBank for later evaluation if training
-        if Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TRAIN:
+        if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN:
             self.bankHistory(agent)
 
         self.agentSet.remove(agent)
@@ -672,7 +672,7 @@ class Environment(Agent):
 
         # perform actions:
         # testing mode
-        if Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TEST:
+        if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TEST:
             # obtain best move, cast non-intelligent function otherwise
             agentTypeMoveDict = self.bestMoveDict.get(agent.type)
             if not agentTypeMoveDict:
@@ -687,7 +687,7 @@ class Environment(Agent):
 
 
         # training mode
-        elif Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TRAIN:
+        elif Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN:
             # obtain best known move if it already exists for the situation
             agentTypeMoveDict = self.bestMoveDict.get(agent.type)
             if not agentTypeMoveDict:
@@ -951,7 +951,11 @@ class Environment(Agent):
 
 # METHOD SIMULATE
 #-------------------------------------------------------------------------------
-    def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False):
+    def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False, simulationType=Intelligence.SIMULATION_TYPE_TRAIN):
+
+        # setup simulation type
+        Intelligence.SIMULATION_TYPE = simulationType
+
         # print header
         print("Simulating: ", numTimesteps, " time steps")
 
@@ -981,7 +985,7 @@ class Environment(Agent):
                 self.prevStepAnimationStart = time.time()
 
         # log best moves given training simulation
-        if Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TRAIN:
+        if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN:
             Intelligence.QLearning.logBestMoves(self)
 
         # log last index entry and plot
