@@ -15,10 +15,11 @@ import os
 
 # third party
 from PyQt4 import QtGui, QtCore
+from matplotlib import pyplot
 
 # local
-import graphics
-import environment
+from . import graphics
+from . import environment
 
 #-------------------------------------------------------------------------------
 # CLASS ADJSIM
@@ -26,13 +27,9 @@ import environment
 class AdjSim(object):
     """docstring for AdjSim."""
 
-    simulationLength = None
-    graphicsEnabled = None
-    scriptPath = None
-
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
-    def __init__(self, argv):
+    def __init__(self, argv=None):
         AdjSim.printWelcome()
 
         # setup debug logging
@@ -42,34 +39,16 @@ class AdjSim(object):
         logging.basicConfig(filename=logPath, level=logging.DEBUG)
         logging.disable(logging.CRITICAL)
 
-        # check arguments
-        if not AdjSim.parseArgs(argv):
-            return
+        # init environment
+        self.environment = environment.Environment()
 
-        # perform threading initialization for graphics
-        if AdjSim.graphicsEnabled:
-            self.updateSemaphore = QtCore.QSemaphore(0)
-
-            self.qApp = QtGui.QApplication(argv)
-            self.view = graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
-            self.thread = graphics.AdjThread(self.qApp, self.updateSemaphore)
-
-            self.thread.finished.connect(self.qApp.exit)
-            self.qApp.connect(self.thread, self.thread.signal, self.view.update)
-
-            self.thread.start()
-            sys.exit(self.qApp.exec_())
-        else:
-            self.environment = environment.Environment()
-            AdjSim.run(self.environment)
+        # pyplot multitheading
+        AdjSim.pyplotMultithreadingHack()
 
 # METHOD RUN
 #-------------------------------------------------------------------------------
     @staticmethod
     def run(environment, thread=None):
-
-        exec(open(AdjSim.scriptPath).read(), locals())
-
         environment.simulate(AdjSim.simulationLength, thread)
 
 # METHOD GET LOG PATH
@@ -92,71 +71,53 @@ class AdjSim(object):
         print(welcomeMessage)
         print("-".rjust(len(welcomeMessage), "-"))
 
-# METHOD INVALID ARGS
+
+# METHOD PYPLOT MULTITHREADING HACK
+# * ugly hack to fix pyplot multithreading issues
+# * issue occurs when pyplot is called from a non-graphical adjsim instance
+# * directly after being called from only a graphical adjsim instance
 #-------------------------------------------------------------------------------
     @staticmethod
-    def printInvalidArgs():
-        print('Invalid Arguments - Usage: python <AdjSim directory> <options> <simulation script> <simulation length>')
-        print('For demo scripts, please see AdjSim/demo')
-        print('Options: \n     -s : Suppress graphical simulation representation')
+    def pyplotMultithreadingHack():
+        pyplot.ion()
+        pyplot.plot([1,2])
+        pyplot.show()
+        pyplot.close()
+        pyplot.ioff()
 
-# METHOD PARSE ARGS
+
+# METHOD RESET ENVIRONMENT
 #-------------------------------------------------------------------------------
-    @staticmethod
-    def parseArgs(argv):
-        simLength = None
+    def clearEnvironment(self):
+        del self.environment
+        self.environment = environment.Environment()
 
-        if len(argv) == 3:
-            AdjSim.graphicsEnabled = True
-            AdjSim.scriptPath = argv[1]
-            simLength = argv[2]
-        elif len(argv) == 4:
-            if argv[1] == '-s':
-                AdjSim.graphicsEnabled = False
-            else:
-                AdjSim.printInvalidArgs()
-                return False
-            AdjSim.scriptPath = argv[2]
-            simLength = argv[3]
+
+# METHOD SIMULATE
+#-------------------------------------------------------------------------------
+    def simulate(self, length, graphicsEnabled=False, plotIndices=False):
+        if graphicsEnabled:
+            # perform threading initialization for graphics
+            self.updateSemaphore = QtCore.QSemaphore(0)
+            self.qApp = QtGui.QApplication([]) # no sys.argv provided
+            self.view = graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
+            self.thread = graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices)
+
+            self.thread.finished.connect(self.qApp.exit)
+            self.qApp.connect(self.thread, self.thread.updateSignal, self.view.update)
+            self.qApp.connect(self.thread, self.thread.plotSignal, self.view.plot)
+
+            # begin simulation
+            self.thread.start()
+            self.qApp.exec_()
+
+            # cleanup variables
+            self.thread.quit()
+            del self.thread
+            del self.view
+            del self.qApp
+            del self.updateSemaphore
+
         else:
-            AdjSim.printInvalidArgs()
-            return False
-
-        # parse simulation script
-        if not os.path.isfile(AdjSim.scriptPath):
-            AdjSim.printInvalidArgs()
-            return False
-
-        # parse simulation length
-        try:
-            AdjSim.simulationLength = int(simLength)
-        except:
-            AdjSim.printInvalidArgs()
-            return False
-
-        return True
-
-# METHOD PARSE CONFIG FILE
-#-------------------------------------------------------------------------------
-    def parseConfigFile(self, argv):
-        if len(argv) != 2:
-            print("Invalid arguments - usage: python AdjSim.py configfile")
-            return False
-
-        try:
-            configFile = open(argv[1])
-        except:
-            print("Unable to open file", argv[1])
-            return False
-
-        print("Parsing Config file...")
-
-
-
-        configData = configFile.read()
-        agentMatches = re.findall('(agent:\\n(.+\\n)+)+?', configData)
-
-        # unfinished, will add config file parsing functionality after core
-        # functionality is completely implemented
-
-        return
+            # begin simulation
+            self.environment.simulate(length, plotIndices=plotIndices)

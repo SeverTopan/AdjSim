@@ -17,11 +17,11 @@ import time
 import pickle
 
 # third party
-import matplotlib.pyplot as plot
+from matplotlib import pyplot
 from PyQt4 import QtCore, QtGui
 
 # local
-import constants
+from . import constants
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -578,10 +578,12 @@ class AnalysisIndex(object):
     def plot(self):
         if self.indexType is AnalysisIndex.ACCUMULATE_AGENTS:
             for key, val in self.index.items():
-                plot.plot(val, label=key)
+                line, = pyplot.plot(val, label=key)
+                line.set_antialiased(True)
 
-            plot.legend()
-            plot.show()
+            pyplot.legend()
+            pyplot.show()
+            pyplot.close()
 
 
 #-------------------------------------------------------------------------------
@@ -1040,10 +1042,14 @@ class Environment(Agent):
         self.executeAbilities()
 
 # METHOD PLOT INDICES
+# * matplotlib is not thread safe, therefore we always need to run it in the main thread
 #-------------------------------------------------------------------------------
-    def plotIndices(self):
+    def plotIndices(self, graphicsThread=None):
         for index in self.indices:
-            index.plot()
+            if graphicsThread:
+                graphicsThread.emit(graphicsThread.plotSignal, index)
+            else:
+                index.plot()
 
 # METHOD UPDATE INDICES
 #-------------------------------------------------------------------------------
@@ -1114,14 +1120,13 @@ class Environment(Agent):
 
 # METHOD SIMULATE
 #-------------------------------------------------------------------------------
-    def simulate(self, numTimesteps, thread=None):
+    def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False):
         # print header
-        # self.printSnapshot()
         print("Simulating: ", numTimesteps, " time steps")
 
         # draw initial frame
-        if thread:
-            thread.emit(thread.signal, self.agentSet)
+        if graphicsThread:
+            graphicsThread.emit(graphicsThread.updateSignal, self.agentSet)
             time.sleep(1)
 
         # load learned Data
@@ -1132,15 +1137,16 @@ class Environment(Agent):
             print("Timestep: ", timeStep)
 
             # perform agent operations
-            self.logIndices(timeStep)
+            if plotIndices:
+                self.logIndices(timeStep)
             self.executeAllAgentAbilities()
             self.executeTimestep()
 
             # wait for animaiton if graphics are intialized
-            if thread:
+            if graphicsThread:
                 print(time.time() - self.prevStepAnimationStart)
-                thread.updateSemaphore.acquire(1)
-                thread.emit(thread.signal, self.agentSet.copy())
+                graphicsThread.updateSemaphore.acquire(1)
+                graphicsThread.emit(graphicsThread.updateSignal, self.agentSet.copy())
                 self.prevStepAnimationStart = time.time()
 
         # log best moves given training simulation
@@ -1148,9 +1154,9 @@ class Environment(Agent):
             QLearning.logBestMoves(self)
 
         # log last index entry and plot
-        self.logIndices(numTimesteps)
-        # self.plotIndices()
+        if plotIndices:
+            self.logIndices(numTimesteps)
+            self.plotIndices(graphicsThread)
 
         # print footer
         print("...Simulation Complete")
-        # self.environment.printSnapshot()

@@ -5,3 +5,7 @@
 
 # import * statement
 __all__ = ['core']
+
+# imports
+from . import core
+from . import environment

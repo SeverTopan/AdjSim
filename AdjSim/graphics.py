@@ -15,8 +15,7 @@ import random
 from PyQt4 import QtGui, QtCore
 
 # local
-import environment
-import core
+from . import environment
 
 #-------------------------------------------------------------------------------
 # CLASS ADJTHREAD
@@ -25,16 +24,19 @@ class AdjThread(QtCore.QThread):
 
 # METHOD INIT
 #-------------------------------------------------------------------------------
-    def __init__(self, app, updateSemaphore):
+    def __init__(self, app, updateSemaphore, environment, simulationLength, plotIndices):
         QtCore.QThread.__init__(self, parent=app)
-        self.signal = QtCore.SIGNAL("update")
-        self.environment = environment.Environment()
+        self.updateSignal = QtCore.SIGNAL("update")
+        self.plotSignal = QtCore.SIGNAL("plot")
+        self.environment = environment
         self.updateSemaphore = updateSemaphore
+        self.simulationLength = simulationLength
+        self.plotIndices = plotIndices
 
 # METHOD RUN
 #-------------------------------------------------------------------------------
     def run(self):
-        core.AdjSim.run(self.environment, self)
+        self.environment.simulate(self.simulationLength, self, self.plotIndices)
 
 
 #-------------------------------------------------------------------------------
@@ -171,3 +173,8 @@ class AdjGraphicsView(QtGui.QGraphicsView):
                 self.animations.append(animation)
 
         self.timeline.start()
+
+# METHOD PLOT
+#-------------------------------------------------------------------------------
+    def plot(self, analysisIndex):
+        analysisIndex.plot()
