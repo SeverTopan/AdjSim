@@ -7,14 +7,9 @@
 # IMPORTS
 #-------------------------------------------------------------------------------
 # standard
-import sys
-import os
-import re
-import inspect
 import random
 import logging
 import time
-import pickle
 
 # third party
 from matplotlib import pyplot
@@ -22,6 +17,7 @@ from PyQt4 import QtCore, QtGui
 
 # local
 from . import Constants
+from . import Intelligence
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -262,11 +258,11 @@ class Agent(Resource):
                     timeStepLookBack += 1
 
                     # exit condition given lookahead cap
-                    if timeStepLookBack > QLearning.LOOKAHEAD_CAP:
+                    if timeStepLookBack > Intelligence.QLearning.LOOKAHEAD_CAP:
                         break
 
                 self.history[accessElement].moveScore += \
-                    QLearning.evaluateDiscountFactor(timeStepLookBack) * goalValue
+                    Intelligence.QLearning.evaluateDiscountFactor(timeStepLookBack) * goalValue
 
                 # incr counters
                 elementLookBack += 1
@@ -461,58 +457,6 @@ class HistoricTimestep(object):
         self.goalEvaluationAchieved = 0
         self.moveScore = 0
 
-
-#-------------------------------------------------------------------------------
-# CLASS PERCEPTION
-#-------------------------------------------------------------------------------
-class Perception(object):
-    """docstring for Perception."""
-
-# METHOD __INIT__
-#-------------------------------------------------------------------------------
-    def __init__(self, evaluator):
-        super(Perception, self).__init__()
-        self.evaluator = evaluator
-
-# METHOD evaluate
-# * return list of percieved values
-#-------------------------------------------------------------------------------
-    def evaluate(self, source, agentSet):
-        return self.evaluator(source, agentSet)
-
-
-#-------------------------------------------------------------------------------
-# CLASS GOAL
-#-------------------------------------------------------------------------------
-class Goal(object):
-    """docstring for Goal."""
-
-# METHOD __INIT__
-#-------------------------------------------------------------------------------
-    def __init__(self, agent, traitName, evaluationFunction):
-        super(Goal, self).__init__()
-        self.trait = agent.traits[traitName]
-        self.evaluationFunction = evaluationFunction
-
-# METHOD evaluate
-# * return weighted goal result
-#-------------------------------------------------------------------------------
-    def evaluate(self):
-        return self.evaluationFunction(self.trait)
-
-#-------------------------------------------------------------------------------
-# CLASS THOUGHT MUTABILITY
-#-------------------------------------------------------------------------------
-class ThoughtMutability(object):
-    """docstring for ThoughtMutability."""
-
-# METHOD __INIT__
-#-------------------------------------------------------------------------------
-    def __init__(self, acceptableValues):
-        super(ThoughtMutability, self).__init__()
-        # in future, accept continuous variables here
-        self.acceptableValues = acceptableValues
-
 #-------------------------------------------------------------------------------
 # CLASS TRAIT
 #-------------------------------------------------------------------------------
@@ -527,7 +471,7 @@ class Trait(Resource):
         self.thoughtMutability = thoughtMutability
 
         # error check thought mutability types
-        if thoughtMutability and type(thoughtMutability) is not ThoughtMutability:
+        if thoughtMutability and type(thoughtMutability) is not Intelligence.ThoughtMutability:
             raise Exception("Incorrect ThoughtMutability object type")
 
 #-------------------------------------------------------------------------------
@@ -585,119 +529,6 @@ class AnalysisIndex(object):
             pyplot.show()
             pyplot.close()
 
-
-#-------------------------------------------------------------------------------
-# CLASS Q LEARNING
-# * static container class for q learning related Constants
-#-------------------------------------------------------------------------------
-class QLearning(object):
-    """docstring for QLearning."""
-
-    GAMMA = .95
-    LOOKAHEAD_CAP = 50
-    EPSILON_GREEDY_FACTOR = .7
-
-    SIMULATION_TYPE_TRAIN = 0
-    SIMULATION_TYPE_TEST = 1
-
-    SIMULATION_TYPE = SIMULATION_TYPE_TEST
-    PRINT_DEBUG = False
-
-# METHOD __INIT__
-#-------------------------------------------------------------------------------
-    def __init__(self):
-        super(QLearning, self).__init__()
-
-# METHOD EVALUATE GAMMA
-#-------------------------------------------------------------------------------
-    @staticmethod
-    def evaluateDiscountFactor(depth):
-        return QLearning.GAMMA**depth
-
-# METHOD LOAD BEST MOVES
-#-------------------------------------------------------------------------------
-    @staticmethod
-    def loadBestMoves(environment):
-        # print ui messages
-        if os.path.isfile('pickle'):
-            print('Q Learning training data found; loading...')
-        else:
-            print('Q Learning training data not found.')
-            return
-
-        # load data
-        environment.bestMoveDict = pickle.load(open('pickle', 'rb'))
-
-        # ui messages
-        if QLearning.PRINT_DEBUG:
-            environment.printBestMoveDict()
-        print('...done.')
-
-
-# METHOD LOG BEST MOVES
-#-------------------------------------------------------------------------------
-    @staticmethod
-    def logBestMoves(environment):
-        print('logging best moves...')
-
-        # bank
-        for agent in environment.agentSet:
-            environment.bankHistory(agent)
-
-        # evaluate
-        QLearning.evaluateBestMoves(environment.historyBank, environment.bestMoveDict)
-
-        # remove old file if still prevStepAnimationStart
-        if os.path.isfile('pickle'):
-            os.remove('pickle')
-
-        # write to file
-        pickle.dump(environment.bestMoveDict, open('pickle', 'wb'), pickle.HIGHEST_PROTOCOL)
-
-        # print messages
-        if QLearning.PRINT_DEBUG:
-            environment.printBestMoveDict()
-
-        print('...done.')
-
-
-
-# METHOD EVALUATE BEST MOVES
-#-------------------------------------------------------------------------------
-    @staticmethod
-    def evaluateBestMoves(historyBank, bestMoveDict):
-        for agentType, agentHistoryArray in historyBank.items():
-            for agentHistory in agentHistoryArray:
-                for historicTimestep in agentHistory:
-                    # debug message
-                    if QLearning.PRINT_DEBUG:
-                        print('scanning: ', historicTimestep.perceptionTuple, ' : ', \
-                            historicTimestep.abilityCast, ' - ', \
-                            historicTimestep.thoughtMutableTraitValues, ' - ', \
-                            historicTimestep.moveScore, ' - ', \
-                            historicTimestep.goalEvaluationAchieved)
-
-                    # init type based best move dict if not already present
-                    if not bestMoveDict.get(agentType):
-                        bestMoveDict[agentType] = {}
-
-                    # populate with best moves
-                    bestMove = bestMoveDict[agentType].get(historicTimestep.perceptionTuple)
-
-                    if not bestMove or bestMove.moveScore < historicTimestep.moveScore:
-                        bestMoveDict[agentType][historicTimestep.perceptionTuple] = historicTimestep
-
-                        # debug message
-                        if QLearning.PRINT_DEBUG:
-                            print('inserting.')
-
-                    # debug message
-                    if QLearning.PRINT_DEBUG and bestMove and bestMove.moveScore > historicTimestep.moveScore:
-                        print('previous move better: ', bestMove.perceptionTuple, ' : ', \
-                            bestMove.abilityCast, ' - ', \
-                            bestMove.thoughtMutableTraitValues, ' - ', \
-                            bestMove.moveScore, ' - ', \
-                            bestMove.goalEvaluationAchieved)
 
 #-------------------------------------------------------------------------------
 # CLASS ENVIRONMENT
@@ -790,7 +621,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def removeAgent(self, agent):
         # store history in historyBank for later evaluation if training
-        if QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
+        if Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TRAIN:
             self.bankHistory(agent)
 
         self.agentSet.remove(agent)
@@ -841,7 +672,7 @@ class Environment(Agent):
 
         # perform actions:
         # testing mode
-        if QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TEST:
+        if Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TEST:
             # obtain best move, cast non-intelligent function otherwise
             agentTypeMoveDict = self.bestMoveDict.get(agent.type)
             if not agentTypeMoveDict:
@@ -856,7 +687,7 @@ class Environment(Agent):
 
 
         # training mode
-        elif QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
+        elif Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TRAIN:
             # obtain best known move if it already exists for the situation
             agentTypeMoveDict = self.bestMoveDict.get(agent.type)
             if not agentTypeMoveDict:
@@ -867,7 +698,7 @@ class Environment(Agent):
             bestMove = agentTypeMoveDict.get(currentPerceptionTuple)
 
             # if a best move exists
-            if not bestMove or random.random() > QLearning.EPSILON_GREEDY_FACTOR:
+            if not bestMove or random.random() > Intelligence.QLearning.EPSILON_GREEDY_FACTOR:
                 self.executeAbilities_intelligenceNone(agent, logHistory=True)
             else:
                 self.executeAbilities_intelligenceQLearning_bestMove(agent, agentTypeMoveDict, logHistory=True)
@@ -891,12 +722,12 @@ class Environment(Agent):
             # exit condition
             # check if best move exists
             if not bestMove:
-                if QLearning.PRINT_DEBUG:
+                if Intelligence.QLearning.PRINT_DEBUG:
                     print('no q learning option for perception tuple ', currentPerceptionTuple)
                 self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
                 return
 
-            if QLearning.PRINT_DEBUG:
+            if Intelligence.QLearning.PRINT_DEBUG:
                 print(bestMove.perceptionTuple, ' casting ', bestMove.abilityCast, ' with traits ', bestMove.thoughtMutableTraitValues)
 
             # exit condition
@@ -913,7 +744,7 @@ class Environment(Agent):
 
             # abort if blocked or non-existent
             if ability.blockedDuration > 0 or agent.blockedDuration > 0:
-                if QLearning.PRINT_DEBUG:
+                if Intelligence.QLearning.PRINT_DEBUG:
                     print('learned ability uncastable - blocked')
                 self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
                 return
@@ -921,7 +752,7 @@ class Environment(Agent):
             potentialTargets = ability.getPotentialTargets()
             if not potentialTargets:
                 ability.cast(Constants.UNCONDITIONAL)
-                if QLearning.PRINT_DEBUG:
+                if Intelligence.QLearning.PRINT_DEBUG:
                     print('learned ability', ability.name, 'uncastable - no potential targets')
                 self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
                 return
@@ -1130,7 +961,7 @@ class Environment(Agent):
             time.sleep(1)
 
         # load learned Data
-        QLearning.loadBestMoves(self)
+        Intelligence.QLearning.loadBestMoves(self)
 
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
@@ -1150,8 +981,8 @@ class Environment(Agent):
                 self.prevStepAnimationStart = time.time()
 
         # log best moves given training simulation
-        if QLearning.SIMULATION_TYPE == QLearning.SIMULATION_TYPE_TRAIN:
-            QLearning.logBestMoves(self)
+        if Intelligence.QLearning.SIMULATION_TYPE == Intelligence.QLearning.SIMULATION_TYPE_TRAIN:
+            Intelligence.QLearning.logBestMoves(self)
 
         # log last index entry and plot
         if plotIndices:

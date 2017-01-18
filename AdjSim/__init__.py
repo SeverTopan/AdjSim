@@ -7,5 +7,5 @@
 __all__ = ['Core']
 
 # imports
-from . import Core
+from .Core import AdjSim
 from . import Simulation

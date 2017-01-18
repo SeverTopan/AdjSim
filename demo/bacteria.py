@@ -180,6 +180,8 @@ def createBacteria(environment, x, y):
     bacterium.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", bacterium, starve_predicateList, \
         starve_condition, starve_effect)
 
+# FUNCTION GENERATE ENV
+#-------------------------------------------------------------------------------
 def generateEnv(environment):
     # create bacteria agents
     for i in range(5):
@@ -200,7 +202,7 @@ def generateEnv(environment):
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
-adjSim = AdjSim.Core.AdjSim()
+adjSim = AdjSim.AdjSim()
 
 adjSim.clearEnvironment()
 generateEnv(adjSim.environment)

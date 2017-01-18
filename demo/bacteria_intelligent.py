@@ -6,10 +6,15 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
-import random, math
-from environment import *
-from constants import *
+# standard
+import random
+import math
+
+# third party
 from PyQt4 import QtGui, QtCore
+
+# local
+import AdjSim
 
 #-------------------------------------------------------------------------------
 # CONSTANTS
@@ -54,7 +59,7 @@ def eat_predicate_food(env, sel, target):
    else:
        return False
 
-eat_predicateList = [TargetPredicate(0, eat_predicate_food)]
+eat_predicateList = [AdjSim.Simulation.TargetPredicate(0, eat_predicate_food)]
 
 eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'food' \
    and ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
@@ -62,7 +67,7 @@ eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is '
    < targetSet.source.traits['interactRange'].value
 
 def eat_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
@@ -78,12 +83,12 @@ def move_predicate_self(target):
        return True
    else:
        return False
-move_predicateList = [TargetPredicate(TargetPredicate.SOURCE, move_predicate_self)]
+move_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, move_predicate_self)]
 
 move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
 def move_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.source.traits['calories'].value -= MOVEMENT_COST
@@ -106,12 +111,12 @@ def move_effect(targetSet, conditionality):
 def starve_predicate_self(target):
    return True
 
-starve_predicateList = [TargetPredicate(TargetPredicate.SOURCE, starve_predicate_self)]
+starve_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, starve_predicate_self)]
 
 starve_condition = lambda targetSet: True
 
 def starve_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    removalSet = set()
@@ -138,13 +143,13 @@ def divide_predicate_self(target):
 def divide_predicate_env(target):
    return True
 
-divide_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, divide_predicate_env), \
-    TargetPredicate(TargetPredicate.SOURCE, divide_predicate_self)]
+divide_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.ENVIRONMENT, divide_predicate_env), \
+    AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, divide_predicate_self)]
 
 divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > 150
 
 def divide_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.source.traits['calories'].value -= 75
@@ -201,58 +206,63 @@ def perception_bacterium_evaluator(source, agentSet):
 # BACTERIA CREATION FUNCTION
 #-------------------------------------------------------------------------------
 def createBacteria(environment, x, y):
-    bacterium = Agent(environment, "bacterium", x, y)
+    bacterium = AdjSim.Simulation.Agent(environment, "bacterium", x, y)
     bacterium.addTrait('type', 'bacteria')
     bacterium.addTrait('calories', 75)
     bacterium.addTrait('dcal', 0)
     bacterium.addTrait('interactRange', 10)
-    bacterium.intelligence = Agent.INTELLIGENCE_Q_LEARNING
+    bacterium.intelligence = AdjSim.Simulation.Agent.INTELLIGENCE_Q_LEARNING
     bacterium.size = 10
-    bacterium.color = QtGui.QColor(GREEN)
+    bacterium.color = QtGui.QColor(AdjSim.Constants.GREEN)
     environment.traits['agentSet'].value.add(bacterium)
 
     # thought mutable movement
-    bacterium.addTrait('moveTheta', 0, ThoughtMutability([x for x in range(0, 360, 20)]))
-    bacterium.addTrait('moveR', 0, ThoughtMutability([y/10 for y in range(11)]))
+    bacterium.addTrait('moveTheta', 0, AdjSim.Intelligence.ThoughtMutability([x for x in range(0, 360, 20)]))
+    bacterium.addTrait('moveR', 0, AdjSim.Intelligence.ThoughtMutability([y/10 for y in range(11)]))
 
-    # bacterium.abilities["divide"] = Ability(environment, "divide", bacterium, \
+    # bacterium.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", bacterium, \
     #     divide_predicateList, divide_condition, divide_effect)
-    bacterium.abilities["eat"] = Ability(environment, "eat", bacterium, eat_predicateList, \
+    bacterium.abilities["eat"] = AdjSim.Simulation.Ability(environment, "eat", bacterium, eat_predicateList, \
         eat_condition, eat_effect)
-    bacterium.abilities["move"] = Ability(environment, "move", bacterium, move_predicateList, \
+    bacterium.abilities["move"] = AdjSim.Simulation.Ability(environment, "move", bacterium, move_predicateList, \
         move_condition, move_effect)
 
 
     # goals
-    bacterium.goals.append(Goal(bacterium, 'dcal', goal_bacterium_evaluation))
+    bacterium.goals.append(AdjSim.Intelligence.Goal(bacterium, 'dcal', goal_bacterium_evaluation))
 
     # perception
-    bacterium.addTrait('perception', Perception(perception_bacterium_evaluator))
+    bacterium.perception = AdjSim.Intelligence.Perception(perception_bacterium_evaluator)
+
+# FUNCTION GENERATE ENV
+#-------------------------------------------------------------------------------
+def generateEnv(environment):
+    # create bacteria agents
+    for i in range(5):
+       for j in range(5):
+           createBacteria(environment, 10 * i, 10* j)
+
+    # create yogurt agents
+    for i in range(20):
+       for j in range(20):
+           name = "yogurt"
+           yogurt = AdjSim.Simulation.Agent(environment, name, 5 * i, 5 * j + 50)
+           yogurt.addTrait('type', 'food')
+           yogurt.addTrait('calories', 30)
+           yogurt.size = 5
+           yogurt.color = QtGui.QColor(AdjSim.Constants.PINK)
+           environment.agentSet.add(yogurt)
+
+    # init environment
+    environment.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", environment, \
+        starve_predicateList, starve_condition, starve_effect)
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
 
-# create bacteria agents
-for i in range(5):
-   for j in range(5):
-       createBacteria(environment, 10 * i, 10* j)
+adjSim = AdjSim.AdjSim()
 
-# create yogurt agents
-for i in range(20):
-   for j in range(20):
-       name = "yogurt"
-       yogurt = Agent(environment, name, 5 * i, 5 * j + 50)
-       yogurt.addTrait('type', 'food')
-       yogurt.addTrait('calories', 30)
-       yogurt.size = 5
-       yogurt.color = QtGui.QColor(PINK)
-       environment.agentSet.add(yogurt)
-
-# for _ in range(20):
-#     createBacteria(environment, 0, 30)
-# createBacteria(environment, 0, 30)
-
-# init environment
-environment.abilities["starve"] = Ability(environment, "starve", environment, \
-    starve_predicateList, starve_condition, starve_effect)
+adjSim.clearEnvironment()
+generateEnv(adjSim.environment)
+adjSim.simulate(10, graphicsEnabled=True, plotIndices=True)
