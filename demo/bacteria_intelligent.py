@@ -265,4 +265,4 @@ adjSim = AdjSim.AdjSim()
 
 adjSim.clearEnvironment()
 generateEnv(adjSim.environment)
-adjSim.simulate(10, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.Intelligence.SIMULATION_TYPE_TEST)
+adjSim.simulate(10, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TRAIN)

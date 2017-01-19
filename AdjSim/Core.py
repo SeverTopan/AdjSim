@@ -96,13 +96,19 @@ class AdjSim(object):
 
 # METHOD SIMULATE
 #-------------------------------------------------------------------------------
-    def simulate(self, length, graphicsEnabled=False, plotIndices=False, simulationType=Intelligence.SIMULATION_TYPE_TRAIN):
+    def simulate(self, length, graphicsEnabled=False, plotIndices=False,
+            simulationType=Intelligence.SIMULATION_TYPE_TRAIN):
+
+        # setup simulation globals
+        Intelligence.SIMULATION_TYPE = simulationType
+
+        # initalize simulation with/without graphics
         if graphicsEnabled:
             # perform threading initialization for graphics
             self.updateSemaphore = QtCore.QSemaphore(0)
             self.qApp = QtGui.QApplication([]) # no sys.argv provided
             self.view = Graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
-            self.thread = Graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices, simulationType)
+            self.thread = Graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices)
 
             self.thread.finished.connect(self.qApp.exit)
             self.qApp.connect(self.thread, self.thread.updateSignal, self.view.update)
@@ -121,4 +127,4 @@ class AdjSim(object):
 
         else:
             # begin simulation
-            self.environment.simulate(length, plotIndices=plotIndices, simulationType=simulationType)
+            self.environment.simulate(length, plotIndices=plotIndices)

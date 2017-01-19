@@ -951,10 +951,7 @@ class Environment(Agent):
 
 # METHOD SIMULATE
 #-------------------------------------------------------------------------------
-    def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False, simulationType=Intelligence.SIMULATION_TYPE_TRAIN):
-
-        # setup simulation type
-        Intelligence.SIMULATION_TYPE = simulationType
+    def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False):
 
         # print header
         print("Simulating: ", numTimesteps, " time steps")
@@ -985,7 +982,7 @@ class Environment(Agent):
                 self.prevStepAnimationStart = time.time()
 
         # log best moves given training simulation
-        if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN:
+        if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN and self.historyBank:
             Intelligence.QLearning.logBestMoves(self)
 
         # log last index entry and plot

@@ -6,6 +6,7 @@
 # import * statement
 __all__ = ['Core']
 
-# imports
+# syntax imports
 from .Core import AdjSim
-from . import Simulation
+from .Intelligence import SIMULATION_TYPE_TEST as TEST
+from .Intelligence import SIMULATION_TYPE_TRAIN as TRAIN

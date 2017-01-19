@@ -8,6 +8,8 @@
 #-------------------------------------------------------------------------------
 # standard
 import os
+import sys
+import re
 import pickle
 
 #-------------------------------------------------------------------------------
@@ -83,10 +85,33 @@ class QLearning(object):
 
     PRINT_DEBUG = False
 
+    DEFAULT_FILE_NAME = re.sub('\.py', '.pkl', sys.argv[0])
+    I_FILE_NAME = DEFAULT_FILE_NAME
+    O_FILE_NAME = DEFAULT_FILE_NAME
+
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
     def __init__(self):
         super(QLearning, self).__init__()
+
+# METHOD SET FILE NAME
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def setIFileName(name):
+        QLearning.I_FILE_NAME = name
+
+# METHOD SET FILE NAME
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def setOFileName(name):
+        QLearning.O_FILE_NAME = name
+
+# METHOD SET FILE NAME
+#-------------------------------------------------------------------------------
+    @staticmethod
+    def setIOFileName(name):
+        QLearning.setIFileName(name)
+        QLearning.setOFileName(name)
 
 # METHOD EVALUATE GAMMA
 #-------------------------------------------------------------------------------
@@ -99,16 +124,18 @@ class QLearning(object):
     @staticmethod
     def loadBestMoves(environment):
         # print ui messages
-        if os.path.isfile('pickle'):
+        if os.path.isfile(QLearning.I_FILE_NAME):
             print('Q Learning training data found; loading...')
         else:
             print('Q Learning training data not found.')
             return
 
-        environment
+        # check filename validity
+        if not QLearning.I_FILE_NAME:
+            raise Exception('invalid QLearning.I_FILE_NAME')
 
         # load data
-        environment.bestMoveDict = pickle.load(open('pickle', 'rb'))
+        environment.bestMoveDict = pickle.load(open(QLearning.I_FILE_NAME, 'rb'))
 
         # ui messages
         if QLearning.PRINT_DEBUG:
@@ -129,12 +156,21 @@ class QLearning(object):
         # evaluate
         QLearning.evaluateBestMoves(environment.historyBank, environment.bestMoveDict)
 
-        # remove old file if still prevStepAnimationStart
-        if os.path.isfile('pickle'):
-            os.remove('pickle')
+        # rename old .pkl file into a tmp while the new file is being written (crash safety)
+        TEMP_FILE_NAME = QLearning.I_FILE_NAME + '.tmp'
+        if os.path.isfile(QLearning.I_FILE_NAME):
+            os.rename(QLearning.I_FILE_NAME, TEMP_FILE_NAME)
+
+        # check filename validity
+        if not QLearning.O_FILE_NAME:
+            raise Exception('invalid QLearning.O_FILE_NAME')
 
         # write to file
-        pickle.dump(environment.bestMoveDict, open('pickle', 'wb'), pickle.HIGHEST_PROTOCOL)
+        pickle.dump(environment.bestMoveDict, open(QLearning.O_FILE_NAME, 'wb'), pickle.HIGHEST_PROTOCOL)
+
+        # remove old file
+        if os.path.isfile(TEMP_FILE_NAME):
+            os.remove(TEMP_FILE_NAME)
 
         # print messages
         if QLearning.PRINT_DEBUG:

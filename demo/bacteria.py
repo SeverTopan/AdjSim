@@ -207,15 +207,3 @@ adjSim = AdjSim.AdjSim()
 adjSim.clearEnvironment()
 generateEnv(adjSim.environment)
 adjSim.simulate(10, graphicsEnabled=True, plotIndices=True)
-
-adjSim.clearEnvironment()
-generateEnv(adjSim.environment)
-adjSim.simulate(10, graphicsEnabled=False, plotIndices=True)
-
-adjSim.clearEnvironment()
-generateEnv(adjSim.environment)
-adjSim.simulate(10, graphicsEnabled=True, plotIndices=True)
-
-adjSim.clearEnvironment()
-generateEnv(adjSim.environment)
-adjSim.simulate(10, graphicsEnabled=False, plotIndices=True)
