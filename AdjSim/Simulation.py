@@ -10,6 +10,7 @@
 import random
 import logging
 import time
+import sys
 
 # third party
 from matplotlib import pyplot
@@ -542,7 +543,6 @@ class Environment(Agent):
         super(Environment, self).__init__(self, "environment")
         self.addTrait('agentSet', {self})
         self.time = 0
-        self.prevStepAnimationStart = time.time()
 
         # initialize default indices
         typeIndex = AnalysisIndex(self, 'type', AnalysisIndex.ACCUMULATE_AGENTS)
@@ -952,10 +952,6 @@ class Environment(Agent):
 # METHOD SIMULATE
 #-------------------------------------------------------------------------------
     def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False):
-
-        # print header
-        print("Simulating: ", numTimesteps, " time steps")
-
         # draw initial frame
         if graphicsThread:
             graphicsThread.emit(graphicsThread.updateSignal, self.agentSet)
@@ -966,7 +962,9 @@ class Environment(Agent):
 
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
-            print("Timestep: ", timeStep)
+            # print timestep with line replacement
+            sys.stdout.write("\rSimulating timestep " + str(timeStep) + "/" + str(numTimesteps))
+            sys.stdout.flush()
 
             # perform agent operations
             if plotIndices:
@@ -976,10 +974,12 @@ class Environment(Agent):
 
             # wait for animaiton if graphics are intialized
             if graphicsThread:
-                print(time.time() - self.prevStepAnimationStart)
                 graphicsThread.updateSemaphore.acquire(1)
                 graphicsThread.emit(graphicsThread.updateSignal, self.agentSet.copy())
-                self.prevStepAnimationStart = time.time()
+
+        # print simulation finalization string
+        sys.stdout.write(" ...done\n")
+        sys.stdout.flush()
 
         # log best moves given training simulation
         if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN and self.historyBank:

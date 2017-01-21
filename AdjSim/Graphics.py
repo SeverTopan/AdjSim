@@ -61,13 +61,12 @@ class AgentEllipse(QtGui.QGraphicsEllipseItem):
 # METHOD HOVER EVENT ENTER
 #-------------------------------------------------------------------------------
     def hoverEnterEvent(self, event):
-        print(self.agent.name)
+        pass
 
 # METHOD HOVER EVENT LEAVE
 #-------------------------------------------------------------------------------
     def hoverLeaveEvent(self, event):
-        print('Leave')
-
+        pass
 
 #-------------------------------------------------------------------------------
 # CLASS ADJGRAPHICSVIEW

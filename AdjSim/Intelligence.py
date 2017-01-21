@@ -85,7 +85,7 @@ class QLearning(object):
 
     PRINT_DEBUG = False
 
-    DEFAULT_FILE_NAME = re.sub('\.py', '.pkl', sys.argv[0])
+    DEFAULT_FILE_NAME = re.sub('\.py', '.qlearning.pkl', sys.argv[0])
     I_FILE_NAME = DEFAULT_FILE_NAME
     O_FILE_NAME = DEFAULT_FILE_NAME
 
@@ -125,14 +125,11 @@ class QLearning(object):
     def loadBestMoves(environment):
         # print ui messages
         if os.path.isfile(QLearning.I_FILE_NAME):
-            print('Q Learning training data found; loading...')
+            sys.stdout.write("Q Learning training data found, loading from " + QLearning.I_FILE_NAME + "...")
+            sys.stdout.flush()
         else:
             print('Q Learning training data not found.')
             return
-
-        # check filename validity
-        if not QLearning.I_FILE_NAME:
-            raise Exception('invalid QLearning.I_FILE_NAME')
 
         # load data
         environment.bestMoveDict = pickle.load(open(QLearning.I_FILE_NAME, 'rb'))
@@ -140,14 +137,16 @@ class QLearning(object):
         # ui messages
         if QLearning.PRINT_DEBUG:
             environment.printBestMoveDict()
-        print('...done.')
+        sys.stdout.write("done\n")
+        sys.stdout.flush()
 
 
 # METHOD LOG BEST MOVES
 #-------------------------------------------------------------------------------
     @staticmethod
     def logBestMoves(environment):
-        print('logging best moves...')
+        sys.stdout.write("Logging best moves...")
+        sys.stdout.flush()
 
         # bank
         for agent in environment.agentSet:
@@ -175,9 +174,8 @@ class QLearning(object):
         # print messages
         if QLearning.PRINT_DEBUG:
             environment.printBestMoveDict()
-
-        print('...done.')
-
+        sys.stdout.write("done\n")
+        sys.stdout.flush()
 
 
 # METHOD EVALUATE BEST MOVES

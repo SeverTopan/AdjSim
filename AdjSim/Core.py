@@ -44,7 +44,6 @@ class AdjSim(object):
         self.environment = Simulation.Environment()
 
         # pyplot multitheading
-        AdjSim.pyplotMultithreadingHack()
 
 # METHOD RUN
 #-------------------------------------------------------------------------------
@@ -71,21 +70,7 @@ class AdjSim(object):
         print("-".rjust(len(welcomeMessage), "-"))
         print(welcomeMessage)
         print("-".rjust(len(welcomeMessage), "-"))
-
-
-# METHOD PYPLOT MULTITHREADING HACK
-# * ugly hack to fix pyplot multithreading issues
-# * issue occurs when pyplot is called from a non-graphical adjsim instance
-# * directly after being called from only a graphical adjsim instance
-#-------------------------------------------------------------------------------
-    @staticmethod
-    def pyplotMultithreadingHack():
-        pyplot.ion()
-        pyplot.plot([1,2])
-        pyplot.show()
-        pyplot.close()
-        pyplot.ioff()
-
+        
 
 # METHOD RESET ENVIRONMENT
 #-------------------------------------------------------------------------------

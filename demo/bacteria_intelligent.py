@@ -261,8 +261,29 @@ def generateEnv(environment):
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
 
+SIMULATION_LENGTH = 300
+NUM_EPOCHS = 50
+EPSILON_GREEDY_BEGIN = 0.5
+EPSILON_GREEDY_END = 0.95
 adjSim = AdjSim.AdjSim()
 
+# display initial bacteria intelligence state
+generateEnv(adjSim.environment)
+adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=False, simulationType=AdjSim.TEST)
+
+# train bacteria
+for currEpoch in range(NUM_EPOCHS):
+    # set epsilon-greedy value - currently a linear progression from start to end value
+    currEpsilonGreedyFactor = ((EPSILON_GREEDY_END - EPSILON_GREEDY_BEGIN) / NUM_EPOCHS) * currEpoch + EPSILON_GREEDY_BEGIN
+    AdjSim.Intelligence.QLearning.EPSILON_GREEDY_FACTOR = currEpsilonGreedyFactor
+    print('New Simulation Epoch - epsilon-greedy: ', currEpsilonGreedyFactor)
+
+    # setup env and launch training epoch
+    adjSim.clearEnvironment()
+    generateEnv(adjSim.environment)
+    adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=False, plotIndices=False, simulationType=AdjSim.TRAIN)
+
+# test trained bacteria
 adjSim.clearEnvironment()
 generateEnv(adjSim.environment)
-adjSim.simulate(10, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TRAIN)
+adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TEST)
