@@ -6,10 +6,12 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
+#standard
 import random
-from environment import *
-from constants import *
+
+# third party
 from PyQt4 import QtGui, QtCore
+import AdjSim
 
 #-------------------------------------------------------------------------------
 # CONSTANTS
@@ -26,12 +28,12 @@ CELL_SIZE = 5
 def compute_predicate_self(target):
    return target.abilities['compute'].blockedDuration is 0
 
-compute_predicateList = [TargetPredicate(TargetPredicate.SOURCE, compute_predicate_self)]
+compute_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, compute_predicate_self)]
 
 compute_condition = lambda targetSet: True
 
 def compute_effect(targetSet, conditionality):
-    if conditionality is UNCONDITIONAL:
+    if conditionality is AdjSim.Constants.UNCONDITIONAL:
         return
 
     # calculate neighbour
@@ -98,26 +100,35 @@ def compute_effect(targetSet, conditionality):
 # CELL CREATION FUNCTION
 #-------------------------------------------------------------------------------
 def createCell(environment, x, y):
-   cell = Agent(environment, "cell", x, y)
+   cell = AdjSim.Simulation.Agent(environment, "cell", x, y)
    cell.addTrait('type', 'live_cell')
    cell.size = CELL_SIZE
-   cell.color = QtGui.QColor(BLUE_DARK)
+   cell.color = QtGui.QColor(AdjSim.Constants.BLUE_DARK)
    environment.agentSet.add(cell)
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
+def generateEnv(environment):
+    # creation script
+    initialCondition_blockLayingSwitchEngine = [(0,0),                          # 1st column
+                                               (2,0),(2,1),                    # 2nd column
+                                               (4,2),(4,3),(4,4),              # 3rd column
+                                               (6,3),(6,4),(6,5),(7,4)]        # 4th column
 
-# creation script
-initialCondition_blockLayingSwitchEngine = [(0,0),                          # 1st column
-                                           (2,0),(2,1),                    # 2nd column
-                                           (4,2),(4,3),(4,4),              # 3rd column
-                                           (6,3),(6,4),(6,5),(7,4)]        # 4th column
+
+    for coord in initialCondition_blockLayingSwitchEngine:
+       createCell(environment, coord[0] * CELL_SIZE, coord[1] * CELL_SIZE)
+
+    environment.abilities['compute'] = AdjSim.Simulation.Ability(environment, "compute", environment, \
+       compute_predicateList, compute_condition, \
+       compute_effect)
 
 
-for coord in initialCondition_blockLayingSwitchEngine:
-   createCell(environment, coord[0] * CELL_SIZE, coord[1] * CELL_SIZE)
+#-------------------------------------------------------------------------------
+# MAIN FUNCTION
+#-------------------------------------------------------------------------------
 
-environment.abilities['compute'] = Ability(environment, "compute", environment, \
-   compute_predicateList, compute_condition, \
-   compute_effect)
+adjSim = AdjSim.AdjSim()
+generateEnv(adjSim.environment)
+adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)

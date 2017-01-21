@@ -6,10 +6,12 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
+# standard
 import random
-from environment import *
-from constants import *
+
+# third party
 from PyQt4 import QtGui, QtCore
+import AdjSim
 
 #-------------------------------------------------------------------------------
 # CONSTANTS
@@ -27,12 +29,12 @@ CELL_SIZE = 5
 def compute_predicate_self(target):
    return target.abilities['compute'].blockedDuration is 0
 
-compute_predicateList = [TargetPredicate(TargetPredicate.SOURCE, compute_predicate_self)]
+compute_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, compute_predicate_self)]
 
 compute_condition = lambda targetSet: True
 
 def compute_effect(targetSet, conditionality):
-    if conditionality is UNCONDITIONAL:
+    if conditionality is AdjSim.Constants.UNCONDITIONAL:
         return
 
     # calculate neighbour
@@ -99,28 +101,36 @@ def compute_effect(targetSet, conditionality):
 # CELL CREATION FUNCTION
 #-------------------------------------------------------------------------------
 def createCell(environment, x, y):
-   cell = Agent(environment, "cell", x, y)
+   cell = AdjSim.Simulation.Agent(environment, "cell", x, y)
    cell.addTrait('type', 'live_cell')
    cell.size = CELL_SIZE
-   cell.color = QtGui.QColor(BLUE_DARK)
+   cell.color = QtGui.QColor(AdjSim.Constants.BLUE_DARK)
    environment.agentSet.add(cell)
 
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
+def generateEnv(environment):
+    # creation script
+    initialCondition_gosperGliderGun = [(0,0),(1,0),(1,1),(0,1),                                            # left-most block
+                                       (10,0),(10,1),(10,-1),(11,2),(11,-2),(12,3),(12,-3),(13,3),(13,-3), # curve on left
+                                       (14,0),(15,2),(15,-2),(16,1),(16,-1),(16,0),(17,0),                 # 'play button' on left
+                                       (20,1),(20,2),(20,3),(21,1),(21,2),(21,3),(22,0),(22,4),            # 2x3 + 2 on right
+                                       (24,-1),(24,0),(24,4),(24,5),                                       # trailing 'winglets' on right
+                                       (34,2),(34,3),(35,2),(35,3)]                                        # right-most block
 
-# creation script
-initialCondition_gosperGliderGun = [(0,0),(1,0),(1,1),(0,1),                                            # left-most block
-                                   (10,0),(10,1),(10,-1),(11,2),(11,-2),(12,3),(12,-3),(13,3),(13,-3), # curve on left
-                                   (14,0),(15,2),(15,-2),(16,1),(16,-1),(16,0),(17,0),                 # 'play button' on left
-                                   (20,1),(20,2),(20,3),(21,1),(21,2),(21,3),(22,0),(22,4),            # 2x3 + 2 on right
-                                   (24,-1),(24,0),(24,4),(24,5),                                       # trailing 'winglets' on right
-                                   (34,2),(34,3),(35,2),(35,3)]                                        # right-most block
+    for coord in initialCondition_gosperGliderGun:
+       createCell(environment, coord[0] * CELL_SIZE, coord[1] * CELL_SIZE)
 
-for coord in initialCondition_gosperGliderGun:
-   createCell(environment, coord[0] * CELL_SIZE, coord[1] * CELL_SIZE)
+    environment.abilities['compute'] = AdjSim.Simulation.Ability(environment, "compute", environment, \
+       compute_predicateList, compute_condition, \
+       compute_effect)
 
-environment.abilities['compute'] = Ability(environment, "compute", environment, \
-   compute_predicateList, compute_condition, \
-   compute_effect)
+#-------------------------------------------------------------------------------
+# MAIN FUNCTION
+#-------------------------------------------------------------------------------
+
+adjSim = AdjSim.AdjSim()
+generateEnv(adjSim.environment)
+adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)

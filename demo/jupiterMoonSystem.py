@@ -6,10 +6,12 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
+# standard
 import random
-from environment import *
-from constants import *
+
+# third party
 from PyQt4 import QtGui, QtCore
+import AdjSim
 
 #-------------------------------------------------------------------------------
 # CONSTANTS
@@ -30,7 +32,7 @@ applyGravity_predicateList = []
 applyGravity_condition = lambda targetSet : True
 
 def applyGravity_effect(targetSet, conditionality):
-    if conditionality is UNCONDITIONAL:
+    if conditionality is AdjSim.Constants.UNCONDITIONAL:
         return
 
     # reset acceleration
@@ -80,7 +82,7 @@ def applyGravity_effect(targetSet, conditionality):
 # PLANET CREATION FUNCTION
 #-------------------------------------------------------------------------------
 def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, style = QtCore.Qt.SolidPattern):
-   planet = Agent(environment, name, xPos, yPos)
+   planet = AdjSim.Simulation.Agent(environment, name, xPos, yPos)
    planet.addTrait('type', 'planet')
    planet.addTrait('xVel', xVel)
    planet.addTrait('yVel', yVel)
@@ -97,13 +99,21 @@ def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, s
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
+def generateEnv(environment):
+    # jupiter system
+    createPlanet('jupiter', 1.898e27, 10, QtGui.QColor(AdjSim.Constants.ORANGE), 0, 0, 0.0 , 0, environment, QtCore.Qt.Dense1Pattern)
+    createPlanet('io', 8.9e22, 3, QtGui.QColor(AdjSim.Constants.GREY), 42, 0, 0.0, 17.38e3, environment)
+    createPlanet('europa', 4.8e22, 3, QtGui.QColor(AdjSim.Constants.BLUE_LIGHT), 67, 0, 0.0, 13.7e3, environment)
+    createPlanet('ganymede', 1.48e23, 5, QtGui.QColor(AdjSim.Constants.RED_DARK), 107, 0, 0.0, 10.88e3, environment)
+    createPlanet('callisto', 1.08e23, 4, QtGui.QColor(AdjSim.Constants.BROWN_LIGHT), 188, 0, 0.0, 8.21e3, environment)
 
-# jupiter system
-createPlanet('jupiter', 1.898e27, 10, QtGui.QColor(ORANGE), 0, 0, 0.0 , 0, environment, QtCore.Qt.Dense1Pattern)
-createPlanet('io', 8.9e22, 3, QtGui.QColor(GREY), 42, 0, 0.0, 17.38e3, environment)
-createPlanet('europa', 4.8e22, 3, QtGui.QColor(BLUE_LIGHT), 67, 0, 0.0, 13.7e3, environment)
-createPlanet('ganymede', 1.48e23, 5, QtGui.QColor(RED_DARK), 107, 0, 0.0, 10.88e3, environment)
-createPlanet('callisto', 1.08e23, 4, QtGui.QColor(BROWN_LIGHT), 188, 0, 0.0, 8.21e3, environment)
+    environment.abilities["applyGravity"] = AdjSim.Simulation.Ability(environment, "applyGravity", environment, \
+        applyGravity_predicateList, applyGravity_condition, applyGravity_effect)
 
-environment.abilities["applyGravity"] = Ability(environment, "applyGravity", environment, \
-    applyGravity_predicateList, applyGravity_condition, applyGravity_effect)
+#-------------------------------------------------------------------------------
+# MAIN FUNCTION
+#-------------------------------------------------------------------------------
+
+adjSim = AdjSim.AdjSim()
+generateEnv(adjSim.environment)
+adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)
