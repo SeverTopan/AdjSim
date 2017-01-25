@@ -9,6 +9,7 @@
 # standard
 import random
 import math
+import re
 
 # third party
 from PyQt4 import QtGui, QtCore
@@ -154,6 +155,7 @@ def divide_effect(targetSet, conditionality):
 
    targetSet.source.traits['calories'].value -= 75
    targetSet.source.traits['dcal'].value -= 75
+   targetSet.source.traits['offspringCount'].value += 1
    targetSet.source.blockedDuration = 2
 
    createBacteria(targetSet.environment, targetSet.source.xCoord + 10, targetSet.source.yCoord)
@@ -162,8 +164,13 @@ def divide_effect(targetSet, conditionality):
 
 # goal evaluation function
 #-------------------------------------------------------------------------------
-def goal_bacterium_evaluation(trait):
+def goal_bacterium_evaluation_dcal(trait):
     return trait.value
+
+# goal evaluation function
+#-------------------------------------------------------------------------------
+def goal_bacterium_evaluation_offspring(trait):
+    return 100 * trait.value
 
 # perception evaluation function
 #-------------------------------------------------------------------------------
@@ -210,6 +217,7 @@ def createBacteria(environment, x, y):
     bacterium.addTrait('type', 'bacteria')
     bacterium.addTrait('calories', 75)
     bacterium.addTrait('dcal', 0)
+    bacterium.addTrait('offspringCount', 0)
     bacterium.addTrait('interactRange', 10)
     bacterium.intelligence = AdjSim.Simulation.Agent.INTELLIGENCE_Q_LEARNING
     bacterium.size = 10
@@ -220,8 +228,8 @@ def createBacteria(environment, x, y):
     bacterium.addTrait('moveTheta', 0, AdjSim.Intelligence.ThoughtMutability([x for x in range(0, 360, 20)]))
     bacterium.addTrait('moveR', 0, AdjSim.Intelligence.ThoughtMutability([y/10 for y in range(11)]))
 
-    # bacterium.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", bacterium, \
-    #     divide_predicateList, divide_condition, divide_effect)
+    bacterium.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", bacterium, \
+        divide_predicateList, divide_condition, divide_effect)
     bacterium.abilities["eat"] = AdjSim.Simulation.Ability(environment, "eat", bacterium, eat_predicateList, \
         eat_condition, eat_effect)
     bacterium.abilities["move"] = AdjSim.Simulation.Ability(environment, "move", bacterium, move_predicateList, \
@@ -229,7 +237,8 @@ def createBacteria(environment, x, y):
 
 
     # goals
-    bacterium.goals.append(AdjSim.Intelligence.Goal(bacterium, 'dcal', goal_bacterium_evaluation))
+    bacterium.goals.append(AdjSim.Intelligence.Goal(bacterium, 'dcal', goal_bacterium_evaluation_dcal))
+    bacterium.goals.append(AdjSim.Intelligence.Goal(bacterium, 'offspringCount', goal_bacterium_evaluation_offspring))
 
     # perception
     bacterium.perception = AdjSim.Intelligence.Perception(perception_bacterium_evaluator)
@@ -257,19 +266,23 @@ def generateEnv(environment):
     environment.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", environment, \
         starve_predicateList, starve_condition, starve_effect)
 
+    environment.indices.add(AdjSim.Simulation.Analysis.Index(environment, AdjSim.Simulation.Analysis.Index.AVERAGE_GOAL_VALUES))
+
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
 
 SIMULATION_LENGTH = 300
-NUM_EPOCHS = 50
+NUM_EPOCHS = 500
 EPSILON_GREEDY_BEGIN = 0.5
-EPSILON_GREEDY_END = 0.95
+EPSILON_GREEDY_END = 0.98
+
 adjSim = AdjSim.AdjSim()
+AdjSim.Intelligence.QLearning.setIOFileName(re.sub('\.py', '.qlearning-no-division.pkl', __file__))
 
 # display initial bacteria intelligence state
 generateEnv(adjSim.environment)
-adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=False, simulationType=AdjSim.TEST)
+adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TEST)
 
 # train bacteria
 for currEpoch in range(NUM_EPOCHS):
