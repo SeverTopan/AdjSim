@@ -15,7 +15,6 @@ import os
 
 # third party
 from PyQt4 import QtGui, QtCore
-from matplotlib import pyplot
 
 # local
 from . import Graphics
@@ -43,8 +42,6 @@ class AdjSim(object):
         # init environment
         self.environment = Simulation.Environment()
 
-        # pyplot multitheading
-
 # METHOD RUN
 #-------------------------------------------------------------------------------
     @staticmethod
@@ -70,7 +67,7 @@ class AdjSim(object):
         print("-".rjust(len(welcomeMessage), "-"))
         print(welcomeMessage)
         print("-".rjust(len(welcomeMessage), "-"))
-        
+
 
 # METHOD RESET ENVIRONMENT
 #-------------------------------------------------------------------------------
