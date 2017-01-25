@@ -206,6 +206,14 @@ def perception_bacterium_evaluator(source, agentSet):
 
     return (round(theta, 2), round(r), canMove, canEat, isBlocked)
 
+# end condition
+#-------------------------------------------------------------------------------
+def endCondition(environment):
+    for agent in environment.agentSet:
+        if agent.type == 'bacteria':
+            return False
+
+    return True
 
 #-------------------------------------------------------------------------------
 # AGENT GENERATION FUNCTIONS
@@ -267,6 +275,8 @@ def generateEnv(environment):
     environment.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", environment, \
         starve_predicateList, starve_condition, starve_effect)
 
+    environment.endCondition = endCondition
+
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
@@ -284,7 +294,7 @@ adjSim = AdjSim.AdjSim()
 generateEnv(adjSim.environment)
 adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_QLEARNING_REWARD))
 adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_QLEARNING_REWARD))
-adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TEST)
+adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TRAIN)
 
 # train bacteria
 for currEpoch in range(NUM_EPOCHS):

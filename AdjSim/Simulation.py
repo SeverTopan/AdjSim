@@ -455,6 +455,7 @@ class Environment(Agent):
     def __init__(self):
         super(Environment, self).__init__(self, "environment")
         self.addTrait('agentSet', {self})
+        self.addTrait('endCondition', lambda x: False)
         self.time = 0
 
         # initialize default indices
@@ -508,6 +509,17 @@ class Environment(Agent):
     @historyBank.setter
     def historyBank(self, value):
         self.traits['historyBank'].value = value
+        return
+
+# PROPERTY METHOD - END CONDITION
+#-------------------------------------------------------------------------------
+    @property
+    def endCondition(self):
+        return self.traits['endCondition'].value
+
+    @endCondition.setter
+    def endCondition(self, value):
+        self.traits['endCondition'].value = value
         return
 
 # METHOD PRINT BEST MOVE DICT
@@ -895,6 +907,10 @@ class Environment(Agent):
             if graphicsThread:
                 graphicsThread.updateSemaphore.acquire(1)
                 graphicsThread.emit(graphicsThread.updateSignal, self.agentSet.copy())
+
+            # check end condition
+            if self.endCondition(self):
+                break
 
         # print simulation finalization string
         sys.stdout.write(" ...done\n")
