@@ -6,10 +6,12 @@
 #-------------------------------------------------------------------------------
 # IMPORTS
 #-------------------------------------------------------------------------------
+# standard
 import random, math
-from environment import *
-from constants import *
+
+# third party
 from PyQt4 import QtGui, QtCore
+import AdjSim
 
 #-------------------------------------------------------------------------------
 # CONSTANTS
@@ -46,16 +48,16 @@ def eat_predicate_self(target):
 def eat_predicate_env(target):
    return True
 
-eat_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, eat_predicate_env), \
-   TargetPredicate(TargetPredicate.SOURCE, eat_predicate_self), \
-   TargetPredicate(0, eat_predicate_food)]
+eat_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMENT, eat_predicate_env), \
+   AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, eat_predicate_self), \
+   AdjSim.TargetPredicate(0, eat_predicate_food)]
 
 eat_condition = lambda targetSet: ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
    + (targetSet.targets[0].traits['yCoord'].value - targetSet.source.traits['yCoord'].value)**2)**0.5 \
    < targetSet.source.traits['interactRange'].value
 
 def eat_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
@@ -79,12 +81,12 @@ def move_predicate_self(target):
        return True
    else:
        return False
-move_predicateList = [TargetPredicate(TargetPredicate.SOURCE, move_predicate_self)]
+move_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, move_predicate_self)]
 
 move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
 def move_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    randX = random.uniform(-1, 1)
@@ -111,12 +113,12 @@ def starve_predicate_self(target):
        return True
    else:
        return False
-starve_predicateList = [TargetPredicate(TargetPredicate.SOURCE, starve_predicate_self)]
+starve_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, starve_predicate_self)]
 
 starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
 
 def starve_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    targetSet.environment.removeAgent(targetSet.source)
@@ -137,13 +139,13 @@ def divide_predicate_self(target):
 def divide_predicate_env(target):
    return True
 
-divide_predicateList = [TargetPredicate(TargetPredicate.ENVIRONMENT, divide_predicate_env), \
-    TargetPredicate(TargetPredicate.SOURCE, divide_predicate_self)]
+divide_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMENT, divide_predicate_env), \
+    AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, divide_predicate_self)]
 
 divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > targetSet.source.traits['divideThreshold'].value
 
 def divide_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    if targetSet.source.traits['type'].value == 'predator':
@@ -161,7 +163,7 @@ photosynthesize_predicateList = []
 photosynthesize_condition = lambda targetSet: True
 
 def photosynthesize_effect(targetSet, conditionality):
-   if conditionality is UNCONDITIONAL:
+   if conditionality is AdjSim.Constants.UNCONDITIONAL:
        return
 
    blockingAgents = 0
@@ -190,7 +192,7 @@ def photosynthesize_effect(targetSet, conditionality):
 def createPredator(environment, x, y, division):
    calorieLevel = 75 if division else random.randint(50, 75)
 
-   predator = Agent(environment, "predator", x, y)
+   predator = AdjSim.Simulation.Agent(environment, "predator", x, y)
    predator.addTrait('type', 'predator')
    predator.addTrait('calories', calorieLevel)
    predator.addTrait('interactRange', 15)
@@ -198,16 +200,16 @@ def createPredator(environment, x, y, division):
    predator.addTrait('divideCost', 125)
    predator.blockedDuration = 1
    predator.size = 10
-   predator.color = QtGui.QColor(RED_DARK)
+   predator.color = QtGui.QColor(AdjSim.Constants.RED_DARK)
    environment.traits['agentSet'].value.add(predator)
 
-   predator.abilities["divide"] = Ability(environment, "divide", predator, \
+   predator.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", predator, \
        divide_predicateList, divide_condition, divide_effect)
-   predator.abilities["eat"] = Ability(environment, "eat", predator, eat_predicateList, \
+   predator.abilities["eat"] = AdjSim.Simulation.Ability(environment, "eat", predator, eat_predicateList, \
        eat_condition, eat_effect)
-   predator.abilities["move"] = Ability(environment, "move", predator, move_predicateList, \
+   predator.abilities["move"] = AdjSim.Simulation.Ability(environment, "move", predator, move_predicateList, \
        move_condition, move_effect)
-   predator.abilities["starve"] = Ability(environment, "starve", predator, starve_predicateList, \
+   predator.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", predator, starve_predicateList, \
        starve_condition, starve_effect)
 
 # PREY CREATION FUNCTION
@@ -215,7 +217,7 @@ def createPredator(environment, x, y, division):
 def createPrey(environment, x, y, division):
    calorieLevel =  5 if division else random.randint(5, 35)
 
-   prey = Agent(environment, "prey", x, y)
+   prey = AdjSim.Simulation.Agent(environment, "prey", x, y)
    prey.addTrait('type', 'prey')
    prey.addTrait('calories', calorieLevel)
    prey.addTrait('interactRange', 10)
@@ -223,32 +225,41 @@ def createPrey(environment, x, y, division):
    prey.addTrait('divideCost', 20)
    prey.blockedDuration = 2
    prey.size = 5
-   prey.color = QtGui.QColor(BLUE_DARK)
+   prey.color = QtGui.QColor(AdjSim.Constants.BLUE_DARK)
    environment.traits['agentSet'].value.add(prey)
 
-   prey.abilities["photosynthesize"] = Ability(environment, "photosynthesize", prey, photosynthesize_predicateList, \
+   prey.abilities["photosynthesize"] = AdjSim.Simulation.Ability(environment, "photosynthesize", prey, photosynthesize_predicateList, \
        photosynthesize_condition, photosynthesize_effect)
-   prey.abilities["move"] = Ability(environment, "move", prey, move_predicateList, \
+   prey.abilities["move"] = AdjSim.Simulation.Ability(environment, "move", prey, move_predicateList, \
        move_condition, move_effect)
-   prey.abilities["divide"] = Ability(environment, "divide", prey, \
+   prey.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", prey, \
        divide_predicateList, divide_condition, divide_effect)
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
+def generateEnv(environment):
+    # obtain theta value list
+    thetaValues = [x*0.2 for x in range(1, 32)]
 
-# obtain theta value list
-thetaValues = [x*0.2 for x in range(1, 32)]
-
-# create predator agents
-SPACING = 75
-for theta in thetaValues:
-   for d in range(1,3):
-       createPredator(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
+    # create predator agents
+    SPACING = 75
+    for theta in thetaValues:
+       for d in range(1,3):
+           createPredator(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
 
 
-# create prey agents
-SPACING = 25
-for theta in thetaValues:
-   for d in range(1,10):
-       createPrey(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
+    # create prey agents
+    SPACING = 25
+    for theta in thetaValues:
+       for d in range(1,10):
+           createPrey(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
+
+#-------------------------------------------------------------------------------
+# AGENT CREATION SCRIPT
+#-------------------------------------------------------------------------------
+adjSim = AdjSim.AdjSim()
+
+adjSim.clearEnvironment()
+generateEnv(adjSim.environment)
+adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)

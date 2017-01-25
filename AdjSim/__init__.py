@@ -8,5 +8,7 @@ __all__ = ['Core']
 
 # syntax imports
 from .Core import AdjSim
+from .Utility import *
+
 from .Intelligence import SIMULATION_TYPE_TEST as TEST
 from .Intelligence import SIMULATION_TYPE_TRAIN as TRAIN

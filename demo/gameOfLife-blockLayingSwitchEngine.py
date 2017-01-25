@@ -28,7 +28,7 @@ CELL_SIZE = 5
 def compute_predicate_self(target):
    return target.abilities['compute'].blockedDuration is 0
 
-compute_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, compute_predicate_self)]
+compute_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, compute_predicate_self)]
 
 compute_condition = lambda targetSet: True
 

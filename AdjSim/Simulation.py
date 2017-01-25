@@ -18,6 +18,7 @@ from PyQt4 import QtCore, QtGui
 # local
 from . import Constants
 from . import Intelligence
+from . import Utility
 from . import Analysis
 
 #-------------------------------------------------------------------------------
@@ -224,7 +225,7 @@ class Agent(Resource):
 #-------------------------------------------------------------------------------
     def logHistory(self, ability, perceptionTuple):
         # init newest history log frame
-        self.history.append(HistoricTimestep())
+        self.history.append(Utility.HistoricTimestep())
 
         # log ability
         if ability:
@@ -269,34 +270,6 @@ class Agent(Resource):
                 elementLookBack += 1
 
 #-------------------------------------------------------------------------------
-# CLASS TARGET PREDICATE
-#-------------------------------------------------------------------------------
-class TargetPredicate(object):
-    """docstring for TargetPredicate."""
-
-    ENVIRONMENT = -1
-    SOURCE = -2
-
-    def __init__(self, target, predicate):
-        super(TargetPredicate, self).__init__()
-        self.target = target
-        self.predicate = predicate
-
-#-------------------------------------------------------------------------------
-# CLASS TARGET SET
-#-------------------------------------------------------------------------------
-class TargetSet(object):
-    """docstring for TargetSet."""
-    def __init__(self, environment, source, targets = None):
-        super(TargetSet, self).__init__()
-        self.environment = environment
-        self.source = source
-        if targets == None:
-            targets = []
-        self.targets = targets
-
-
-#-------------------------------------------------------------------------------
 # CLASS ABILITY
 #-------------------------------------------------------------------------------
 class Ability(Resource):
@@ -322,7 +295,7 @@ class Ability(Resource):
     def checkTargetSetCombinations(self, potentialTargetSet, validTargetList, targetIndex = None):
         # init default argument to a mutable varible
         if targetIndex is None:
-            targetIndex = TargetSet(potentialTargetSet.environment, potentialTargetSet.source, [0])
+            targetIndex = Utility.TargetSet(potentialTargetSet.environment, potentialTargetSet.source, [0])
 
         # init current index
         currIndex = len(targetIndex.targets) - 1
@@ -344,7 +317,7 @@ class Ability(Resource):
 
                 if self.condition(targetIndex):
                     logging.debug("   -> yielding")
-                    outputTargetSet = TargetSet(targetIndex.environment, targetIndex.source, \
+                    outputTargetSet = Utility.TargetSet(targetIndex.environment, targetIndex.source, \
                         [item for item in targetIndex.targets])
                     validTargetList.append(outputTargetSet)
             else:
@@ -360,19 +333,19 @@ class Ability(Resource):
 # * returns a list of sets of valid targets on which to perfrom actions
 #-------------------------------------------------------------------------------
     def getPotentialTargets(self):
-        potentialTargetSet = TargetSet(self.environment, self.agent)
+        potentialTargetSet = Utility.TargetSet(self.environment, self.agent)
         validTargetList = []
 
         # debug message
         logging.debug("Obtaining Targets: %s", self.name)
 
         for targetPredicate in self.predicates:
-            if targetPredicate.target is TargetPredicate.ENVIRONMENT:
+            if targetPredicate.target is Utility.TargetPredicate.ENVIRONMENT:
                 # target = environment - check predicate
                 if not targetPredicate.predicate(self.environment):
                     return None
 
-            elif targetPredicate.target is TargetPredicate.SOURCE:
+            elif targetPredicate.target is Utility.TargetPredicate.SOURCE:
                 # target = self - check predicate
                 if not targetPredicate.predicate(self.agent):
                     return None
@@ -435,28 +408,12 @@ class Ability(Resource):
 
         # set targets in unconditional cast
         if conditionality is Constants.UNCONDITIONAL:
-            targets = TargetSet(self.environment, self.agent)
+            targets = Utility.TargetSet(self.environment, self.agent)
 
         # perform target effects
         self.effect(targets, conditionality)
 
         return True
-
-#-------------------------------------------------------------------------------
-# CLASS HISTORY
-#-------------------------------------------------------------------------------
-class HistoricTimestep(object):
-    """docstring for HistoricTimestep."""
-
-# METHOD __INIT__
-#-------------------------------------------------------------------------------
-    def __init__(self):
-        super(HistoricTimestep, self).__init__()
-        self.abilityCast = None
-        self.thoughtMutableTraitValues = None
-        self.perceptionTuple = None
-        self.goalEvaluationAchieved = 0
-        self.moveScore = 0
 
 #-------------------------------------------------------------------------------
 # CLASS TRAIT

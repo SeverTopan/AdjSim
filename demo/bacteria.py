@@ -52,9 +52,9 @@ def eat_predicate_self(target):
 def eat_predicate_env(target):
    return True
 
-eat_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.ENVIRONMENT, eat_predicate_env), \
-   AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, eat_predicate_self), \
-   AdjSim.Simulation.TargetPredicate(0, eat_predicate_food)]
+eat_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMENT, eat_predicate_env), \
+   AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, eat_predicate_self), \
+   AdjSim.TargetPredicate(0, eat_predicate_food)]
 
 eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'food' \
    and ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
@@ -82,7 +82,7 @@ def move_predicate_self(target):
        return True
    else:
        return False
-move_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, move_predicate_self)]
+move_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, move_predicate_self)]
 
 move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
@@ -115,7 +115,7 @@ def starve_predicate_self(target):
        return True
    else:
        return False
-starve_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, starve_predicate_self)]
+starve_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, starve_predicate_self)]
 
 starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
 
@@ -141,8 +141,8 @@ def divide_predicate_self(target):
 def divide_predicate_env(target):
    return True
 
-divide_predicateList = [AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.ENVIRONMENT, divide_predicate_env), \
-    AdjSim.Simulation.TargetPredicate(AdjSim.Simulation.TargetPredicate.SOURCE, divide_predicate_self)]
+divide_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMENT, divide_predicate_env), \
+    AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, divide_predicate_self)]
 
 divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > 150
 
