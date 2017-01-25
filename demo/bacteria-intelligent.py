@@ -278,11 +278,10 @@ EPSILON_GREEDY_BEGIN = 0.5
 EPSILON_GREEDY_END = 0.98
 
 adjSim = AdjSim.AdjSim()
-AdjSim.Intelligence.QLearning.setIOFileName(re.sub('\.py', '.qlearning-no-division.pkl', __file__))
 
 # display initial bacteria intelligence state
 generateEnv(adjSim.environment)
-adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TEST)
+adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TEST)
 
 # train bacteria
 for currEpoch in range(NUM_EPOCHS):
