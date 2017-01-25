@@ -13,12 +13,12 @@ import time
 import sys
 
 # third party
-from matplotlib import pyplot
 from PyQt4 import QtCore, QtGui
 
 # local
 from . import Constants
 from . import Intelligence
+from . import Analysis
 
 #-------------------------------------------------------------------------------
 # CLASS RESOURCE
@@ -476,62 +476,6 @@ class Trait(Resource):
             raise Exception("Incorrect ThoughtMutability object type")
 
 #-------------------------------------------------------------------------------
-# CLASS ANALYSIS INDEX
-#-------------------------------------------------------------------------------
-class AnalysisIndex(object):
-    """docstring for AnalysisIndex."""
-
-    ACCUMULATE_AGENTS = 1
-    # in future, allow for different index types here
-
-# METHOD __INIT__
-#-------------------------------------------------------------------------------
-    def __init__(self, environment, traitName, indexType):
-        super(AnalysisIndex, self).__init__()
-        self.environment = environment
-        self.traitName = traitName
-        self.indexType = indexType
-        self.index = {}
-
-# METHOD LOG TIMESTEP VALUES
-#-------------------------------------------------------------------------------
-    def logTimestepValues(self, timestep):
-        if self.indexType is AnalysisIndex.ACCUMULATE_AGENTS:
-            for agent in self.environment.agentSet:
-                trait = agent.traits.get(self.traitName)
-
-                # continue if trait index we are looking for is not found
-                if not trait:
-                    continue
-
-                # init index list if new
-                indexList = self.index.get(trait.value)
-                if not indexList:
-                    self.index[trait.value] = []
-                    indexList = self.index[trait.value]
-
-                # extend the list up until the current timestep,
-                # no agents were detected hence append 0
-                while len(indexList) <= timestep:
-                    indexList.append(0)
-
-                # append current timestep
-                indexList[timestep] += 1
-
-# METHOD LOG TIMESTEP VALUES
-#-------------------------------------------------------------------------------
-    def plot(self):
-        if self.indexType is AnalysisIndex.ACCUMULATE_AGENTS:
-            for key, val in self.index.items():
-                line, = pyplot.plot(val, label=key)
-                line.set_antialiased(True)
-
-            pyplot.legend()
-            pyplot.show()
-            pyplot.close()
-
-
-#-------------------------------------------------------------------------------
 # CLASS ENVIRONMENT
 #-------------------------------------------------------------------------------
 class Environment(Agent):
@@ -545,7 +489,7 @@ class Environment(Agent):
         self.time = 0
 
         # initialize default indices
-        typeIndex = AnalysisIndex(self, 'type', AnalysisIndex.ACCUMULATE_AGENTS)
+        typeIndex = Analysis.Index(self, Analysis.Index.ACCUMULATE_AGENTS, 'type')
         self.addTrait('indices', {typeIndex})
 
         # initialize q learning matrix for intelligent agents
@@ -886,7 +830,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def logIndices(self, timeStep):
         for index in self.indices:
-            index.logTimestepValues(timeStep)
+            index.logValueAtTimestep(timeStep)
 
 # METHOD PRINT SNAPSHOT
 # * Prints all simulation environment information
