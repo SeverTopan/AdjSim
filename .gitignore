@@ -93,3 +93,6 @@ ENV/
 # TODO file
 TODO.md
 TODO.txt
+
+# .pkl files
+*.pkl
