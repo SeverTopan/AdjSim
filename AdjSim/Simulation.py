@@ -456,11 +456,8 @@ class Environment(Agent):
         super(Environment, self).__init__(self, "environment")
         self.addTrait('agentSet', {self})
         self.addTrait('endCondition', lambda x: False)
+        self.addTrait('indices', set())
         self.time = 0
-
-        # initialize default indices
-        typeIndex = Analysis.Index(self, Analysis.Index.ACCUMULATE_AGENTS, 'type')
-        self.addTrait('indices', {typeIndex})
 
         # initialize q learning matrix for intelligent agents
         self.addTrait('bestMoveDict', {})

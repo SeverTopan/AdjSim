@@ -294,6 +294,7 @@ adjSim = AdjSim.AdjSim()
 generateEnv(adjSim.environment)
 adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_QLEARNING_REWARD))
 adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_QLEARNING_REWARD))
+adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
 adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TRAIN)
 
 # train bacteria
@@ -313,4 +314,5 @@ adjSim.clearEnvironment()
 generateEnv(adjSim.environment)
 adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_QLEARNING_REWARD))
 adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_QLEARNING_REWARD))
+adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
 adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TEST)
