@@ -267,8 +267,6 @@ def generateEnv(environment):
     environment.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", environment, \
         starve_predicateList, starve_condition, starve_effect)
 
-    environment.indices.add(AdjSim.Simulation.Analysis.Index(environment, AdjSim.Simulation.Analysis.Index.AVERAGE_GOAL_VALUES))
-    environment.indices.add(AdjSim.Simulation.Analysis.Index(environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_GOAL_VALUES))
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
@@ -284,7 +282,9 @@ adjSim = AdjSim.AdjSim()
 
 # display initial bacteria intelligence state
 generateEnv(adjSim.environment)
-adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TEST)
+adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_QLEARNING_REWARD))
+adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_QLEARNING_REWARD))
+adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TEST)
 
 # train bacteria
 for currEpoch in range(NUM_EPOCHS):
@@ -301,4 +301,6 @@ for currEpoch in range(NUM_EPOCHS):
 # test trained bacteria
 adjSim.clearEnvironment()
 generateEnv(adjSim.environment)
+adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_QLEARNING_REWARD))
+adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_QLEARNING_REWARD))
 adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TEST)
