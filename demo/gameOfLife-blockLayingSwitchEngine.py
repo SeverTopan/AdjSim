@@ -32,10 +32,7 @@ compute_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, c
 
 compute_condition = lambda targetSet: True
 
-def compute_effect(targetSet, conditionality):
-    if conditionality is AdjSim.Constants.UNCONDITIONAL:
-        return
-
+def compute_effect(targetSet):
     # calculate neighbour
     globalNeighbourDict = {}
 

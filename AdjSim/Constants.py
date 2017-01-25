@@ -25,7 +25,3 @@ COLORS = [RED_LIGHT, RED_DARK, BLUE_LIGHT, BLUE_DARK, GREEN, PINK, WHITE]
 # default ellipse object parameters
 DEFAULT_OBJECT_RADIUS = 25
 DEFAULT_OBJECT_BORDER_WIDTH = 2
-
-# conditional/unconditional effect/blocker parameters
-CONDITIONAL = True
-UNCONDITIONAL = False

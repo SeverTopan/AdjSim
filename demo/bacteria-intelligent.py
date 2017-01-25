@@ -67,10 +67,7 @@ eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is '
    + (targetSet.targets[0].traits['yCoord'].value - targetSet.source.traits['yCoord'].value)**2)**0.5 \
    < targetSet.source.traits['interactRange'].value
 
-def eat_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def eat_effect(targetSet):
    targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
    targetSet.source.traits['dcal'].value += targetSet.targets[0].traits['calories'].value
 
@@ -88,10 +85,7 @@ move_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, move
 
 move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
-def move_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def move_effect(targetSet):
    targetSet.source.traits['calories'].value -= MOVEMENT_COST
    targetSet.source.traits['dcal'].value -= MOVEMENT_COST
 
@@ -116,10 +110,7 @@ starve_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, st
 
 starve_condition = lambda targetSet: True
 
-def starve_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def starve_effect(targetSet):
    removalSet = set()
    for agent in targetSet.source.agentSet:
        if agent.type == 'bacteria':
@@ -150,10 +141,7 @@ divide_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMEN
 
 divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > 150
 
-def divide_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def divide_effect(targetSet):
    targetSet.source.traits['calories'].value -= 75
    targetSet.source.traits['dcal'].value -= 75
    targetSet.source.traits['offspringCreated'].value += 1

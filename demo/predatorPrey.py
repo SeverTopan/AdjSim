@@ -56,10 +56,7 @@ eat_condition = lambda targetSet: ((targetSet.targets[0].traits['xCoord'].value 
    + (targetSet.targets[0].traits['yCoord'].value - targetSet.source.traits['yCoord'].value)**2)**0.5 \
    < targetSet.source.traits['interactRange'].value
 
-def eat_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def eat_effect(targetSet):
    targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
    # targetSet.source.abilities['eat'].blockedDuration = 1
 
@@ -85,10 +82,7 @@ move_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, move
 
 move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
 
-def move_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def move_effect(targetSet):
    randX = random.uniform(-1, 1)
    randY = random.uniform(-1, 1)
    absRand = (randX**2 + randY**2)**0.5
@@ -117,10 +111,7 @@ starve_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, st
 
 starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
 
-def starve_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def starve_effect(targetSet):
    targetSet.environment.removeAgent(targetSet.source)
    targetSet.source.blockedDuration = 1
 
@@ -144,10 +135,7 @@ divide_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMEN
 
 divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > targetSet.source.traits['divideThreshold'].value
 
-def divide_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def divide_effect(targetSet):
    if targetSet.source.traits['type'].value == 'predator':
        createPredator(targetSet.environment, targetSet.source.xCoord, targetSet.source.yCoord, division=True)
    else:
@@ -162,10 +150,7 @@ photosynthesize_predicateList = []
 
 photosynthesize_condition = lambda targetSet: True
 
-def photosynthesize_effect(targetSet, conditionality):
-   if conditionality is AdjSim.Constants.UNCONDITIONAL:
-       return
-
+def photosynthesize_effect(targetSet):
    blockingAgents = 0
    for agent in targetSet.environment.agentSet:
        if agent.xCoord > targetSet.source.xCoord - PHOTOSYNTHESIS_BLOCK_RANGE \

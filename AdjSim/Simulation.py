@@ -413,17 +413,9 @@ class Ability(Resource):
 
 # METHOD
 #-------------------------------------------------------------------------------
-    def cast(self, conditionality, targets=None):
-        # error check
-        if not targets and conditionality is Constants.CONDITIONAL:
-            raise Exception('No targets in conditional method cast')
-
-        # set targets in unconditional cast
-        if conditionality is Constants.UNCONDITIONAL:
-            targets = Utility.TargetSet(self.environment, self.agent)
-
+    def cast(self, targets):
         # perform target effects
-        self.effect(targets, conditionality)
+        self.effect(targets)
 
         return True
 
@@ -673,7 +665,6 @@ class Environment(Agent):
 
             potentialTargets = ability.getPotentialTargets()
             if not potentialTargets:
-                ability.cast(Constants.UNCONDITIONAL)
                 if Intelligence.QLearning.PRINT_DEBUG:
                     print('learned ability', ability.name, 'uncastable - no potential targets')
                 self.executeAbilities_intelligenceNone(agent, castCount, logHistory)
@@ -690,7 +681,7 @@ class Environment(Agent):
                 agent.traits.get(name).value = value
 
             logging.debug("%s casting: %s", agent.name, ability.name)
-            ability.cast(Constants.CONDITIONAL, chosenTargets)
+            ability.cast(chosenTargets)
 
             if logHistory:
                 agent.logHistory(ability, currentPerceptionTuple)
@@ -725,7 +716,6 @@ class Environment(Agent):
 
             potentialTargets = ability.getPotentialTargets()
             if not potentialTargets:
-                ability.cast(Constants.UNCONDITIONAL)
                 continue
 
             chosenTargets = ability.chooseTargetSet(potentialTargets)
@@ -747,7 +737,7 @@ class Environment(Agent):
             if logHistory:
                 perceptionTuple = agent.getPerceptionTuple(castCount)
 
-            ability.cast(Constants.CONDITIONAL, chosenTargets)
+            ability.cast(chosenTargets)
 
             # log history
             if logHistory:
@@ -766,7 +756,6 @@ class Environment(Agent):
 
             potentialTargets = ability.getPotentialTargets()
             if not potentialTargets:
-                ability.cast(Constants.UNCONDITIONAL)
                 continue
 
             chosenTargets = ability.chooseTargetSet(potentialTargets)
@@ -776,7 +765,7 @@ class Environment(Agent):
                 continue
 
             logging.debug("%s casting: %s", self.name, ability.name)
-            ability.cast(Constants.CONDITIONAL, chosenTargets)
+            ability.cast(chosenTargets)
 
 
 # METHOD EXECUTE ALL AGENT ABILITIES

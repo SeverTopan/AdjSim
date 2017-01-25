@@ -31,10 +31,7 @@ applyGravity_predicateList = []
 
 applyGravity_condition = lambda targetSet : True
 
-def applyGravity_effect(targetSet, conditionality):
-    if conditionality is AdjSim.Constants.UNCONDITIONAL:
-        return
-
+def applyGravity_effect(targetSet):
     # reset acceleration
     for agent in targetSet.source.agentSet:
         if agent == targetSet.source:
