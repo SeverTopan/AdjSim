@@ -19,7 +19,7 @@ class Index(object):
 
     ACCUMULATE_AGENTS = 1
     AVERAGE_GOAL_VALUES = 2
-    # in future, allow for different index types here
+    INDIVIDUAL_GOAL_VALUES = 3
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
@@ -28,6 +28,7 @@ class Index(object):
         self.environment = environment
         self.traitName = traitName
         self.indexType = indexType
+        self.showLegend = None
         self.index = {}
 
         if not self.setup():
@@ -38,12 +39,18 @@ class Index(object):
 #-------------------------------------------------------------------------------
     def setup(self):
         if self.indexType == Index.ACCUMULATE_AGENTS:
+            self.showLegend = True
             return self.traitName != None
         elif self.indexType == Index.AVERAGE_GOAL_VALUES:
+            self.showLegend = True
             self.index['Average Goal Values'] = []
+            return self.traitName == None
+        elif self.indexType == Index.INDIVIDUAL_GOAL_VALUES:
+            self.showLegend = False
             return self.traitName == None
 
         return False
+
 
 # METHOD LOG TIMESTEP VALUES
 #-------------------------------------------------------------------------------
@@ -77,7 +84,7 @@ class Index(object):
             # iterate over agents, accumulate
             for agent in self.environment.agentSet:
                 if len(agent.goals) > 0:
-                    rewardSum += agent.evaluateGoals()
+                    rewardSum += agent.traits['_lastGoalEvaluation'].value
                     intelligentAgentCount += 1
 
             # take average
@@ -88,6 +95,23 @@ class Index(object):
 
             self.index['Average Goal Values'].append(rewardSum)
 
+        elif self.indexType == Index.INDIVIDUAL_GOAL_VALUES:
+            for agent in self.environment.agentSet:
+                if len(agent.goals) > 0:
+                    # init index list if new
+                    indexList = self.index.get(agent)
+                    if not indexList:
+                        self.index[agent] = []
+                        indexList = self.index[agent]
+
+                    # extend the list up until the current timestep,
+                    # no agents were detected hence append 0
+                    while len(indexList) <= timestep:
+                        indexList.append(0)
+
+                    # append current timestep
+                    indexList[timestep] += agent.traits['_lastGoalEvaluation'].value
+
 # METHOD LOG TIMESTEP VALUES
 #-------------------------------------------------------------------------------
     def plot(self):
@@ -95,6 +119,8 @@ class Index(object):
             line, = pyplot.plot(val, label=key)
             line.set_antialiased(True)
 
-        pyplot.legend()
+        if self.showLegend:
+            pyplot.legend()
+
         pyplot.show()
         pyplot.close()

@@ -125,6 +125,7 @@ def starve_effect(targetSet, conditionality):
        if agent.type == 'bacteria':
            agent.traits['calories'].value -= STARVE_COST
            agent.traits['dcal'].value = -STARVE_COST
+           agent.traits['offspringCreated'].value = 0
            if agent.traits['calories'].value <= 0:
                removalSet.add(agent)
 
@@ -155,7 +156,7 @@ def divide_effect(targetSet, conditionality):
 
    targetSet.source.traits['calories'].value -= 75
    targetSet.source.traits['dcal'].value -= 75
-   targetSet.source.traits['offspringCount'].value += 1
+   targetSet.source.traits['offspringCreated'].value += 1
    targetSet.source.blockedDuration = 2
 
    createBacteria(targetSet.environment, targetSet.source.xCoord + 10, targetSet.source.yCoord)
@@ -170,7 +171,7 @@ def goal_bacterium_evaluation_dcal(trait):
 # goal evaluation function
 #-------------------------------------------------------------------------------
 def goal_bacterium_evaluation_offspring(trait):
-    return 100 * trait.value
+    return 125 * trait.value
 
 # perception evaluation function
 #-------------------------------------------------------------------------------
@@ -217,7 +218,7 @@ def createBacteria(environment, x, y):
     bacterium.addTrait('type', 'bacteria')
     bacterium.addTrait('calories', 75)
     bacterium.addTrait('dcal', 0)
-    bacterium.addTrait('offspringCount', 0)
+    bacterium.addTrait('offspringCreated', 0)
     bacterium.addTrait('interactRange', 10)
     bacterium.intelligence = AdjSim.Simulation.Agent.INTELLIGENCE_Q_LEARNING
     bacterium.size = 10
@@ -238,7 +239,7 @@ def createBacteria(environment, x, y):
 
     # goals
     bacterium.goals.append(AdjSim.Intelligence.Goal(bacterium, 'dcal', goal_bacterium_evaluation_dcal))
-    bacterium.goals.append(AdjSim.Intelligence.Goal(bacterium, 'offspringCount', goal_bacterium_evaluation_offspring))
+    bacterium.goals.append(AdjSim.Intelligence.Goal(bacterium, 'offspringCreated', goal_bacterium_evaluation_offspring))
 
     # perception
     bacterium.perception = AdjSim.Intelligence.Perception(perception_bacterium_evaluator)
@@ -267,6 +268,7 @@ def generateEnv(environment):
         starve_predicateList, starve_condition, starve_effect)
 
     environment.indices.add(AdjSim.Simulation.Analysis.Index(environment, AdjSim.Simulation.Analysis.Index.AVERAGE_GOAL_VALUES))
+    environment.indices.add(AdjSim.Simulation.Analysis.Index(environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_GOAL_VALUES))
 
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
@@ -282,7 +284,7 @@ adjSim = AdjSim.AdjSim()
 
 # display initial bacteria intelligence state
 generateEnv(adjSim.environment)
-adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=True, plotIndices=True, simulationType=AdjSim.TEST)
+adjSim.simulate(SIMULATION_LENGTH, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TEST)
 
 # train bacteria
 for currEpoch in range(NUM_EPOCHS):

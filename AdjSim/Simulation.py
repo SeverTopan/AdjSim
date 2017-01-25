@@ -173,6 +173,17 @@ class Agent(Resource):
         self.traits['history'].value = value
         return
 
+# PROPERTY METHOD - LAST GOAL EVALUATION
+#-------------------------------------------------------------------------------
+    @property
+    def lastGoalEvaluation(self):
+        return self.traits['_lastGoalEvaluation'].value
+
+    @lastGoalEvaluation.setter
+    def lastGoalEvaluation(self, value):
+        self.traits['_lastGoalEvaluation'].value = value
+        return
+
 # METHOD ADD TRAIT
 #-------------------------------------------------------------------------------
     def addTrait(self, name, value, thoughtMutability = None):
@@ -207,6 +218,7 @@ class Agent(Resource):
         self.addTrait('goals', [])
         self.addTrait('perception', None)
         self.addTrait('history', [])
+        self.addTrait('_lastGoalEvaluation', 0)
 
 # METHOD GET PERCEPTION TUPLE
 #-------------------------------------------------------------------------------
@@ -769,6 +781,12 @@ class Environment(Agent):
                 continue
 
             self.executeAbilities(agent)
+
+            # analysis specific functions
+            # log the last goal evaluation so that it can be plotted later
+            if len(agent.goals) > 0:
+                agent.lastGoalEvaluation = agent.evaluateGoals()
+
 
         # cast environment abilities
         self.executeAbilities()
