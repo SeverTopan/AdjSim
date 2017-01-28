@@ -34,19 +34,13 @@ applyGravity_condition = lambda targetSet : True
 def applyGravity_effect(targetSet):
     # reset acceleration
     for agent in targetSet.source.agentSet:
-        if agent == targetSet.source:
-            continue
-
         agent.traits['xAcc'].value = 0
         agent.traits['yAcc'].value = 0
 
     # calculate new accelleration
     for baseAgent in targetSet.source.agentSet:
-        if baseAgent == targetSet.source:
-            continue
-
         for targetAgent in targetSet.source.agentSet:
-            if targetAgent == targetSet.source or targetAgent == baseAgent:
+            if targetAgent == baseAgent:
                 continue
 
             xDist = (baseAgent.xCoord - targetAgent.xCoord) * DISTANCE_MULTIPLIER
@@ -60,9 +54,6 @@ def applyGravity_effect(targetSet):
 
     # calculate new velocity and position
     for agent in targetSet.source.agentSet:
-        if agent == targetSet.source:
-            continue
-
         agent.traits['xVel'].value += agent.traits['xAcc'].value * TIMESTEP_LENGTH
         agent.traits['yVel'].value += agent.traits['yAcc'].value * TIMESTEP_LENGTH
 

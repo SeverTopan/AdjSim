@@ -39,9 +39,6 @@ def compute_effect(targetSet):
 
     # update globalNeighbourDict
     for agent in targetSet.source.agentSet:
-        if agent == targetSet.source:
-            continue
-
         x = agent.xCoord
         y = agent.yCoord
         localNeighbourCoordList = [(x, y + CELL_SIZE),
@@ -63,9 +60,6 @@ def compute_effect(targetSet):
     # update neighbourCount and kill overpopulated agents
     removeList = []
     for agent in targetSet.source.agentSet:
-        if agent == targetSet.source:
-            continue
-
         coordTuple = (agent.xCoord, agent.yCoord)
         neighbourCount = globalNeighbourDict.get(coordTuple)
 
@@ -79,9 +73,6 @@ def compute_effect(targetSet):
 
     # delete agents
     for agent in removeList:
-        if agent == targetSet.source:
-            continue
-
         targetSet.source.removeAgent(agent)
 
     # add new agents

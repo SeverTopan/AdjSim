@@ -446,7 +446,7 @@ class Environment(Agent):
 #-------------------------------------------------------------------------------
     def __init__(self):
         super(Environment, self).__init__(self, "environment")
-        self.addTrait('agentSet', {self})
+        self.addTrait('agentSet', set())
         self.addTrait('endCondition', lambda x: False)
         self.addTrait('indices', set())
         self.time = 0
@@ -557,6 +557,18 @@ class Environment(Agent):
 
             if agent.blockedDuration > 0:
                 agent.blockedDuration -= 1
+
+        # decrement environemnt ability blockers
+        for ability in self.abilities.values():
+            if ability.blockedDuration > 0:
+                ability.blockedDuration -= 1
+
+        for trait in self.traits.values():
+            if trait.blockedDuration > 0:
+                trait.blockedDuration -= 1
+
+        if self.blockedDuration > 0:
+            self.blockedDuration -= 1
 
 # METHOD EXECUTE ABILITIES
 #-------------------------------------------------------------------------------
@@ -773,11 +785,6 @@ class Environment(Agent):
     def executeAllAgentAbilities(self):
         # cast abilities
         for agent in self.agentSet.copy():
-            # currently, the environment abilities will only be cast once after all
-            # agent abilities are complete
-            if agent == self:
-                continue
-
             self.executeAbilities(agent)
 
             # analysis specific functions
@@ -786,7 +793,7 @@ class Environment(Agent):
                 agent.lastGoalEvaluation = agent.evaluateGoals()
 
 
-        # cast environment abilities
+        # cast environment abilities after all agent abilityies are complete
         self.executeAbilities()
 
 # METHOD PLOT INDICES
