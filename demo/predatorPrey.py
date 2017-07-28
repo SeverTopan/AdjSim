@@ -10,7 +10,7 @@
 import random, math
 
 # third party
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore
 import AdjSim
 
 #-------------------------------------------------------------------------------

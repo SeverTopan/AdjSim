@@ -16,7 +16,7 @@ AdjSim is currently in its early stages of development. There are five core elem
 
 Currently Implemented Features:
  - Core functionality - agent interaction through ability casting, timestep iterations
- - Core functionality - graphical representation using PyQt4
+ - Core functionality - graphical representation using PyQt5
  - Core functionality - AdjSim Framework interface
 
 Partially Implemented Features:
@@ -31,7 +31,7 @@ Planned Features:
 Installing AdjSim
 -----------------
 
- Make sure Python 3, PyQt4 and MatPlotLib are installed
+ Make sure Python 3, PyQt5 and MatPlotLib are installed
 
      sudo apt-get install python3 python3-pyqt4 python3-matplotlib
 

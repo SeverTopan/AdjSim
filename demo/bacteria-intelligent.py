@@ -12,7 +12,7 @@ import math
 import re
 
 # third party
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore
 
 # local
 import AdjSim

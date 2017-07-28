@@ -14,7 +14,7 @@ import sys
 import os
 
 # third party
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtCore, QtWidgets
 
 # local
 from . import Graphics
@@ -88,13 +88,13 @@ class AdjSim(object):
         if graphicsEnabled:
             # perform threading initialization for graphics
             self.updateSemaphore = QtCore.QSemaphore(0)
-            self.qApp = QtGui.QApplication([]) # no sys.argv provided
+            self.qApp = QtWidgets.QApplication([]) # no sys.argv provided
             self.view = Graphics.AdjGraphicsView(self.qApp.desktop().screenGeometry(), self.updateSemaphore)
             self.thread = Graphics.AdjThread(self.qApp, self.updateSemaphore, self.environment, length, plotIndices)
 
             self.thread.finished.connect(self.qApp.exit)
-            self.qApp.connect(self.thread, self.thread.updateSignal, self.view.update)
-            self.qApp.connect(self.thread, self.thread.plotSignal, self.view.plot)
+            self.thread.updateSignal.connect(self.view.update)
+            self.thread.plotSignal.connect(self.view.plot)
 
             # begin simulation
             self.thread.start()

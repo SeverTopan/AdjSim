@@ -13,7 +13,7 @@ import time
 import sys
 
 # third party
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
 
 # local
 from . import Constants
@@ -802,7 +802,7 @@ class Environment(Agent):
     def plotIndices(self, graphicsThread=None):
         for index in self.indices:
             if graphicsThread:
-                graphicsThread.emit(graphicsThread.plotSignal, index)
+                graphicsThread.plotSignal.emit(index)
             else:
                 index.plot()
 
@@ -878,7 +878,7 @@ class Environment(Agent):
     def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False):
         # draw initial frame
         if graphicsThread:
-            graphicsThread.emit(graphicsThread.updateSignal, self.agentSet)
+            graphicsThread.updateSignal.emit(self.agentSet)
             time.sleep(1)
 
         # load learned Data
@@ -899,7 +899,7 @@ class Environment(Agent):
             # wait for animaiton if graphics are intialized
             if graphicsThread:
                 graphicsThread.updateSemaphore.acquire(1)
-                graphicsThread.emit(graphicsThread.updateSignal, self.agentSet.copy())
+                graphicsThread.updateSignal.emit(self.agentSet.copy())
 
             # check end condition
             if self.endCondition(self):

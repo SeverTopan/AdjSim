@@ -12,22 +12,24 @@ import time
 import random
 
 # third party
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 # local
 from . import Simulation
+from . import Analysis
 
 #-------------------------------------------------------------------------------
 # CLASS ADJTHREAD
 #-------------------------------------------------------------------------------
 class AdjThread(QtCore.QThread):
 
+    updateSignal = QtCore.pyqtSignal(object)
+    plotSignal = QtCore.pyqtSignal(object)
+
 # METHOD INIT
 #-------------------------------------------------------------------------------
     def __init__(self, app, updateSemaphore, environment, simulationLength, plotIndices):
         QtCore.QThread.__init__(self, parent=app)
-        self.updateSignal = QtCore.SIGNAL("update")
-        self.plotSignal = QtCore.SIGNAL("plot")
         self.environment = environment
         self.updateSemaphore = updateSemaphore
         self.simulationLength = simulationLength
@@ -42,14 +44,13 @@ class AdjThread(QtCore.QThread):
 #-------------------------------------------------------------------------------
 # CLASS AGENT ELLIPSE
 #-------------------------------------------------------------------------------
-class AgentEllipse(QtGui.QGraphicsEllipseItem):
+class AgentEllipse(QtWidgets.QGraphicsEllipseItem):
     """docstring for AgentEllipse."""
 
 # METHOD INIT
 #-------------------------------------------------------------------------------
     def __init__(self, agent, scene):
-        QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, agent.size * 0.01, agent.size * 0.01)
-        self.setAcceptsHoverEvents(True)
+        QtWidgets.QGraphicsEllipseItem.__init__(self, 0, 0, agent.size, agent.size)
         self.setBrush(QtGui.QBrush(agent.color, style = agent.style))
         self.agent = agent
         self.oldXCoord = agent.xCoord
@@ -71,16 +72,16 @@ class AgentEllipse(QtGui.QGraphicsEllipseItem):
 #-------------------------------------------------------------------------------
 # CLASS ADJGRAPHICSVIEW
 #-------------------------------------------------------------------------------
-class AdjGraphicsView(QtGui.QGraphicsView):
+class AdjGraphicsView(QtWidgets.QGraphicsView):
     """docstring for GraphicsView."""
 
 # METHOD init
 #-------------------------------------------------------------------------------
     def __init__(self, screenGeometry, updateSemaphore):
-        QtGui.QGraphicsView.__init__(self)
+        QtWidgets.QGraphicsView.__init__(self)
         # set Qt properties
         self.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.setFrameShape(QtGui.QFrame.NoFrame)
+        self.setFrameShape(QtWidgets.QFrame.NoFrame)
 
         # init scene
         self.windowHeight = screenGeometry.height() - 100
@@ -88,7 +89,7 @@ class AdjGraphicsView(QtGui.QGraphicsView):
         centerWidth = self.windowWidth / -2
         centerHeight = self.windowHeight / -2
 
-        self.scene = QtGui.QGraphicsScene(-500, -500, 1000, 1000, self)
+        self.scene = QtWidgets.QGraphicsScene(-500, -500, 1000, 1000, self)
         self.setScene(self.scene)
 
         # init other member variables
@@ -107,6 +108,7 @@ class AdjGraphicsView(QtGui.QGraphicsView):
 
 # METHOD UPDATE
 #-------------------------------------------------------------------------------
+    @QtCore.pyqtSlot(object)
     def update(self, agentSet):
 
         # begin update function
@@ -135,12 +137,12 @@ class AdjGraphicsView(QtGui.QGraphicsView):
                 newEllipse = AgentEllipse(agent, self.scene)
                 self.graphicsItems[agent] = newEllipse
 
-                animation = QtGui.QGraphicsItemAnimation()
-                animation.setTimeLine(self.timeline)
-                animation.setItem(newEllipse)
-                animation.setScaleAt(0, 1, 1)
-                animation.setScaleAt(1, 100, 100)
-                self.animations.append(animation)
+                # animation = QtCore.QPropertyAnimation()
+                # animation.setTimeLine(self.timeline)
+                # animation.setItem(newEllipse)
+                # animation.setScaleAt(0, 1, 1)
+                # animation.setScaleAt(1, 100, 100)
+                # self.animations.append(animation)
 
                 self.scene.addItem(newEllipse)
             else:
@@ -148,32 +150,35 @@ class AdjGraphicsView(QtGui.QGraphicsView):
                 moveY = agent.yCoord - self.graphicsItems[agent].oldYCoord
 
                 if moveX != 0 or moveY != 0:
-                    animation = QtGui.QGraphicsItemAnimation()
-                    animation.setTimeLine(self.timeline)
-                    animation.setItem(self.graphicsItems[agent])
-                    animation.setPosAt(0, QtCore.QPointF(self.graphicsItems[agent].oldXCoord, \
-                        self.graphicsItems[agent].oldYCoord))
-                    animation.setPosAt(1, QtCore.QPointF(agent.xCoord, agent.yCoord))
-                    self.animations.append(animation)
+                    # animation = QtCore.QPropertyAnimation()
+                    # animation.setTimeLine(self.timeline)
+                    # animation.setItem(self.graphicsItems[agent])
+                    # animation.setPosAt(0, QtCore.QPointF(self.graphicsItems[agent].oldXCoord, \
+                    #     self.graphicsItems[agent].oldYCoord))
+                    # animation.setPosAt(1, QtCore.QPointF(agent.xCoord, agent.yCoord))
+                    # self.animations.append(animation)
 
                     self.graphicsItems[agent].oldXCoord = agent.xCoord
                     self.graphicsItems[agent].oldYCoord = agent.yCoord
+
+                    self.graphicsItems[agent].setPos(agent.xCoord, agent.yCoord)
 
         # remove graphics items whose agents are no longer in the agentset
         for item in self.graphicsItems.values():
             if item.agent not in agentSet:
                 # destroy object with exit animation
                 item.exitAnimationComplete = True
-                animation = QtGui.QGraphicsItemAnimation()
-                animation.setTimeLine(self.timeline)
-                animation.setItem(item)
-                animation.setScaleAt(1, 1, 1)
-                animation.setScaleAt(0, 100, 100)
-                self.animations.append(animation)
+                # animation = QtCore.QPropertyAnimation()
+                # animation.setTimeLine(self.timeline)
+                # animation.setItem(item)
+                # animation.setScaleAt(1, 1, 1)
+                # animation.setScaleAt(0, 100, 100)
+                # self.animations.append(animation)
 
         self.timeline.start()
 
 # METHOD PLOT
 #-------------------------------------------------------------------------------
+    @QtCore.pyqtSlot(object)
     def plot(self, analysisIndex):
         analysisIndex.plot()

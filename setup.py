@@ -3,16 +3,17 @@
 # Designed and developed by Sever Topan
 #-------------------------------------------------------------------------------
 from setuptools import setup
+import sys
 
-setup(name='AdjEcosystem',
-      version='0.1',
-      description='Ecosystem Simulation Framework'
-      long_description=open('README.rst').read()
-      author='Sever Topan'
-      packages=['AdjEcosystem'],
-      entry_points={
-          'console_scripts': [
-              'AdjEcosystem = AdjEcosystem.__main__:main'
-          ]
-      },
+if sys.version_info < (3,5):
+    sys.exit('Python < 3.5 is not supported')
+
+setup(name='AdjSim',
+      version='0.1.0',
+      description='Ecosystem Simulation Framework',
+      long_description=open('README.md', 'r').read(),
+      author='Sever Topan',
+      packages=['AdjSim'],
+      license='GPL-3.0',
+      install_requires=['matplotlib']
       )
