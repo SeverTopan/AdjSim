@@ -19,6 +19,11 @@ from . import Simulation
 from . import Analysis
 
 #-------------------------------------------------------------------------------
+# CONSTANTS
+#-------------------------------------------------------------------------------
+ANIMATION_DURATION = 200
+
+#-------------------------------------------------------------------------------
 # CLASS ADJTHREAD
 #-------------------------------------------------------------------------------
 class AdjThread(QtCore.QThread):
@@ -40,6 +45,61 @@ class AdjThread(QtCore.QThread):
     def run(self):
         self.environment.simulate(self.simulationLength, self, self.plotIndices)
 
+#-------------------------------------------------------------------------------
+# CLASS AGENT ELLIPSE ADAPTER
+#-------------------------------------------------------------------------------
+class AgentEllipseAdapter(QtCore.QObject):
+    """An adapter between QPropertyAnimation and QGraphicsEllipseItem
+
+    This is in place because of PyQt's inablility to handle this functionality
+    via multiple inheritance.
+    """
+
+# METHOD INIT
+#-------------------------------------------------------------------------------
+    def __init__(self, target):
+        super(AgentEllipseAdapter, self).__init__()
+        self.target = target
+
+# METHOD GET X
+#-------------------------------------------------------------------------------
+    @QtCore.pyqtProperty(float)
+    def x(self):
+        return self.target.x()
+
+# METHOD SET X
+#-------------------------------------------------------------------------------
+    @x.setter
+    def x(self, x):
+        self.target.setX(x)
+
+# METHOD GET Y
+#-------------------------------------------------------------------------------
+    @QtCore.pyqtProperty(float)
+    def y(self):
+        return self.target.y()
+
+# METHOD SET Y
+#-------------------------------------------------------------------------------
+    @y.setter
+    def y(self, y):
+        self.target.setY(y)
+
+# METHOD GET SIZE
+#-------------------------------------------------------------------------------
+    @QtCore.pyqtProperty(float)
+    def size(self):
+        return self.target.rect().width()
+
+# METHOD SET SIZE
+#-------------------------------------------------------------------------------
+    @size.setter
+    def size(self, size):
+        newRect = self.target.rect()
+        newRect.setWidth(size)
+        newRect.setHeight(size)
+        self.target.setRect(newRect)
+
 
 #-------------------------------------------------------------------------------
 # CLASS AGENT ELLIPSE
@@ -50,13 +110,14 @@ class AgentEllipse(QtWidgets.QGraphicsEllipseItem):
 # METHOD INIT
 #-------------------------------------------------------------------------------
     def __init__(self, agent, scene):
-        QtWidgets.QGraphicsEllipseItem.__init__(self, 0, 0, agent.size, agent.size)
+        QtWidgets.QGraphicsEllipseItem.__init__(self, 0, 0, 0, 0)
         self.setBrush(QtGui.QBrush(agent.color, style = agent.style))
         self.agent = agent
         self.oldXCoord = agent.xCoord
         self.oldYCoord = agent.yCoord
         self.exitAnimationComplete = False;
         self.setPos(agent.xCoord, agent.yCoord)
+        self.adapter = AgentEllipseAdapter(self)
 
 
 # METHOD HOVER EVENT ENTER
@@ -95,7 +156,7 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
         # init other member variables
         self.graphicsItems = {}
         self.timeline = None
-        self.animations = []
+        self.animations = None
         self.updateSemaphore = updateSemaphore
 
         # show
@@ -112,11 +173,9 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
     def update(self, agentSet):
 
         # begin update function
-        self.animations.clear()
-        del self.timeline
-        self.timeline = QtCore.QTimeLine(200)
-        self.timeline.setFrameRange(0, 200)
-        self.timeline.finished.connect(self.timestepAnimationCallback)
+        del self.animations
+        self.animations = QtCore.QParallelAnimationGroup()
+        self.animations.finished.connect(self.timestepAnimationCallback)
 
         # delete items whose animations are complete
         for ellipse in self.graphicsItems.values():
@@ -137,12 +196,11 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
                 newEllipse = AgentEllipse(agent, self.scene)
                 self.graphicsItems[agent] = newEllipse
 
-                # animation = QtCore.QPropertyAnimation()
-                # animation.setTimeLine(self.timeline)
-                # animation.setItem(newEllipse)
-                # animation.setScaleAt(0, 1, 1)
-                # animation.setScaleAt(1, 100, 100)
-                # self.animations.append(animation)
+                animation = QtCore.QPropertyAnimation(self.graphicsItems[agent].adapter, b'size')
+                animation.setDuration(ANIMATION_DURATION);
+                animation.setStartValue(0)
+                animation.setEndValue(agent.size)
+                self.animations.addAnimation(animation)
 
                 self.scene.addItem(newEllipse)
             else:
@@ -150,32 +208,34 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
                 moveY = agent.yCoord - self.graphicsItems[agent].oldYCoord
 
                 if moveX != 0 or moveY != 0:
-                    # animation = QtCore.QPropertyAnimation()
-                    # animation.setTimeLine(self.timeline)
-                    # animation.setItem(self.graphicsItems[agent])
-                    # animation.setPosAt(0, QtCore.QPointF(self.graphicsItems[agent].oldXCoord, \
-                    #     self.graphicsItems[agent].oldYCoord))
-                    # animation.setPosAt(1, QtCore.QPointF(agent.xCoord, agent.yCoord))
-                    # self.animations.append(animation)
+                    animation = QtCore.QPropertyAnimation(self.graphicsItems[agent].adapter, b'x')
+                    animation.setDuration(ANIMATION_DURATION);
+                    animation.setStartValue(self.graphicsItems[agent].oldXCoord)
+                    animation.setEndValue(agent.xCoord)
+                    self.animations.addAnimation(animation)
+
+                    animation = QtCore.QPropertyAnimation(self.graphicsItems[agent].adapter, b'y')
+                    animation.setDuration(ANIMATION_DURATION);
+                    animation.setStartValue(self.graphicsItems[agent].oldYCoord)
+                    animation.setEndValue(agent.yCoord)
+                    self.animations.addAnimation(animation)
 
                     self.graphicsItems[agent].oldXCoord = agent.xCoord
                     self.graphicsItems[agent].oldYCoord = agent.yCoord
-
-                    self.graphicsItems[agent].setPos(agent.xCoord, agent.yCoord)
 
         # remove graphics items whose agents are no longer in the agentset
         for item in self.graphicsItems.values():
             if item.agent not in agentSet:
                 # destroy object with exit animation
                 item.exitAnimationComplete = True
-                # animation = QtCore.QPropertyAnimation()
-                # animation.setTimeLine(self.timeline)
-                # animation.setItem(item)
-                # animation.setScaleAt(1, 1, 1)
-                # animation.setScaleAt(0, 100, 100)
-                # self.animations.append(animation)
 
-        self.timeline.start()
+                animation = QtCore.QPropertyAnimation(self.graphicsItems[item.agent].adapter, b'size')
+                animation.setDuration(ANIMATION_DURATION);
+                animation.setStartValue(item.agent.size)
+                animation.setEndValue(0)
+                self.animations.addAnimation(animation)
+
+        self.animations.start()
 
 # METHOD PLOT
 #-------------------------------------------------------------------------------
