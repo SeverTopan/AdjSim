@@ -1,10 +1,8 @@
-AdjSim Simulation Framework
-===========================
+# AdjSim Simulation Framework
 
 A simple simulation framework. Intended for simulation of ecosystems.
 
-Current Development State
--------------------------
+## Current Development State
 
 AdjSim is currently in its early stages of development. There are five core elements of the simulation framework that are envisioned.
 
@@ -28,31 +26,41 @@ Planned Features:
  - More refined API interface, possibly based on Class overloading
 
 
-Installing AdjSim
------------------
+## Installing and Running AdjSim
 
- Make sure Python 3, PyQt5 and MatPlotLib are installed
+It is reccommended to run AdjSim using virtual python environments provided by Anaconda or Pip. The following describes the installation procedure for each of these.
 
-     sudo apt-get install python3 python3-pyqt4 python3-matplotlib
+### Using Pip/Virtualenv
 
-Clone the GitHub repository
+Clone the GitHub repository.
 
-     git clone https://github.com/SeverTopan/AdjSim.github
+     git clone https://github.com/SeverTopan/AdjSim
 
+Make sure Python 3.5 or greater are installed, then create a new virtualenv with it.
 
-Running AdjSim
---------------
+     virtualenv --python=/usr/bin/python3.6 venv
+     source venv/bin/activate
 
-To run AdjSim, you must first add AsjSim to your $PYTHONPATH environment variable. This is needed to run scripts located outside of the AdjSim base folder. It will no longer be needed once AdjSim is available for installation with the pip tool.
-Then simply run a demo script.
+Install Dependencies.
 
-     cd AdjSim/
-     export PYTHONPATH=$PYTHONPATH:$(pwd)
-     python3 demo/predatorPrey.py
+     python setup.py install
 
+### Using Anaconda
 
-Framework Structure
--------------------
+Clone the GitHub repository.
+
+     git clone https://github.com/SeverTopan/AdjSim
+
+Create a new Anaconda environment with a python of version 3.5 or greater.
+
+     conda create --name adjsim python=3.6
+     activate adjsim
+
+Install Dependencies.
+
+     python setup.py install
+
+## Framework Structure
 
 The goal of this structure is to keep the fundamentals of a simulation in a simple, organized structure that can be used to simulate many different situations. It is essentially up to the writer of the simulation script. I aim to post more test cases to exemplify the versatility of the structure.
 
@@ -60,7 +68,7 @@ The goal of this structure is to keep the fundamentals of a simulation in a simp
 
 **Traits:** AdjSim agents, like folders, contain data via 'traits', which are name - value pairs. Trait values can take on any type, including other agents! The same way a folder can contain another folder, an agent representing a dog can contain separate agents for its legs, body, head and tail.
 
-**Abilities:** Agents interact with each other using abilities. Abilities perform a set of effects when a condition is fulfilled. In the simplest test case provided, a 'bacterium' agent performs an 'eat' ability on a 'yogurt' agent if it is within range. The effects of the ability involve removing the yogurt, and having the bacterium consume the calories contained within the apple. Abilities are also traits, and can be added, removed, or modified.
+**Abilities:** Agents interact with each other using abilities. Abilities perform a set of effects when a condition is fulfilled. In the simplest test case provided, a 'bacterium' agent performs an 'eat' ability on a 'yogurt' agent if it is within range. The effects of the ability involve removing the yogurt, and having the bacterium consume the calories contained within the yogurt parcel. Abilities are also traits, and can be added, removed, or modified.
 
 A more detailed description of the Framework structure will be posted soon.
 
