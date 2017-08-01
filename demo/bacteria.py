@@ -190,8 +190,9 @@ def generateEnv(environment):
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
-adjSim = AdjSim.AdjSim()
+if __name__ == "__main__":
+    adjSim = AdjSim.AdjSim()
 
-adjSim.clearEnvironment()
-generateEnv(adjSim.environment)
-adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)
+    adjSim.clearEnvironment()
+    generateEnv(adjSim.environment)
+    adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)

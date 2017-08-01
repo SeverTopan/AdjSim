@@ -29,15 +29,16 @@ class AdjSim(object):
 
 # METHOD __INIT__
 #-------------------------------------------------------------------------------
-    def __init__(self, argv=None):
+    def __init__(self, logInstance=True):
         AdjSim.printWelcome()
 
         # setup debug logging
-        logPath = AdjSim.getLogPath()
-        if os.path.isfile(logPath):
-            os.remove(logPath)
-        logging.basicConfig(filename=logPath, level=logging.DEBUG)
-        logging.disable(logging.CRITICAL)
+        if logInstance:
+            logPath = AdjSim.getLogPath()
+            if os.path.isfile(logPath):
+                os.remove(logPath)
+            logging.basicConfig(filename=logPath, level=logging.DEBUG)
+            logging.disable(logging.CRITICAL)
 
         # init environment
         self.environment = Simulation.Environment()
