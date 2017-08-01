@@ -15,5 +15,5 @@ setup(name='AdjSim',
       author='Sever Topan',
       packages=['AdjSim'],
       license='GPL-3.0',
-      install_requires=['matplotlib']
+      install_requires=['matplotlib', 'pyqt']
       )
