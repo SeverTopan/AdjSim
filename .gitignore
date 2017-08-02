@@ -98,7 +98,7 @@ TODO.txt
 *.pkl
 
 # images directory (for now)
-/demo/images
+/demo/images_private
 
 # venv
 /venv-adjsim
