@@ -873,6 +873,16 @@ class Environment(Agent):
 
         return targetSet
 
+# METHOD PRINT SIMULATION STATUS
+#-------------------------------------------------------------------------------
+    def printSimulationStatus(self, timeStep, numTimesteps):
+        printString = "\rSimulating timestep " + str(timeStep) + "/" + str(numTimesteps) + " - population: " \
+                + str(len(self.agentSet))
+        sys.stdout.write(printString)
+        sys.stdout.flush()
+        sys.stdout.write("\r" + " " * len(printString))
+        sys.stdout.flush()
+
 # METHOD SIMULATE
 #-------------------------------------------------------------------------------
     def simulate(self, numTimesteps, graphicsThread=None, plotIndices=False):
@@ -887,8 +897,7 @@ class Environment(Agent):
         # run simulation steps for num time steps
         for timeStep in range(numTimesteps):
             # print timestep with line replacement
-            sys.stdout.write("\rSimulating timestep " + str(timeStep) + "/" + str(numTimesteps))
-            sys.stdout.flush()
+            self.printSimulationStatus(timeStep, numTimesteps)
 
             # perform agent operations
             if plotIndices:
