@@ -195,4 +195,6 @@ if __name__ == "__main__":
 
     adjSim.clearEnvironment()
     generateEnv(adjSim.environment)
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
+    
     adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)

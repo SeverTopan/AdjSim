@@ -239,7 +239,7 @@ def generateEnv(environment):
     for theta in thetaValues:
        for d in range(1,10):
            createPrey(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
-
+    
 #-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
 #-------------------------------------------------------------------------------
@@ -248,4 +248,6 @@ if __name__ == "__main__":
 
     adjSim.clearEnvironment()
     generateEnv(adjSim.environment)
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
+
     adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)

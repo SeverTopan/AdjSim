@@ -181,6 +181,8 @@ class Index(object):
 # METHOD LOG TIMESTEP VALUES
 #-------------------------------------------------------------------------------
     def plot(self):
+        pyplot.style.use('ggplot')
+
         for key, val in self.index.items():
             line, = pyplot.plot(val, label=key)
             line.set_antialiased(True)

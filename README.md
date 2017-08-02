@@ -1,6 +1,20 @@
 # AdjSim Simulation Framework
+[![Build Status](https://travis-ci.org/SeverTopan/AdjSim.svg?branch=master)](https://travis-ci.org/SeverTopan/AdjSim) [![Coverage Status](https://coveralls.io/repos/github/SeverTopan/AdjSim/badge.svg?branch=master)](https://coveralls.io/github/SeverTopan/AdjSim?branch=master) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-A simple simulation framework. Intended for simulation of ecosystems.
+A simulation framework. Intended for simulation of ecosystems.
+
+<center>
+
+| ![Bacteria Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_bacteria.png)| ![Predator Prey Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey.png) |
+|:-------------:|:-------------:|
+| ![GOL Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_game_of_life.png) | ![Jupiter Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_jupiter_moon_system.png) |
+
+
+<br>
+
+| ![QLearning Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_individual_learning.png)| ![Predator Prey Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey_population.png) |
+|:-------------:|:-------------:|
+</center>
 
 ## Current Development State
 
