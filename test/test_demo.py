@@ -9,6 +9,8 @@ def adjSim():
     import AdjSim
     adjSim = AdjSim.AdjSim(logInstance=False)
 
+    AdjSim.Intelligence.QLearning.I_FILE_NAME = "none"
+
     adjSim.clearEnvironment()
     return adjSim
 

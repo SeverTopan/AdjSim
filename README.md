@@ -30,35 +30,27 @@ Planned Features:
 
 It is reccommended to run AdjSim using virtual python environments provided by Anaconda or Pip. The following describes the installation procedure for each of these.
 
-### Using Pip/Virtualenv
-
 Clone the GitHub repository.
 
      git clone https://github.com/SeverTopan/AdjSim
 
-Make sure Python 3.5 or greater are installed, then create a new virtualenv with it.
+Make sure Python 3.5 or greater are installed, then create a new environment with it.
 
-     virtualenv --python=/usr/bin/python3.6 venv
-     source venv/bin/activate
+    # If using Virtualenv
+    virtualenv --python=/usr/bin/python3.6 venv
+    source venv/bin/activate
+
+    # If using Anaconda
+    conda create --name adjsim python=3.6
+    activate adjsim
 
 Install Dependencies.
 
      python setup.py install
 
-### Using Anaconda
+Note: If you run into trouble importing PyQt5 when installing using the setup.py file, try using
 
-Clone the GitHub repository.
-
-     git clone https://github.com/SeverTopan/AdjSim
-
-Create a new Anaconda environment with a python of version 3.5 or greater.
-
-     conda create --name adjsim python=3.6
-     activate adjsim
-
-Install Dependencies.
-
-     python setup.py install
+    pip install -e .
 
 ## Framework Structure
 
