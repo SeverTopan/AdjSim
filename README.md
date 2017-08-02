@@ -3,28 +3,35 @@
 
 A simulation framework. Intended for simulation of ecosystems.
 
-<center>
 
-| ![Bacteria Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_bacteria.png)| ![Predator Prey Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey.png) |
+> Designed and developed by Sever Topan
+
+## Features
+
+### Engine
+
+At its core, AdjSim is an agent-based modelling engine. It allows users to define simulation environments through which agents interact through ability casting and timestep iteration. The framework is targeted towards agents that behave intelligently, for example a bacterium chasing down food. However, the framework is extremely flexible - from enabling physics simulation to defining an environment in which [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) plays out!
+
+### Graphical Simulation Representation
+
+The simulation can be viewed in real time as it unfolds, with graphics are rendered and animated using PyQt5. Below are  four of the distinct demos packadged with AdjSim, ranging from bacteria to moon system simulation.
+
+ | ![Bacteria Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_bacteria.png)| ![Predator Prey Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey.png) |
 |:-------------:|:-------------:|
 | ![GOL Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_game_of_life.png) | ![Jupiter Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_jupiter_moon_system.png) |
 
+### Post Simulation Analysis Tools
 
-<br>
+Agent properties can be marked for tracking during simulation, allowing for viewing the results of these values once the simulation completes. For example, we can track the population of each different type of agent, or the efficacy of the agent's ability to meet its intelligence module-defined goals.
 
 | ![QLearning Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_individual_learning.png)| ![Predator Prey Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey_population.png) |
 |:-------------:|:-------------:|
-</center>
+
+### Intelligence Module
+
+Perhaps the most computationally interesting aspect of AdjSim lies in its intelligence module. It allows agents to set goals (for example, the goal of a bacterium may be to maximize its calories), and assess its actions in terms of its ability to meet its goals. This allows the agents to learn which actions are best used in a given situation. Currently the intelligence module implements [Q-Learning](https://en.wikipedia.org/wiki/Q-learning), but more advanced reinforcement learning techniques are coming soon!
 
 ## Current Development State
-
-AdjSim is currently in its early stages of development. There are five core elements of the simulation framework that are envisioned.
-
- 1. The first is the computation involved in agent interaction through ability casting and timestep iteration.
- 2. The second is a refined Framework interface for AdjSim to be used in python scripts.
- 3. A simple graphical representation of the simulation as it unfolds.
- 4. Tools to analyze the simulation results after completion.
- 5. The final core functionality is the decision making module for simulation agents. Agents will be able to choose which abilities to cast when. I am currently considering doing this with a genetic algorithm, testing possible ability combinations at each timestep and performing the one that maximizes the desires of each agent.
 
 Currently Implemented Features:
  - Core functionality - agent interaction through ability casting, timestep iterations
@@ -33,7 +40,7 @@ Currently Implemented Features:
 
 Partially Implemented Features:
  - Core functionality - post-simulation analysis tools
- - Core functionality - decision module
+ - Core functionality - intelligence module
 
 Planned Features:
  - More test cases!
@@ -79,4 +86,3 @@ The goal of this structure is to keep the fundamentals of a simulation in a simp
 A more detailed description of the Framework structure will be posted soon.
 
 
-> Designed and developed by Sever Topan
