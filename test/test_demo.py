@@ -19,6 +19,26 @@ def test_bacteria(adjSim):
     bacteria.generateEnv(adjSim.environment)
     adjSim.simulate(10, graphicsEnabled=False, plotIndices=False)
 
+def test_bacteria_graphics(adjSim):
+    from demo import bacteria
+    bacteria.generateEnv(adjSim.environment)
+    adjSim.simulate(10, graphicsEnabled=True, plotIndices=False)
+
+def test_bacteria_plot(adjSim):
+    from demo import bacteria
+    import AdjSim
+    from matplotlib import pyplot
+
+    pyplot.ion()
+    bacteria.generateEnv(adjSim.environment)
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
+    adjSim.simulate(10, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TRAIN)
+
+def test_bacteria_intelligent(adjSim):
+    from demo import bacteria_intelligent
+    bacteria_intelligent.generateEnv(adjSim.environment)
+    adjSim.simulate(10, graphicsEnabled=False, plotIndices=False)
+    
 def test_predator_prey(adjSim):
     from demo import predator_prey
     predator_prey.generateEnv(adjSim.environment)
