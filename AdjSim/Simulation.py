@@ -919,7 +919,7 @@ class Environment(Agent):
         sys.stdout.flush()
 
         # log best moves given training simulation
-        if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN and self.historyBank:
+        if Intelligence.SIMULATION_TYPE == Intelligence.SIMULATION_TYPE_TRAIN:
             Intelligence.QLearning.logBestMoves(self)
 
         # log last index entry and plot

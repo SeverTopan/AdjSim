@@ -32,12 +32,35 @@ def test_bacteria_plot(adjSim):
     pyplot.ion()
     bacteria.generateEnv(adjSim.environment)
     adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
-    adjSim.simulate(10, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TRAIN)
+    adjSim.simulate(10, graphicsEnabled=False, plotIndices=True)
 
 def test_bacteria_intelligent(adjSim):
     from demo import bacteria_intelligent
+    import AdjSim
+
+    AdjSim.Intelligence.QLearning.setIOFileName("bacteria_intelligent_demo.qlearning.pkl")
+
     bacteria_intelligent.generateEnv(adjSim.environment)
-    adjSim.simulate(10, graphicsEnabled=False, plotIndices=False)
+    adjSim.simulate(10, graphicsEnabled=False, plotIndices=False, simulationType=AdjSim.TRAIN)
+
+    # simulate a second time to use previously generated intelligence file
+    adjSim.clearEnvironment()
+    bacteria_intelligent.generateEnv(adjSim.environment)
+    adjSim.simulate(10, graphicsEnabled=False, plotIndices=False, simulationType=AdjSim.TRAIN)
+
+def test_bacteria_intelligent_plot(adjSim):
+    from demo import bacteria_intelligent
+    import AdjSim
+    from matplotlib import pyplot
+
+    AdjSim.Intelligence.QLearning.setIOFileName("bacteria_intelligent_demo.qlearning.pkl")
+
+    pyplot.ion()
+    bacteria_intelligent.generateEnv(adjSim.environment)
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_QLEARNING_REWARD))
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_QLEARNING_REWARD))
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
+    adjSim.simulate(10, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TRAIN)
     
 def test_predator_prey(adjSim):
     from demo import predator_prey
