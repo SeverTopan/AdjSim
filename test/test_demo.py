@@ -14,6 +14,10 @@ def adjSim():
     adjSim.clearEnvironment()
     return adjSim
 
+def test_logging(adjSim):
+    import AdjSim
+    adjSim = AdjSim.AdjSim(logInstance=True)
+
 def test_bacteria(adjSim):
     from demo import bacteria
     bacteria.generateEnv(adjSim.environment)
@@ -48,6 +52,11 @@ def test_bacteria_intelligent(adjSim):
     bacteria_intelligent.generateEnv(adjSim.environment)
     adjSim.simulate(10, graphicsEnabled=False, plotIndices=False, simulationType=AdjSim.TRAIN)
 
+    # simulate a third time to test simulation efficacy
+    adjSim.clearEnvironment()
+    bacteria_intelligent.generateEnv(adjSim.environment)
+    adjSim.simulate(10, graphicsEnabled=False, plotIndices=False, simulationType=AdjSim.TEST)
+
 def test_bacteria_intelligent_plot(adjSim):
     from demo import bacteria_intelligent
     import AdjSim
@@ -59,6 +68,8 @@ def test_bacteria_intelligent_plot(adjSim):
     bacteria_intelligent.generateEnv(adjSim.environment)
     adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_QLEARNING_REWARD))
     adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_QLEARNING_REWARD))
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.AVERAGE_GOAL_VALUES))
+    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.INDIVIDUAL_GOAL_VALUES))
     adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
     adjSim.simulate(10, graphicsEnabled=False, plotIndices=True, simulationType=AdjSim.TRAIN)
     

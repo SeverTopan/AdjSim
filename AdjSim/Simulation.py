@@ -812,55 +812,6 @@ class Environment(Agent):
         for index in self.indices:
             index.logValueAtTimestep(timeStep)
 
-# METHOD PRINT SNAPSHOT
-# * Prints all simulation environment information
-#-------------------------------------------------------------------------------
-    def printSnapshot(self):
-        print("Environment Snapshot:")
-        print("  ".rjust(32, "-"))
-
-        print("   timeStep: ", self.time)
-        print(" |".rjust(32, "-"), " ----- |")
-
-        print("   Agents:".ljust(30), "|        |")
-        for agent in self.agentSet:
-            print(" |".rjust(32, "-"), " ----- |")
-            print((" " + agent.name).ljust(30), "| ", str(agent.blockedDuration).rjust(5), "|")
-
-            print("   Traits:".ljust(30), "|        |")
-            for key, val in agent.traits.items():
-                # filter out unneeded keys
-                if key is not 'agentSet' \
-                    and key is not 'abilities' \
-                    and key is not 'color' \
-                    and key is not 'size':
-                    print(("      " + key + ": " + str(val.value)).ljust(30), "| ", \
-                        str(val.blockedDuration).rjust(5), "|")
-
-            print("   Abilities:".ljust(30), "|        |")
-            for key, val in agent.abilities.items():
-                print(("      " + key).ljust(30), "| ", \
-                    str(val.blockedDuration).rjust(5), "|")
-
-        print(" |".rjust(32, "-"), " ----- |")
-
-# METHOD GET TRAIT RANDOM
-#-------------------------------------------------------------------------------
-    def getTraitRandom(self):
-        selectedAgent = random.random() * len(self.agentSet)
-        selectedTrait = random.random() * len(selectedAgent.traits)
-
-        return selectedAgent.traits[selectedTrait]
-
-# METHOD GET AGENT BY NAME
-#-------------------------------------------------------------------------------
-    def getAgentByName(self, name):
-        for agent in self.agentSet:
-            if agent.name is name:
-                return agent
-
-        return None
-
 # METHOD GET TRAIT ON PREDICATE
 #-------------------------------------------------------------------------------
     def getAgentsOnPredicate(self, callingAgent, predicate):
