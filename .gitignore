@@ -102,3 +102,6 @@ TODO.txt
 
 # venv
 /venv-adjsim
+
+# vs code
+.vscode/
