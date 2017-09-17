@@ -7,12 +7,13 @@ import uuid
 import abc
 
 # third party
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 # local
 from . import constants
 from . import utility
 from . import analysis
+from . import visual
 
 class _ActionSuite(utility.InheritableDict):
 
@@ -31,6 +32,7 @@ class Agent(object):
         self.loss = None
         self.perception = None
         self.order = 0
+        self.id = uuid.uuid4()
 
 class SpatialAgent(Agent):
     """
@@ -90,6 +92,7 @@ class _AgentSuite(utility.InheritableSet):
             if issubclass(type(agent), VisualAgent):
                 visual_copy = VisualAgent(pos=agent.pos, size=agent.size, color=agent.color,
                                           style=agent.style)
+                visual_copy.id = agent.id
                 return_set.add(visual_copy)
 
         return return_set
@@ -204,25 +207,25 @@ class VisualSimulation(Simulation):
 
         self._multistep_simuation_in_progress = False
         self._setup_required = True
+        self._wait_on_visual_init = 0.2
 
 
     def _run_visual(self, num_timestep=None):
         # Perform threading initialization for graphics.
         self._update_semaphore = QtCore.QSemaphore(0)
         self._q_app = QtWidgets.QApplication([]) 
-        self._view = Graphics.AdjGraphicsView(self._q_app.desktop().screenGeometry(), self._update_semaphore)
-        self._visual_thread = Graphics.AdjThread(self._q_app, self, num_timestep)
+        self._view = visual.AdjGraphicsView(self._q_app.desktop().screenGeometry(), self._update_semaphore)
+        self._visual_thread = visual.AdjThread(self._q_app, self, num_timestep)
 
         self._visual_thread.finished.connect(self._q_app.exit)
-        self._visual_thread.updateSignal.connect(self._view.update)
-        self._visual_thread.plotSignal.connect(self._view.plot)
+        self._visual_thread.update_signal.connect(self._view.update)
 
         # Begin simulation.
         self._visual_thread.start()
         self._q_app.exec_()
 
         # Paint initial frame.
-        self._visual_thread.updateSignal.emit(self.agents.visual_snapshot())
+        self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
         time.sleep(1)
 
         # Cleanup variables.
@@ -236,14 +239,15 @@ class VisualSimulation(Simulation):
     def _visual_step(self):
         # Paint initial frame.
         if self._setup_required:
-            self._visual_thread.updateSignal.emit(self.agents.visual_snapshot())
-            time.sleep(1)
+            self._setup_required = False
+            self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
+            time.sleep(self._wait_on_visual_init)
 
         super().step()
 
         # Wait for animaiton.
-        self._visual_thread._update_semaphore.acquire(1)
-        self._visual_thread.updateSignal.emit(self.agents.visual_snapshot())
+        self._visual_thread.update_semaphore.acquire(1)
+        self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
 
 
     def _visual_simulate(self, num_timesteps):

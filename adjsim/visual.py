@@ -129,17 +129,17 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
             if ellipse.exit_animation_complete:
                 self.scene.removeItem(ellipse)
 
-        self.visual_items = { key: val for key, val in self.visual_items.items() \
-            if not val.exit_animation_complete }
+        self.visual_items = {key: val for key, val in self.visual_items.items()
+                             if not val.exit_animation_complete}
 
         # update agent ellipses
         for agent in agent_set:
-            if not self.visual_items.get(agent):
+            if not self.visual_items.get(agent.id):
                 # create graphics item with entrance animation
                 newEllipse = AgentEllipse(agent, self.scene)
-                self.visual_items[agent] = newEllipse
+                self.visual_items[agent.id] = newEllipse
 
-                animation = QtCore.QPropertyAnimation(self.visual_items[agent].adapter, b'size')
+                animation = QtCore.QPropertyAnimation(self.visual_items[agent.id].adapter, b'size')
                 animation.setDuration(ANIMATION_DURATION)
                 animation.setStartValue(0)
                 animation.setEndValue(agent.size)
@@ -147,34 +147,35 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
 
                 self.scene.addItem(newEllipse)
             else:
-                moveX = agent.x - self.visual_items[agent].old_x
-                moveY = agent.y - self.visual_items[agent].old_y
+                moveX = agent.x - self.visual_items[agent.id].old_x
+                moveY = agent.y - self.visual_items[agent.id].old_y
 
                 if moveX != 0 or moveY != 0:
-                    animation = QtCore.QPropertyAnimation(self.visual_items[agent].adapter, b'x')
+                    animation = QtCore.QPropertyAnimation(self.visual_items[agent.id].adapter, b'x')
                     animation.setDuration(ANIMATION_DURATION)
-                    animation.setStartValue(self.visual_items[agent].old_x)
+                    animation.setStartValue(self.visual_items[agent.id].old_x)
                     animation.setEndValue(agent.x)
                     self.animations.addAnimation(animation)
 
-                    animation = QtCore.QPropertyAnimation(self.visual_items[agent].adapter, b'y')
+                    animation = QtCore.QPropertyAnimation(self.visual_items[agent.id].adapter, b'y')
                     animation.setDuration(ANIMATION_DURATION)
-                    animation.setStartValue(self.visual_items[agent].old_y)
+                    animation.setStartValue(self.visual_items[agent.id].old_y)
                     animation.setEndValue(agent.y)
                     self.animations.addAnimation(animation)
 
-                    self.visual_items[agent].old_x = agent.x
-                    self.visual_items[agent].old_y = agent.y
+                    self.visual_items[agent.id].old_x = agent.x
+                    self.visual_items[agent.id].old_y = agent.y
 
         # remove graphics items whose agents are no longer in the agent_set
-        for item in self.visual_items.values():
-            if item.agent not in agent_set:
+        agent_dict = {agent.id: agent for agent in agent_set}
+        for key, val in self.visual_items.items():
+            if not agent_dict.get(key, val):
                 # destroy object with exit animation
-                item.exit_animation_complete = True
+                val.exit_animation_complete = True
 
-                animation = QtCore.QPropertyAnimation(self.visual_items[item.agent].adapter, b'size')
+                animation = QtCore.QPropertyAnimation(val.adapter, b'size')
                 animation.setDuration(ANIMATION_DURATION)
-                animation.setStartValue(item.agent.size)
+                animation.setStartValue(val.agent.size)
                 animation.setEndValue(0)
                 self.animations.addAnimation(animation)
 

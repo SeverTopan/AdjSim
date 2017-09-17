@@ -45,10 +45,32 @@ def test_invalid_end_condition():
 
 
 
-def test_sandbox():
+def test_visual_trivial():
     from adjsim import simulation, analysis, utility
 
     test_sim = simulation.VisualSimulation()
+    test_sim._wait_on_visual_init = 0
+    common.step_simulate_interpolation(test_sim)
+
+
+def test_visual_move():
+    from adjsim import simulation, analysis, utility
+
+    def move(env, source):
+        source.x += 10
+        source.y += 10
+
+    class TestAgent(simulation.VisualAgent):
+        def __init__(self, x, y):
+            super().__init__(pos=(x, y))
+            self.actions["move"] = move
+
+
+    test_sim = simulation.VisualSimulation()
+    test_sim.agents.add(TestAgent(0, 0))
+    test_sim.agents.add(TestAgent(0, -10))
+
+    common.step_simulate_interpolation(test_sim)
     
     
     

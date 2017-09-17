@@ -1,5 +1,6 @@
 
 import collections
+import numpy as np
 
 #-------------------------------------------------------------------------------
 # CONSTANTS
@@ -118,3 +119,12 @@ class InvalidEndConditionException(Exception):
     
     def __init__(self):
         super(InvalidEndConditionException, self).__init__(InvalidEndConditionException.MESSAGE)
+
+
+#-------------------------------------------------------------------------------
+# Exposed Functions
+#-------------------------------------------------------------------------------
+
+
+def distance(lhs, rhs):
+    return np.sum(np.subtract(rhs.pos, lhs.pos))
