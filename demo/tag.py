@@ -39,25 +39,37 @@ def tag(environment, source_agent):
     # if closest_distance > TAG_DIST:
     #     return
 
-    print(nearest_neighbour.pos)
+
+    assert nearest_neighbour
 
     nearest_neighbour.is_it = True
     nearest_neighbour.color = QtGui.QColor(utility.RED_DARK)
+    nearest_neighbour.order = 1
     source_agent.is_it = False
+    source_agent.order = 0
     source_agent.color = QtGui.QColor(utility.BLUE_DARK)
+
+    print("post cast:", nearest_neighbour, source_agent)
+
+    for agent in environment.agents:
+        print("agent", agent, agent.is_it)
+
 
 
 class Tagger(simulation.VisualAgent):
 
-    def __init__(self, pos, is_it):
+    def __init__(self, x, y, is_it):
         super().__init__()
 
         self.is_it = is_it
         self.color = QtGui.QColor(utility.RED_DARK) if is_it else QtGui.QColor(utility.BLUE_DARK)
-        self.pos = pos
+        self.pos = np.array([x, y])
 
         self.actions["move"] = move
         self.actions["tag"] = tag
+
+        if is_it:
+            self.order = 1
 
 
 class TaggerSimulation(simulation.VisualSimulation):
@@ -67,9 +79,9 @@ class TaggerSimulation(simulation.VisualSimulation):
 
         for i in range(5):
             for j in range(5):
-                self.agents.add(Tagger(np.array([20*i, 20*j]), False))
+                self.agents.add(Tagger(20*i, 20*j, False))
 
-        self.agents.add(Tagger(np.array([-10, -10]), True))
+        self.agents.add(Tagger(-10, -10, True))
 
 
 if __name__ == "__main__":

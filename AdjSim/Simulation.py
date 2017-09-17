@@ -90,7 +90,7 @@ class _AgentSuite(utility.InheritableSet):
             if issubclass(type(agent), VisualAgent):
                 visual_copy = VisualAgent(pos=copy.copy(agent.pos), size=copy.copy(agent.size), 
                                           color=copy.copy(agent.color), style=copy.copy(agent.style))
-                visual_copy.id = agent.id
+                visual_copy.id = copy.copy(agent.id)
                 return_set.add(visual_copy)
 
         return return_set
@@ -116,14 +116,8 @@ class Simulation(object):
         self.end_condition = None
         self.time = 0
 
-        self._agents = _AgentSuite()
+        self.agents = _AgentSuite()
         self._prev_print_str_len = 0
-
-
-    # agents should be read-only
-    @property
-    def agents(self):
-        return self._agents
 
     @staticmethod
     def _print_banner():
@@ -139,9 +133,9 @@ class Simulation(object):
         if self.time == 0:
             self._track()
 
-        # Iterate through agents in sorted order.
+        # Iterate through agents in sorted order
         for agent in sorted(self.agents, key=lambda a: a.order):
-            if agent.intelligence is not None and agent.intelligence is not None and agent.perception is not None:
+            if agent.intelligence is not None and agent.loss is not None and agent.perception is not None:
                 pass
             else:
                 # If no actions to choose from, skip.

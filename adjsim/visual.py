@@ -167,8 +167,9 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
                     self.visual_items[agent.id].old_y = agent.y
 
             # Update color.
-            if agent.color != self.visual_items[agent.id].agent.color:
-                self.visual_items[agent.id].setBrush(QtGui.QBrush(agent.color, style=agent.style))
+            # if agent.color != self.visual_items[agent.id].agent.color or \
+            #         agent.style != self.visual_items[agent.id].agent.style:
+            self.visual_items[agent.id].setBrush(QtGui.QBrush(agent.color, style=agent.style))
 
 
         # remove graphics items whose agents are no longer in the agent_set
