@@ -6,6 +6,7 @@ import random
 
 # third party
 from PyQt5 import QtGui, QtCore, QtWidgets
+import numpy as np
 
 # local
 from . import simulation
@@ -73,14 +74,15 @@ class AgentEllipse(QtWidgets.QGraphicsEllipseItem):
 
     def __init__(self, agent, scene):
         QtWidgets.QGraphicsEllipseItem.__init__(self, 0, 0, 0, 0)
-        self.setBrush(QtGui.QBrush(agent.color, style=agent.style))
+
+        # Members.
         self.agent = agent
-        self.old_x = agent.x
-        self.old_y = agent.y
         self.exit_animation_complete = False
-        self.setPos(agent.x, agent.y)
         self.adapter = AgentEllipseAdapter(self)
 
+        # Init visual.
+        self.setBrush(QtGui.QBrush(agent.color, style=agent.style))
+        self.setPos(agent.x, agent.y)
 
     def hoverEnterEvent(self, event):
         pass
@@ -93,24 +95,24 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
 
     def __init__(self, screen_geometry, update_semaphore):
         QtWidgets.QGraphicsView.__init__(self)
-        # set Qt properties
+
+        # Set Qt properties.
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setFrameShape(QtWidgets.QFrame.NoFrame)
 
-        # init scene
+        # Init scene.
         self.windowHeight = screen_geometry.height() - 100
         self.windowWidth = screen_geometry.width() - 100
 
         self.scene = QtWidgets.QGraphicsScene(-500, -500, 1000, 1000, self)
         self.setScene(self.scene)
 
-        # init other member variables
+        # Init other member variables.
         self.visual_items = {}
-        self.timeline = None
         self.animations = None
         self.update_semaphore = update_semaphore
 
-        # show
+        # Show.
         self.show()
 
     def timestepAnimationCallback(self):
@@ -135,7 +137,7 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
         # update agent ellipses
         for agent in agent_set:
             if not self.visual_items.get(agent.id):
-                # create graphics item with entrance animation
+                # Create graphics item with entrance animation.
                 newEllipse = AgentEllipse(agent, self.scene)
                 self.visual_items[agent.id] = newEllipse
 
@@ -147,29 +149,34 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
 
                 self.scene.addItem(newEllipse)
             else:
-                moveX = agent.x - self.visual_items[agent.id].old_x
-                moveY = agent.y - self.visual_items[agent.id].old_y
-
-                if moveX != 0 or moveY != 0:
-                    animation = QtCore.QPropertyAnimation(self.visual_items[agent.id].adapter, b'x')
+                # Move animation.
+                visual_item = self.visual_items[agent.id]
+                if not np.array_equal(agent.pos, visual_item.agent.pos):
+                    animation = QtCore.QPropertyAnimation(visual_item.adapter, b'x')
                     animation.setDuration(ANIMATION_DURATION)
-                    animation.setStartValue(float(self.visual_items[agent.id].old_x))
+                    animation.setStartValue(float(visual_item.agent.x))
                     animation.setEndValue(float(agent.x))
                     self.animations.addAnimation(animation)
 
-                    animation = QtCore.QPropertyAnimation(self.visual_items[agent.id].adapter, b'y')
+                    animation = QtCore.QPropertyAnimation(visual_item.adapter, b'y')
                     animation.setDuration(ANIMATION_DURATION)
-                    animation.setStartValue(float(self.visual_items[agent.id].old_y))
+                    animation.setStartValue(float(visual_item.agent.y))
                     animation.setEndValue(float(agent.y))
                     self.animations.addAnimation(animation)
 
-                    self.visual_items[agent.id].old_x = agent.x
-                    self.visual_items[agent.id].old_y = agent.y
+                    # Store.
+                    visual_item.agent.pos = agent.pos
 
             # Update color.
-            # if agent.color != self.visual_items[agent.id].agent.color or \
-            #         agent.style != self.visual_items[agent.id].agent.style:
-            self.visual_items[agent.id].setBrush(QtGui.QBrush(agent.color, style=agent.style))
+            visual_item = self.visual_items[agent.id]
+            if agent.color != visual_item.agent.color or \
+                    agent.style != visual_item.agent.style:
+                # Paint.
+                visual_item.setBrush(QtGui.QBrush(agent.color, style=agent.style))
+
+                # Store.
+                visual_item.agent.color = agent.color
+                visual_item.agent.style = agent.style
 
 
         # remove graphics items whose agents are no longer in the agent_set

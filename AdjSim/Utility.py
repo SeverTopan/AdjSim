@@ -126,5 +126,5 @@ class InvalidEndConditionException(Exception):
 #-------------------------------------------------------------------------------
 
 
-def distance(lhs, rhs):
-    return np.sum(np.absolute(np.subtract(rhs.pos, lhs.pos)))
+def distance_square(lhs, rhs):
+    return np.sum((rhs.pos - lhs.pos)**2)
