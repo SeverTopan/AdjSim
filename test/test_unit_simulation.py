@@ -2,6 +2,8 @@ import sys
 import os
 import pytest
 
+import numpy as np
+
 from . import common
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -62,13 +64,34 @@ def test_visual_move():
 
     class TestAgent(simulation.VisualAgent):
         def __init__(self, x, y):
-            super().__init__(pos=(x, y))
+            super().__init__(pos=np.array([x, y]))
             self.actions["move"] = move
 
 
     test_sim = simulation.VisualSimulation()
     test_sim.agents.add(TestAgent(0, 0))
     test_sim.agents.add(TestAgent(0, -10))
+
+    common.step_simulate_interpolation(test_sim)
+
+def test_visual_color():
+    from adjsim import simulation, analysis, utility
+    from PyQt5 import QtGui
+
+    def change(env, source):
+        if env.time % 2:
+            source.color = QtGui.QColor(utility.BLUE_DARK)
+        else:
+            source.color = QtGui.QColor(utility.RED_DARK)
+
+    class TestAgent(simulation.VisualAgent):
+        def __init__(self, x, y):
+            super().__init__(pos=np.array([x, y]))
+            self.actions["change"] = change
+
+
+    test_sim = simulation.VisualSimulation()
+    test_sim.agents.add(TestAgent(0, 0))
 
     common.step_simulate_interpolation(test_sim)
     

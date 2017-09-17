@@ -1,62 +1,77 @@
 """
     
 """
+import sys
+import os
+import numpy as np
 
-from adjsim import simulation, agent, utility
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
+from adjsim import simulation, utility
+
+from PyQt5 import QtGui
+
+ARENA_BOUND = 100
+TAG_DIST = 10
+MOVE_DIST = 20
 
 def move(environment, source_agent):
-    movment = numpy.Array(sin(source_agent.movement_theta), cos(source_agent.movement_theta))
-    movement *= source_agent.movement_theta
-    source_agent.pos += movement
-    source_agent.complete = True
+    movement = (np.random.rand(2) - 0.5) * MOVE_DIST
+    source_agent.pos = np.clip(source_agent.pos + movement, -ARENA_BOUND, ARENA_BOUND)
 
 def tag(environment, source_agent):  
 
     if not source_agent.is_it:
         return
 
-    nearest_neighbour = environment.indies.spatial.nearest_neighbour(source_agent)
+    closest_distance = sys.float_info.max
+    nearest_neighbour = None
+    for agent in environment.agents:
+        if agent.id == source_agent.id:
+            continue
 
-    if utility.distance(nearest_neighbour, source_agent) > 5:
-        return
+        distance = utility.distance(agent, source_agent)
+        if distance < closest_distance:
+            nearest_neighbour = agent
+            closest_distance = distance
+
+    # if closest_distance > TAG_DIST:
+    #     return
+
+    print(nearest_neighbour.pos)
 
     nearest_neighbour.is_it = True
+    nearest_neighbour.color = QtGui.QColor(utility.RED_DARK)
     source_agent.is_it = False
-    nearest_neighbour.complete = True
-
-def loss_function(environment, source_agent):
-    return float(source_agent.is_it)
-
-def perception(environment, source_agent):
-    nearest_neighbour = environment.indies.spatial.nearest_neighbour(source_agent)
-    return (nearest_neighbour.x, nearest_neighbour.y, nearest_neighbour.is_it)
-
-def intelligence(observation, loss, source_agent):
-    # stuff
-    return move
+    source_agent.color = QtGui.QColor(utility.BLUE_DARK)
 
 
-class Tagger(Agent):
+class Tagger(simulation.VisualAgent):
 
-    def __init__(self, pos):
-        super(tagger, self).__init__()
+    def __init__(self, pos, is_it):
+        super().__init__()
 
-        self.is_it = False
-        
-        @mutable_action_parameter(float, 0, 360)
-        self.movement_theta
+        self.is_it = is_it
+        self.color = QtGui.QColor(utility.RED_DARK) if is_it else QtGui.QColor(utility.BLUE_DARK)
+        self.pos = pos
 
-        @mutable_action_parameter(float, 0, 10)
-        self.movement_rho
-
-        self.action_suite = [move, tag]
-        self.loss_function = loss_function
-        self.intelligence = intelligence
+        self.actions["move"] = move
+        self.actions["tag"] = tag
 
 
-def generate_environment(simulation):
-    simulation.environment.clear()
+class TaggerSimulation(simulation.VisualSimulation):
 
-    for i in range(5):
-       for j in range(5):
-           simulation.environemnt.agents.add(Tagger([10 * i, 10* j]))
+    def __init__(self):
+        super().__init__()
+
+        for i in range(5):
+            for j in range(5):
+                self.agents.add(Tagger(np.array([20*i, 20*j]), False))
+
+        self.agents.add(Tagger(np.array([-10, -10]), True))
+
+
+if __name__ == "__main__":
+    sim = TaggerSimulation()
+    sim.simulate(100)   

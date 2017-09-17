@@ -1,16 +1,15 @@
 # standard
 import random
-import logging
 import time
 import sys
 import uuid
-import abc
+import copy
 
 # third party
 from PyQt5 import QtCore, QtGui, QtWidgets
+import numpy as np
 
 # local
-from . import constants
 from . import utility
 from . import analysis
 from . import visual
@@ -38,7 +37,7 @@ class SpatialAgent(Agent):
     """
     """
 
-    DEFAULT_POS = (0, 0)
+    DEFAULT_POS = np.array([0, 0])
 
     def __init__(self, pos=DEFAULT_POS):
         super().__init__()
@@ -50,7 +49,7 @@ class SpatialAgent(Agent):
 
     @x.setter
     def x(self, value):
-        self.pos = (value, self.y)
+        self.pos[0] = value
 
     @property
     def y(self):
@@ -58,15 +57,14 @@ class SpatialAgent(Agent):
 
     @y.setter
     def y(self, value):
-        self.pos = (self.x, value)
-        return
+        self.pos[1] = value
 
 
 class VisualAgent(SpatialAgent):
     """docstring for Agent."""
 
-    DEFAULT_SIZE = 5
-    DEFAULT_COLOR = QtGui.QColor(constants.BLUE_DARK)
+    DEFAULT_SIZE = 10
+    DEFAULT_COLOR = QtGui.QColor(utility.BLUE_DARK)
     DEFAULT_STYLE = QtCore.Qt.SolidPattern
 
     def __init__(self, pos=SpatialAgent.DEFAULT_POS, size=DEFAULT_SIZE, color=DEFAULT_COLOR,
@@ -90,8 +88,8 @@ class _AgentSuite(utility.InheritableSet):
 
         for agent in self._data:
             if issubclass(type(agent), VisualAgent):
-                visual_copy = VisualAgent(pos=agent.pos, size=agent.size, color=agent.color,
-                                          style=agent.style)
+                visual_copy = VisualAgent(pos=copy.copy(agent.pos), size=copy.copy(agent.size), 
+                                          color=copy.copy(agent.color), style=copy.copy(agent.style))
                 visual_copy.id = agent.id
                 return_set.add(visual_copy)
 
@@ -151,8 +149,8 @@ class Simulation(object):
                     continue
 
                 # Randomly execute an action.
-                action = random.choice(list(agent.actions.values()))
                 try:
+                    action = random.choice(list(agent.actions.values()))
                     action(self, agent)
                 except:
                     raise utility.InvalidActionException
@@ -207,7 +205,7 @@ class VisualSimulation(Simulation):
 
         self._multistep_simuation_in_progress = False
         self._setup_required = True
-        self._wait_on_visual_init = 0.2
+        self._wait_on_visual_init = 1
 
 
     def _run_visual(self, num_timestep=None):
@@ -224,9 +222,6 @@ class VisualSimulation(Simulation):
         self._visual_thread.start()
         self._q_app.exec_()
 
-        # Paint initial frame.
-        self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
-        time.sleep(1)
 
         # Cleanup variables.
         self._visual_thread.quit()

@@ -153,18 +153,23 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
                 if moveX != 0 or moveY != 0:
                     animation = QtCore.QPropertyAnimation(self.visual_items[agent.id].adapter, b'x')
                     animation.setDuration(ANIMATION_DURATION)
-                    animation.setStartValue(self.visual_items[agent.id].old_x)
-                    animation.setEndValue(agent.x)
+                    animation.setStartValue(float(self.visual_items[agent.id].old_x))
+                    animation.setEndValue(float(agent.x))
                     self.animations.addAnimation(animation)
 
                     animation = QtCore.QPropertyAnimation(self.visual_items[agent.id].adapter, b'y')
                     animation.setDuration(ANIMATION_DURATION)
-                    animation.setStartValue(self.visual_items[agent.id].old_y)
-                    animation.setEndValue(agent.y)
+                    animation.setStartValue(float(self.visual_items[agent.id].old_y))
+                    animation.setEndValue(float(agent.y))
                     self.animations.addAnimation(animation)
 
                     self.visual_items[agent.id].old_x = agent.x
                     self.visual_items[agent.id].old_y = agent.y
+
+            # Update color.
+            if agent.color != self.visual_items[agent.id].agent.color:
+                self.visual_items[agent.id].setBrush(QtGui.QBrush(agent.color, style=agent.style))
+
 
         # remove graphics items whose agents are no longer in the agent_set
         agent_dict = {agent.id: agent for agent in agent_set}
