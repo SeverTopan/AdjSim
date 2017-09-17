@@ -31,56 +31,46 @@ def test_invalid_type():
 
     test_sim = simulation.Simulation()
 
-    with pytest.raises(utility.InvalidTrackerException):
+    with pytest.raises(utility.InvalidAgentException):
         test_sim.agents.add({"I'm not valid!"})
 
 
-def test_invalid_too_few_arguments():
-    from adjsim import simulation, utility
-
-    class InvalidTracker(analysis.Tracker):
-        def __call__(self):
-            pass
-    
-    test_sim = simulation.Simulation()
-    test_sim.trackers["count"] = InvalidTracker()
-
-    with pytest.raises(utility.InvalidTrackerException):
-        common.step_simulate_interpolation(test_sim)
-
-def test_invalid_data():
-    from adjsim import simulation, utility
-
-    class InvalidTracker(analysis.Tracker):
-        def __init__(self):
-            self.data = {}
-        
-        def __call__(self):
-            pass
-
-    test_sim = simulation.Simulation()
-    test_sim.trackers["count"] = InvalidTracker()
-
-    with pytest.raises(utility.InvalidTrackerException):
-        common.step_simulate_interpolation(test_sim)
-
-
-def test_invalid_type():
-    from adjsim import simulation, utility
-
-    test_sim = simulation.Simulation()
-
-    with pytest.raises(utility.InvalidTrackerException):
-        test_sim.trackers["count"] = lambda x: 0
-
-
-def test_agent_count():
+def test_agent_add():
     from adjsim import simulation, analysis
 
+    def increment_agents(env, source):
+        env.agents.add(TestAgent()) 
+
+    class TestAgent(simulation.Agent):
+        def __init__(self):
+            super().__init__()
+            self.actions["increment"] = increment_agents
+            self.count = 0
+
+
     test_sim = simulation.Simulation()
-    test_sim.trackers["count"] = analysis.AgentCountTracker()
+    test_sim.agents.add(TestAgent())
 
     common.step_simulate_interpolation(test_sim)
 
-    assert test_sim.trackers["count"].data == [0 for i in range(INTERPOLATION_NUM_TIMESTEP + 1)]
-    
+    assert len(test_sim.agents) == 2**common.INTERPOLATION_NUM_TIMESTEP
+
+def test_agent_remove():
+    from adjsim import simulation, analysis
+
+    def increment_agents(env, source):
+        env.agents.remove(source)
+
+    class TestAgent(simulation.Agent):
+        def __init__(self):
+            super().__init__()
+            self.actions["increment"] = increment_agents
+            self.count = 0
+
+
+    test_sim = simulation.Simulation()
+    test_sim.agents.add(TestAgent())
+
+    common.step_simulate_interpolation(test_sim)
+
+    assert len(test_sim.agents) == 0

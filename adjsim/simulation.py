@@ -14,13 +14,13 @@ from . import constants
 from . import utility
 from . import analysis
 
-class _ActionSuite(utility.InheritableSet):
+class _ActionSuite(utility.InheritableDict):
 
-    def add(self, action):
-        if not callable(action):
+    def __setitem__(self, key, value):
+        if not callable(value):
             raise utility.InvalidActionException
 
-        self._data.add(action)
+        self._data[key] = value
 
 class Agent(object):
     """docstring for Agent."""
@@ -39,7 +39,7 @@ class SpatialAgent(Agent):
     DEFAULT_POS = (0, 0)
 
     def __init__(self, pos=DEFAULT_POS):
-        super().__init__(self)
+        super().__init__()
         self.pos = pos
 
     @property
@@ -69,7 +69,7 @@ class VisualAgent(SpatialAgent):
 
     def __init__(self, pos=SpatialAgent.DEFAULT_POS, size=DEFAULT_SIZE, color=DEFAULT_COLOR,
                  style=DEFAULT_STYLE):
-        super().__init__(self, pos)
+        super().__init__(pos)
         self.pos = pos
         self.size = size
         self.color = color
@@ -78,7 +78,7 @@ class VisualAgent(SpatialAgent):
 class _AgentSuite(utility.InheritableSet):
 
     def add(self, agent):
-        if not issubclass(agent, Agent):
+        if not issubclass(type(agent), Agent):
             raise utility.InvalidAgentException
 
         self._data.add(agent)
@@ -87,7 +87,7 @@ class _AgentSuite(utility.InheritableSet):
         return_set = set()
 
         for agent in self._data:
-            if issubclass(agent, VisualAgent):
+            if issubclass(type(agent), VisualAgent):
                 visual_copy = VisualAgent(pos=agent.pos, size=agent.size, color=agent.color,
                                           style=agent.style)
                 return_set.add(visual_copy)
@@ -143,10 +143,15 @@ class Simulation(object):
             if agent.intelligence is not None and agent.intelligence is not None and agent.perception is not None:
                 pass
             else:
-                action = random.choice(agent.actions)
+                # If no actions to choose from, skip.
+                if len(agent.actions) == 0:
+                    continue
+
+                # Randomly execute an action.
+                action = random.choice(list(agent.actions.values()))
                 try:
                     action(self, agent)
-                except TypeError:
+                except:
                     raise utility.InvalidActionException
 
         self._track()
@@ -195,7 +200,7 @@ class Simulation(object):
 class VisualSimulation(Simulation):
 
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
 
         self._multistep_simuation_in_progress = False
         self._setup_required = True

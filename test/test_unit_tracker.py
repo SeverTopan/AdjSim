@@ -80,7 +80,7 @@ def test_agent_count():
 
     common.step_simulate_interpolation(test_sim)
 
-    assert test_sim.trackers["count"].data == [0 for i in range(INTERPOLATION_NUM_TIMESTEP + 1)]
+    assert test_sim.trackers["count"].data == [0 for i in range(common.INTERPOLATION_NUM_TIMESTEP + 1)]
 
 
     
