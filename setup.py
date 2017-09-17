@@ -8,12 +8,12 @@ import sys
 if sys.version_info < (3,5):
     sys.exit('Python < 3.5 is not supported')
 
-setup(name='AdjSim',
-      version='0.1.0',
-      description='Ecosystem Simulation Framework',
+setup(name='adjsim',
+      version='0.2.0',
+      description='A clever agent based modelling engine',
       long_description=open('README.md', 'r').read(),
       author='Sever Topan',
-      packages=['AdjSim'],
+      packages=['adjsim'],
       license='GPL-3.0',
-      install_requires=['PyQt5', 'matplotlib']
+      install_requires=['PyQt5', 'matplotlib', 'numpy']
       )
