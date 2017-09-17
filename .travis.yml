@@ -13,7 +13,7 @@ before_script:
   - sleep 3 # give xvfb some time to start
   
 script:
-    - py.test --cov=AdjSim
+    - py.test --cov=adjsim
 
 after_success:
     - coveralls
