@@ -1,20 +1,13 @@
 import sys
 import os
 import pytest
+import random
 
 import numpy as np
 
 from . import common
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-
-def step_simulate_interpolation(simulation):
-    simulation.step()
-    simulation.simulate(3)
-    simulation.step()
-    simulation.simulate(3)
-    simulation.step()
 
 
 def test_trivial():
@@ -69,6 +62,7 @@ def test_visual_move():
 
 
     test_sim = simulation.VisualSimulation()
+    test_sim._wait_on_visual_init = 0
     test_sim.agents.add(TestAgent(0, 0))
     test_sim.agents.add(TestAgent(0, -10))
 
@@ -91,9 +85,49 @@ def test_visual_color():
 
 
     test_sim = simulation.VisualSimulation()
+    test_sim._wait_on_visual_init = 0
     test_sim.agents.add(TestAgent(0, 0))
 
     common.step_simulate_interpolation(test_sim)
+
+def test_visual_order():
+    from adjsim import simulation, analysis, utility
+    from PyQt5 import QtGui
+
+    order_log = []
+    orders = [i for i in range(5)]
+
+    def log(env, source):
+        order_log.append(source.order)
+        source.order = orders[source.index]
+
+    def shuffle(env, source):
+        random.shuffle(orders)
+
+    class TestAgent(simulation.Agent):
+        def __init__(self, order):
+            super().__init__()
+            self.actions["log"] = log
+            self.order = order
+            self.index = order
+
+    class Shuffler(simulation.Agent):
+        def __init__(self):
+            super().__init__()
+            self.actions["shuffle"] = shuffle
+            self.order = 10
+
+    test_sim = simulation.Simulation()
+    test_sim.agents.add(Shuffler())
+
+    for i in orders:
+        test_sim.agents.add(TestAgent(i))
+
+    common.step_simulate_interpolation(test_sim)
+
+    assert order_log == [i for i in range(5)]*common.INTERPOLATION_NUM_TIMESTEP
+
+
     
     
     
