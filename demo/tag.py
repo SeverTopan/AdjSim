@@ -13,7 +13,7 @@ from adjsim import simulation, utility
 from PyQt5 import QtGui
 
 ARENA_BOUND = 100
-TAG_DIST = 10
+TAG_DIST_SQUARE = 100
 MOVE_DIST = 20
 
 def move(environment, source_agent):
@@ -31,13 +31,13 @@ def tag(environment, source_agent):
         if agent.id == source_agent.id:
             continue
 
-        distance = utility.distance(agent, source_agent)
+        distance = utility.distance_square(agent, source_agent)
         if distance < closest_distance:
             nearest_neighbour = agent
             closest_distance = distance
 
-    # if closest_distance > TAG_DIST:
-    #     return
+    if closest_distance > TAG_DIST_SQUARE:
+        return
 
 
     assert nearest_neighbour
@@ -48,13 +48,6 @@ def tag(environment, source_agent):
     source_agent.is_it = False
     source_agent.order = 0
     source_agent.color = QtGui.QColor(utility.BLUE_DARK)
-
-    print("post cast:", nearest_neighbour, source_agent)
-
-    for agent in environment.agents:
-        print("agent", agent, agent.is_it)
-
-
 
 class Tagger(simulation.VisualAgent):
 
