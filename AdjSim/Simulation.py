@@ -126,7 +126,7 @@ class Simulation(object):
     """docstring for Environment."""
 
     def __init__(self):
-        self.agents = _AgentSuite(self)
+        self.agents = _AgentSuite()
         self.trackers = _TrackerSuite()
         self.callbacks = _CallbackSuite()
         self.end_condition = None

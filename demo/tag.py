@@ -16,22 +16,22 @@ ARENA_BOUND = 100
 TAG_DIST_SQUARE = 100
 MOVE_DIST = 20
 
-def move(environment, source_agent):
+def move(simulation, source):
     movement = (np.random.rand(2) - 0.5) * MOVE_DIST
-    source_agent.pos = np.clip(source_agent.pos + movement, -ARENA_BOUND, ARENA_BOUND)
+    source.pos = np.clip(source.pos + movement, -ARENA_BOUND, ARENA_BOUND)
 
-def tag(environment, source_agent):  
+def tag(simulation, source):  
 
-    if not source_agent.is_it:
+    if not source.is_it:
         return
 
     closest_distance = sys.float_info.max
     nearest_neighbour = None
-    for agent in environment.agents:
-        if agent.id == source_agent.id:
+    for agent in simulation.agents:
+        if agent.id == source.id:
             continue
 
-        distance = utility.distance_square(agent, source_agent)
+        distance = utility.distance_square(agent, source)
         if distance < closest_distance:
             nearest_neighbour = agent
             closest_distance = distance
@@ -45,9 +45,9 @@ def tag(environment, source_agent):
     nearest_neighbour.is_it = True
     nearest_neighbour.color = QtGui.QColor(utility.RED_DARK)
     nearest_neighbour.order = 1
-    source_agent.is_it = False
-    source_agent.order = 0
-    source_agent.color = QtGui.QColor(utility.BLUE_DARK)
+    source.is_it = False
+    source.order = 0
+    source.color = QtGui.QColor(utility.BLUE_DARK)
 
 class Tagger(simulation.VisualAgent):
 
