@@ -106,17 +106,32 @@ class _TrackerSuite(utility.InheritableDict):
 
         self._data[key] = value
 
+class _Callback(utility.InheritableDict):
+
+    def __setitem__(self, key, value):
+        try:
+            assert callable(value)
+        except:
+            raise utility.InvalidCallbackException
+
+        self._data[key] = value
+
+class _CallbackSuite(object):
+    def __init__(self):
+        self.agent_added = _Callback()
+        self.agent_removed = _Callback()
 
 
 class Simulation(object):
     """docstring for Environment."""
 
     def __init__(self):
+        self.agents = _AgentSuite(self)
         self.trackers = _TrackerSuite()
+        self.callbacks = _CallbackSuite()
         self.end_condition = None
         self.time = 0
 
-        self.agents = _AgentSuite()
         self._prev_print_str_len = 0
 
     @staticmethod

@@ -1,11 +1,4 @@
-#-------------------------------------------------------------------------------
-# ADJSIM SIMULATION FRAMEWORK - PREDATOR/PREY DEMO CASE
-# Designed and developed by Sever Topan
-#-------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-# IMPORTS
-#-------------------------------------------------------------------------------
 # standard
 import random, math
 
@@ -13,9 +6,7 @@ import random, math
 from PyQt5 import QtGui, QtCore
 import AdjSim
 
-#-------------------------------------------------------------------------------
 # CONSTANTS
-#-------------------------------------------------------------------------------
 
 MOVEMENT_COST = 8
 PHOTOSYNTHESIS_AMOUNT = 15
@@ -23,15 +14,7 @@ PHOTOSYNTHESIS_BLOCK_RANGE = 5
 MOVEMENT_BOUND = 70000
 CALORIE_UPPER_BOUND_PREDATOR = 400
 
-#-------------------------------------------------------------------------------
-# ABILITIES
-#-------------------------------------------------------------------------------
 
-# ABILITY - EAT
-#-------------------------------------------------------------------------------
-#       && ((food.x - self.x)^2 + (food.y - self.y)^2)^0.5 < self.eatRange
-# !!! predicates will be grouped together for ease of writing
-# !!! always sort predicate list before insertion into class
 def eat_predicate_food(env, sel, target):
    if target.traits.get('type') is not None and target.traits.get('type').value is 'prey' \
        and target.xCoord < sel.xCoord + sel.traits.get('interactRange').value \
@@ -67,7 +50,6 @@ def eat_effect(targetSet):
    targetSet.environment.removeAgent(targetSet.targets[0])
 
 # ABILITY - MOVE
-#-------------------------------------------------------------------------------
 def move_predicate_self(target):
    if target.traits.get('type') is not None \
        and target.traits.get('interactRange') is not None \
@@ -99,7 +81,6 @@ def move_effect(targetSet):
    targetSet.source.abilities['move'].blockedDuration = 1
 
 # ABILITY - STARVE
-#-------------------------------------------------------------------------------
 def starve_predicate_self(target):
    if target.traits.get('type') is not None \
        and target.traits.get('interactRange') is not None \
@@ -116,7 +97,6 @@ def starve_effect(targetSet):
    targetSet.source.blockedDuration = 1
 
 # ABILITY - DIVIDE
-#-------------------------------------------------------------------------------
 def divide_predicate_self(target):
    if target.traits.get('type') is not None \
        and target.traits.get('interactRange') is not None \
@@ -145,7 +125,6 @@ def divide_effect(targetSet):
    targetSet.source.blockedDuration = 1
 
 # ABILITY - PHOTOSYNTHESIZE
-#-------------------------------------------------------------------------------
 photosynthesize_predicateList = []
 
 photosynthesize_condition = lambda targetSet: True
@@ -168,12 +147,9 @@ def photosynthesize_effect(targetSet):
 
 
 
-#-------------------------------------------------------------------------------
 # AGENT GENERATION FUNCTIONS
-#-------------------------------------------------------------------------------
 
 # PREDATOR CREATION FUNCTION
-#-------------------------------------------------------------------------------
 def createPredator(environment, x, y, division):
    calorieLevel = 75 if division else random.randint(50, 75)
 
@@ -198,7 +174,6 @@ def createPredator(environment, x, y, division):
        starve_condition, starve_effect)
 
 # PREY CREATION FUNCTION
-#-------------------------------------------------------------------------------
 def createPrey(environment, x, y, division):
    calorieLevel =  5 if division else random.randint(5, 35)
 
@@ -220,9 +195,7 @@ def createPrey(environment, x, y, division):
    prey.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", prey, \
        divide_predicateList, divide_condition, divide_effect)
 
-#-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
-#-------------------------------------------------------------------------------
 def generateEnv(environment):
     # obtain theta value list
     thetaValues = [x*0.2 for x in range(1, 32)]
@@ -240,9 +213,7 @@ def generateEnv(environment):
        for d in range(1,10):
            createPrey(environment, d*SPACING*math.cos(theta), d*SPACING*math.sin(theta), division=False)
     
-#-------------------------------------------------------------------------------
 # AGENT CREATION SCRIPT
-#-------------------------------------------------------------------------------
 if __name__ == "__main__":    
     adjSim = AdjSim.AdjSim()
 

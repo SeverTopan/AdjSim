@@ -90,7 +90,7 @@ class InvalidTrackerException(Exception):
         """
     
     def __init__(self):
-        super(InvalidTrackerException, self).__init__(InvalidTrackerException.MESSAGE)
+        super().__init__(InvalidTrackerException.MESSAGE)
 
 
 class InvalidAgentException(Exception):
@@ -98,7 +98,7 @@ class InvalidAgentException(Exception):
     MESSAGE = """An agent must inherit from the Agent object."""
     
     def __init__(self):
-        super(InvalidAgentException, self).__init__(InvalidAgentException.MESSAGE)
+        super().__init__(InvalidAgentException.MESSAGE)
 
 
 class InvalidActionException(Exception):
@@ -109,7 +109,7 @@ class InvalidActionException(Exception):
         The callable return values will be ignored. Changes should be made in place in the Simulation object."""
     
     def __init__(self):
-        super(InvalidActionException, self).__init__(InvalidActionException.MESSAGE)
+        super().__init__(InvalidActionException.MESSAGE)
 
 class InvalidEndConditionException(Exception):
 
@@ -118,7 +118,16 @@ class InvalidEndConditionException(Exception):
         an end condition must be a callable that takes in Simulation and returns a bool."""
     
     def __init__(self):
-        super(InvalidEndConditionException, self).__init__(InvalidEndConditionException.MESSAGE)
+        super().__init__(InvalidEndConditionException.MESSAGE)
+
+class InvalidCallbackException(Exception):
+
+    MESSAGE = """A callback of invalid format has been supplied.
+
+        a callback must be a callable that takes in Simulation and returns a bool."""
+    
+    def __init__(self):
+        super().__init__(InvalidCallbackException.MESSAGE)
 
 
 #-------------------------------------------------------------------------------
