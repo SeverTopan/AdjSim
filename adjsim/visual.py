@@ -182,7 +182,7 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
         # remove graphics items whose agents are no longer in the agent_set
         agent_dict = {agent.id: agent for agent in agent_set}
         for key, val in self.visual_items.items():
-            if not agent_dict.get(key, val):
+            if not agent_dict.get(key):
                 # destroy object with exit animation
                 val.exit_animation_complete = True
 
