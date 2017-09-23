@@ -8,16 +8,22 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 
 def test_trivial():
-    from adjsim import simulation, utility
+    from adjsim import simulation, utility, decision
 
     class TrivialAgent(simulation.Agent):
-        pass
+        def __init__(self):
+            super().__init__()
+            self.decision = decision.RandomSingleCastDecision()
 
     class TrivialSpatialAgent(simulation.SpatialAgent):
-        pass
+        def __init__(self):
+            super().__init__()
+            self.decision = decision.RandomSingleCastDecision()
 
     class TrivialVisualAgent(simulation.VisualAgent):
-        pass
+        def __init__(self):
+            super().__init__()
+            self.decision = decision.RandomSingleCastDecision()
 
     test_sim = simulation.Simulation()
     test_sim.agents.add(TrivialAgent())
@@ -36,7 +42,7 @@ def test_invalid_type():
 
 
 def test_agent_add():
-    from adjsim import simulation, analysis
+    from adjsim import simulation, analysis, decision
 
     def increment_agents(env, source):
         env.agents.add(TestAgent()) 
@@ -46,7 +52,7 @@ def test_agent_add():
             super().__init__()
             self.actions["increment"] = increment_agents
             self.count = 0
-
+            self.decision = decision.RandomSingleCastDecision()
 
     test_sim = simulation.Simulation()
     test_sim.agents.add(TestAgent())
@@ -56,7 +62,7 @@ def test_agent_add():
     assert len(test_sim.agents) == 2**common.INTERPOLATION_NUM_TIMESTEP
 
 def test_agent_remove():
-    from adjsim import simulation, analysis
+    from adjsim import simulation, analysis, decision
 
     def increment_agents(env, source):
         env.agents.remove(source)
@@ -66,7 +72,7 @@ def test_agent_remove():
             super().__init__()
             self.actions["increment"] = increment_agents
             self.count = 0
-
+            self.decision = decision.RandomSingleCastDecision()
 
     test_sim = simulation.Simulation()
     test_sim.agents.add(TestAgent())

@@ -23,11 +23,11 @@ def test_valid_end_condition():
     from adjsim import simulation
 
     test_sim = simulation.Simulation()
-    test_sim.end_condition = lambda env: env.time == common.INTERPOLATION_NUM_TIMESTEP - 1
+    test_sim.end_condition = lambda env: env.time == common.INTERPOLATION_NUM_TIMESTEP - 2
 
     common.step_simulate_interpolation(test_sim)
 
-    assert test_sim.time == common.INTERPOLATION_NUM_TIMESTEP
+    assert test_sim.time == common.INTERPOLATION_NUM_TIMESTEP - 1
 
 def test_invalid_end_condition():
     from adjsim import simulation, utility
@@ -49,7 +49,7 @@ def test_visual_trivial():
 
 
 def test_visual_move():
-    from adjsim import simulation, analysis, utility
+    from adjsim import simulation, analysis, utility, decision
 
     def move(env, source):
         source.x += 10
@@ -58,6 +58,7 @@ def test_visual_move():
     class TestAgent(simulation.VisualAgent):
         def __init__(self, x, y):
             super().__init__(pos=np.array([x, y]))
+            self.decision = decision.RandomSingleCastDecision()
             self.actions["move"] = move
 
 
@@ -69,7 +70,7 @@ def test_visual_move():
     common.step_simulate_interpolation(test_sim)
 
 def test_visual_color():
-    from adjsim import simulation, analysis, utility
+    from adjsim import simulation, analysis, utility, decision
     from PyQt5 import QtGui
 
     def change(env, source):
@@ -81,6 +82,7 @@ def test_visual_color():
     class TestAgent(simulation.VisualAgent):
         def __init__(self, x, y):
             super().__init__(pos=np.array([x, y]))
+            self.decision = decision.RandomSingleCastDecision()
             self.actions["change"] = change
 
 
@@ -91,7 +93,7 @@ def test_visual_color():
     common.step_simulate_interpolation(test_sim)
 
 def test_visual_order():
-    from adjsim import simulation, analysis, utility
+    from adjsim import simulation, analysis, utility, decision
     from PyQt5 import QtGui
 
     order_log = []
@@ -110,12 +112,14 @@ def test_visual_order():
             self.actions["log"] = log
             self.order = order
             self.index = order
+            self.decision = decision.RandomSingleCastDecision()
 
     class Shuffler(simulation.Agent):
         def __init__(self):
             super().__init__()
             self.actions["shuffle"] = shuffle
             self.order = 10
+            self.decision = decision.RandomSingleCastDecision()
 
     test_sim = simulation.Simulation()
     test_sim.agents.add(Shuffler())

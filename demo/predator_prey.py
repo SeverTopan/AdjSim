@@ -21,6 +21,7 @@ CALORIE_UPPER_BOUND_PREY = 100
 EAT_DIST_SQUARE = 150
 MOVE_DIST = 20
 
+
 class Predator(simulation.VisualAgent):
     def __init__(self, pos):
         super().__init__()
@@ -39,8 +40,6 @@ class Predator(simulation.VisualAgent):
         self.actions["divide"] = divide
         self.actions["wait"] = wait
 
-        self.track = False
-        
 
 class Prey(simulation.VisualAgent):
     def __init__(self, pos):
