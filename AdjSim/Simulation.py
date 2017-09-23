@@ -27,11 +27,12 @@ class Agent(object):
 
     def __init__(self):
         self.actions = _ActionSuite()
-        self.intelligence = None
-        self.loss = None
-        self.perception = None
+        self.decision = None
         self.order = 0
         self.id = uuid.uuid4()
+        self.step_complete = False
+        
+        self._exists = True
 
 class SpatialAgent(Agent):
     """
@@ -82,6 +83,11 @@ class _AgentSuite(utility.InheritableSet):
             raise utility.InvalidAgentException
 
         self._data.add(agent)
+
+    def discard(self, value):
+        value._exists = False
+        value.step_complete = True
+        return self._data.discard(value)
 
     def visual_snapshot(self):
         return_set = set()
@@ -150,19 +156,17 @@ class Simulation(object):
 
         # Iterate through agents in sorted order
         for agent in sorted(self.agents, key=lambda a: a.order):
-            if agent.intelligence is not None and agent.loss is not None and agent.perception is not None:
-                pass
-            else:
-                # If no actions to choose from, skip.
-                if len(agent.actions) == 0:
-                    continue
+            # Check if agent has been removed in previous iteration
+            if not agent._exists:
+                continue
 
-                # Randomly execute an action.
-                try:
-                    action = random.choice(list(agent.actions.values()))
-                    action(self, agent)
-                except:
-                    raise utility.InvalidActionException
+            # Delegate action casting to decision module.
+            try:
+                agent.decision(self, agent)
+            except TypeError:
+                raise utility.InvalidDecisionException
+
+            agent.step_complete = False
 
         self._track()
 

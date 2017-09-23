@@ -9,7 +9,7 @@ from matplotlib import pyplot
 import numpy as np
 
 # local
-from . import Intelligence
+from . import decision
 from . import utility 
 
 class Tracker(object):
@@ -20,7 +20,7 @@ class Tracker(object):
 
     @abc.abstractmethod
     def __call__(self, simulation):
-        raise utility.InvalidTrackerException
+        return NotImplementedError
 
 
 class AgentCountTracker(Tracker):

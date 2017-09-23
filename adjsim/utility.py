@@ -105,7 +105,7 @@ class InvalidActionException(Exception):
 
     MESSAGE = """An action of invalid format has been supplied.
 
-        action must be a callable that takes in a Simulation object.
+        Action must be a callable that takes in a Simulation object.
         The callable return values will be ignored. Changes should be made in place in the Simulation object."""
     
     def __init__(self):
@@ -115,19 +115,26 @@ class InvalidEndConditionException(Exception):
 
     MESSAGE = """An end condition of invalid format has been supplied.
 
-        an end condition must be a callable that takes in Simulation and returns a bool."""
+        An end condition must be a callable that takes in Simulation and returns a bool."""
     
     def __init__(self):
         super().__init__(InvalidEndConditionException.MESSAGE)
 
 class InvalidCallbackException(Exception):
 
-    MESSAGE = """A callback of invalid format has been supplied.
-
-        a callback must be a callable that takes in Simulation and returns a bool."""
+    MESSAGE = """A callback of invalid format has been supplied."""
     
     def __init__(self):
         super().__init__(InvalidCallbackException.MESSAGE)
+
+class InvalidDecisionException(Exception):
+
+    MESSAGE = """An Decision Module of invalid format has been supplied.
+
+        decision must be a callable takes in Simulation and a source agent."""
+    
+    def __init__(self):
+        super().__init__(InvalidDecisionException.MESSAGE)
 
 
 #-------------------------------------------------------------------------------
@@ -137,3 +144,6 @@ class InvalidCallbackException(Exception):
 
 def distance_square(lhs, rhs):
     return np.sum((rhs.pos - lhs.pos)**2)
+
+def distance(lhs, rhs):
+    return distance_square**0.5
