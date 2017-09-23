@@ -1,200 +1,126 @@
-#-------------------------------------------------------------------------------
-# ADJSIM SIMULATION FRAMEWORK - BACTERIA DEMO CASE
-# Designed and developed by Sever Topan
-#-------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-# IMPORTS
-#-------------------------------------------------------------------------------
-import random
+# standard
+import random, math, sys, os
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
+# third party
 from PyQt5 import QtGui, QtCore
+import numpy as np
+from adjsim import simulation, utility, decision
 
-import AdjSim
 
-#-------------------------------------------------------------------------------
 # CONSTANTS
-#-------------------------------------------------------------------------------
-
 MOVEMENT_COST = 5
+MOVEMENT_BOUND = 70000
+CALORIE_UPPER_BOUND_PREDATOR = 200
+EAT_DIST_SQUARE = 150
+MOVE_DIST = 20
 
-#-------------------------------------------------------------------------------
-# ABILITIES
-#-------------------------------------------------------------------------------
 
-# ABILITY - EAT
-#-------------------------------------------------------------------------------
-# ability eat condition: food.type is 'food'
-#       && ((food.x - self.x)^2 + (food.y - self.y)^2)^0.5 < self.eatRange
-# !!! predicates will be grouped together for ease of writing
-# !!! always sort predicate list before insertion into class
-def eat_predicate_food(env, sel, target):
-   if target.traits.get('type') is not None \
-       and target.xCoord < sel.xCoord + sel.traits.get('interactRange').value \
-       and target.xCoord > sel.xCoord - sel.traits.get('interactRange').value \
-       and target.yCoord < sel.yCoord + sel.traits.get('interactRange').value \
-       and target.yCoord > sel.yCoord - sel.traits.get('interactRange').value \
-       and target.traits.get('calories') is not None:
-       return True
-   else:
-       return False
+class Bacteria(simulation.VisualAgent):
+    def __init__(self, pos):
+        super().__init__()
 
-def eat_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['eat'].blockedDuration is 0:
-       return True
-   else:
-       return False
+        self.pos = pos
+        self.calories = random.randint(50, 75)
+        self.divide_threshold = 75
+        self.color = QtGui.QColor(utility.GREEN)
+        self.size = 10
 
-def eat_predicate_env(target):
-   return True
+        self.decision = decision.RandomRepeatedCastDecision()
 
-eat_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMENT, eat_predicate_env), \
-   AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, eat_predicate_self), \
-   AdjSim.TargetPredicate(0, eat_predicate_food)]
+        self.actions["move"] = move
+        self.actions["starve"] = starve
+        self.actions["eat"] = eat
+        self.actions["divide"] = divide
+        self.actions["wait"] = wait
+        
 
-eat_condition = lambda targetSet: targetSet.targets[0].traits['type'].value is 'food' \
-   and ((targetSet.targets[0].traits['xCoord'].value - targetSet.source.traits['xCoord'].value)**2 \
-   + (targetSet.targets[0].traits['yCoord'].value - targetSet.source.traits['yCoord'].value)**2)**0.5 \
-   < targetSet.source.traits['interactRange'].value
+class Yogurt(simulation.VisualAgent):
+    def __init__(self, pos):
+        super().__init__()
 
-def eat_effect(targetSet):
-   targetSet.source.traits['calories'].value += targetSet.targets[0].traits['calories'].value
+        self.pos = pos
+        self.calories = random.randint(5, 35)
+        self.color = QtGui.QColor(utility.PINK)
+        self.size = 5
+        
+        self.decision = decision.RandomSingleCastDecision()
 
-   targetSet.environment.removeAgent(targetSet.targets[0])
-   targetSet.source.blockedDuration = 1
+        self.actions["wait"] = wait
 
-# ABILITY - MOVE
-#-------------------------------------------------------------------------------
-def move_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['move'].blockedDuration is 0 \
-       and target.blockedDuration is 0:
-       return True
-   else:
-       return False
-move_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, move_predicate_self)]
 
-move_condition = lambda targetSet: targetSet.source.traits['calories'].value > MOVEMENT_COST
+def eat(simulation, source):
+    closest_distance = sys.float_info.max
+    nearest_neighbour = None
+    for agent in simulation.agents:
+        if agent.id == source.id or type(agent) == Bacteria:
+            continue
 
-def move_effect(targetSet):
-   targetSet.source.traits['calories'].value -= MOVEMENT_COST
+        distance = utility.distance_square(agent, source)
+        if distance < closest_distance:
+            nearest_neighbour = agent
+            closest_distance = distance
 
-   randX = random.uniform(-1, 1)
-   randY = random.uniform(-1, 1)
-   absRand = (randX**2 + randY**2)**0.5
-   movementMultiplier = targetSet.source.traits['interactRange'].value * 2
+    if closest_distance > EAT_DIST_SQUARE:
+        return
 
-   dx = (randX / absRand) * movementMultiplier
-   dy = (randY / absRand) * movementMultiplier
-
-   targetSet.source.yCoord += dy
-   targetSet.source.xCoord += dx
-
-   targetSet.source.abilities['move'].blockedDuration = 1
-
-# ABILITY - STARVE
-#-------------------------------------------------------------------------------
-def starve_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0:
-       return True
-   else:
-       return False
-starve_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, starve_predicate_self)]
-
-starve_condition = lambda targetSet: targetSet.source.traits['calories'].value <= MOVEMENT_COST
-
-def starve_effect(targetSet):
-   targetSet.environment.removeAgent(targetSet.source)
-   targetSet.source.blockedDuration = 1
-
-# ABILITY - DIVIDE
-#-------------------------------------------------------------------------------
-def divide_predicate_self(target):
-   if target.traits.get('type') is not None \
-       and target.traits.get('interactRange') is not None \
-       and target.traits.get('calories') is not None \
-       and target.blockedDuration is 0 \
-       and target.abilities['divide'].blockedDuration is 0:
-       return True
-   else:
-       return False
-
-def divide_predicate_env(target):
-   return True
-
-divide_predicateList = [AdjSim.TargetPredicate(AdjSim.TargetPredicate.ENVIRONMENT, divide_predicate_env), \
-    AdjSim.TargetPredicate(AdjSim.TargetPredicate.SOURCE, divide_predicate_self)]
-
-divide_condition = lambda targetSet: targetSet.source.traits['calories'].value > 150
-
-def divide_effect(targetSet):
-   targetSet.source.traits['calories'].value -= 75
-   targetSet.source.blockedDuration = 2
-
-   createBacteria(targetSet.environment, targetSet.source.xCoord + 10, targetSet.source.yCoord)
-
-#-------------------------------------------------------------------------------
-# AGENT GENERATION FUNCTIONS
-#-------------------------------------------------------------------------------
-
-# BACTERIA CREATION FUNCTION
-#-------------------------------------------------------------------------------
-def createBacteria(environment, x, y):
-    bacterium = AdjSim.Simulation.Agent(environment, "bacterium", x, y)
-    bacterium.addTrait('type', 'bacteria')
-    bacterium.addTrait('calories', 75)
-    bacterium.addTrait('interactRange', 10)
-    bacterium.blockedDuration = 2
-    bacterium.size = 10
-    bacterium.color = QtGui.QColor(AdjSim.Constants.GREEN)
-    environment.traits['agentSet'].value.add(bacterium)
-
-    bacterium.abilities["divide"] = AdjSim.Simulation.Ability(environment, "divide", bacterium, \
-        divide_predicateList, divide_condition, divide_effect)
-    bacterium.abilities["eat"] = AdjSim.Simulation.Ability(environment, "eat", bacterium, eat_predicateList, \
-        eat_condition, eat_effect)
-    bacterium.abilities["move"] = AdjSim.Simulation.Ability(environment, "move", bacterium, move_predicateList, \
-        move_condition, move_effect)
-    bacterium.abilities["starve"] = AdjSim.Simulation.Ability(environment, "starve", bacterium, starve_predicateList, \
-        starve_condition, starve_effect)
-
-# FUNCTION GENERATE ENV
-#-------------------------------------------------------------------------------
-def generateEnv(environment):
-    # create bacteria agents
-    for i in range(5):
-       for j in range(5):
-           createBacteria(environment, 10 * i, 10 * j)
-
-    # create yogurt agents
-    for i in range(20):
-       for j in range(20):
-           name = "yogurt   "
-           yogurt = AdjSim.Simulation.Agent(environment, name, 5 * i, 5 * j + 50)
-           yogurt.addTrait('type', 'food')
-           yogurt.addTrait('calories', 30)
-           yogurt.size = 5
-           yogurt.color = QtGui.QColor(AdjSim.Constants.PINK)
-           environment.agentSet.add(yogurt)
-
-#-------------------------------------------------------------------------------
-# AGENT CREATION SCRIPT
-#-------------------------------------------------------------------------------
-if __name__ == "__main__":
-    adjSim = AdjSim.AdjSim()
-
-    adjSim.clearEnvironment()
-    generateEnv(adjSim.environment)
-    adjSim.environment.indices.add(AdjSim.Analysis.Index(adjSim.environment, AdjSim.Simulation.Analysis.Index.ACCUMULATE_AGENTS, 'type'))
+    source.calories = np.clip(source.calories + nearest_neighbour.calories, 0, CALORIE_UPPER_BOUND_PREDATOR)
+    simulation.agents.remove(nearest_neighbour)
     
-    adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)
+    source.step_complete = True
+
+def move(simulation, source):
+    movement = (np.random.rand(2) - 0.5) * MOVE_DIST
+    if np.sum((source.pos + movement)**2) < MOVEMENT_BOUND and source.calories > MOVEMENT_COST:
+        source.pos += movement
+        source.calories -= MOVEMENT_COST
+        source.step_complete = True
+
+def starve(simulation, source):
+    if source.calories <= MOVEMENT_COST:
+        simulation.agents.remove(source)
+        source.step_complete = True
+
+def divide(simulation, source):
+    if source.calories > source.divide_threshold:
+        simulation.agents.add(Bacteria(np.array(source.pos)))
+
+        source.calories -= source.divide_threshold
+        source.step_complete = True
+
+def wait(simulation, source):
+    source.step_complete = True
+
+def end_condition(simulation):
+    num_predators = 0
+
+    for agent in simulation.agents:
+        num_predators += 1
+
+    return num_predators == 0
+
+
+class BacteriaSimulation(simulation.VisualSimulation):
+    def __init__(self):
+        super().__init__()
+
+        self.end_condition = end_condition
+        
+        # create bacteria agents
+        for i in range(5):
+            for j in range(5):
+                self.agents.add(Bacteria(np.array([10*i, 10*j], dtype=np.float)))
+
+        # create yogurt agents
+        for i in range(20):
+            for j in range(20):
+                self.agents.add(Yogurt(np.array([5*i, 5*j + 50], dtype=np.float)))
+
+    
+# AGENT CREATION SCRIPT
+if __name__ == "__main__":    
+    sim = BacteriaSimulation()
+    sim.simulate(100)
