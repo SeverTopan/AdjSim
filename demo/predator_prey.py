@@ -8,8 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 # third party
 from PyQt5 import QtGui, QtCore
 import numpy as np
-from adjsim import simulation, utility
-
+from adjsim import simulation, utility, decision
 
 
 # CONSTANTS
@@ -32,10 +31,16 @@ class Predator(simulation.VisualAgent):
         self.color = QtGui.QColor(utility.RED_DARK)
         self.size = 10
 
+        self.decision = decision.RandomRepeatedCastDecision()
+
         self.actions["move"] = move
         self.actions["starve"] = starve
         self.actions["eat"] = eat
         self.actions["divide"] = divide
+        self.actions["wait"] = wait
+
+        self.track = False
+        
 
 class Prey(simulation.VisualAgent):
     def __init__(self, pos):
@@ -45,11 +50,13 @@ class Prey(simulation.VisualAgent):
         self.calories = random.randint(5, 35)
         self.divide_threshold = 40
         self.size = 5
+        
+        self.decision = decision.RandomRepeatedCastDecision()
 
         self.actions["move"] = move
         self.actions["photosynthesize"] = photosynthesize
         self.actions["divide"] = divide
-        
+        self.actions["wait"] = wait
 
 
 def eat(simulation, source):
@@ -67,17 +74,25 @@ def eat(simulation, source):
     if closest_distance > EAT_DIST_SQUARE:
         return
 
+    print(nearest_neighbour in simulation.agents)
+
     source.calories = np.clip(source.calories + nearest_neighbour.calories, 0, CALORIE_UPPER_BOUND_PREDATOR)
     simulation.agents.remove(nearest_neighbour)
+    print(nearest_neighbour in simulation.agents)
+    
+    source.step_complete = True
 
 def move(simulation, source):
     movement = (np.random.rand(2) - 0.5) * MOVE_DIST
-    if np.sum((source.pos + movement)**2) < MOVEMENT_BOUND:
+    if np.sum((source.pos + movement)**2) < MOVEMENT_BOUND and source.calories > MOVEMENT_COST:
         source.pos += movement
+        source.calories -= MOVEMENT_COST
+        source.step_complete = True 
 
 def starve(simulation, source):
     if source.calories <= MOVEMENT_COST:
         simulation.agents.remove(source)
+        source.step_complete = True
 
 def divide(simulation, source):
     if source.calories > source.divide_threshold:
@@ -87,9 +102,14 @@ def divide(simulation, source):
             simulation.agents.add(Prey(source.pos))
 
         source.calories -= source.divide_threshold
+        source.step_complete = True
 
 def photosynthesize(simulation, source):
     source.calories = np.clip(source.calories + PHOTOSYNTHESIS_AMOUNT, 0, CALORIE_UPPER_BOUND_PREY)
+    source.step_complete = True
+
+def wait(simulation, source):
+    source.step_complete = True
 
 
 class PredatorPreySimulation(simulation.VisualSimulation):

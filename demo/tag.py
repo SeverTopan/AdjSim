@@ -8,7 +8,7 @@ import numpy as np
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-from adjsim import simulation, utility
+from adjsim import simulation, utility, decision
 
 from PyQt5 import QtGui
 
@@ -19,6 +19,7 @@ MOVE_DIST = 20
 def move(simulation, source):
     movement = (np.random.rand(2) - 0.5) * MOVE_DIST
     source.pos = np.clip(source.pos + movement, -ARENA_BOUND, ARENA_BOUND)
+    source.step_complete = True
 
 def tag(simulation, source):  
 
@@ -57,6 +58,7 @@ class Tagger(simulation.VisualAgent):
         self.is_it = is_it
         self.color = QtGui.QColor(utility.RED_DARK) if is_it else QtGui.QColor(utility.BLUE_DARK)
         self.pos = np.array([x, y])
+        self.decision = decision.RandomSingleCastDecision()
 
         self.actions["move"] = move
         self.actions["tag"] = tag
