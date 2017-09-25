@@ -13,6 +13,7 @@ import numpy as np
 from . import utility
 from . import analysis
 from . import visual
+from . import decision
 
 class _ActionSuite(utility.InheritableDict):
 
@@ -27,7 +28,7 @@ class Agent(object):
 
     def __init__(self):
         self.actions = _ActionSuite()
-        self.decision = None
+        self.decision = decision.NoCastDecision()
         self.order = 0
         self.id = uuid.uuid4()
         self.step_complete = False

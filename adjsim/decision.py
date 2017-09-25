@@ -17,6 +17,11 @@ class Decision(object):
     def __call__(self, simulation, source):
         raise NotImplementedError
 
+class NoCastDecision(object):
+
+    def __call__(self, simulation, source):
+        return
+
 class RandomSingleCastDecision(Decision):
 
     def __call__(self, simulation, source):
