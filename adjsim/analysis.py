@@ -2,7 +2,6 @@
 
 """
 
-import abc
 
 # third party
 from matplotlib import pyplot
@@ -13,17 +12,31 @@ from . import decision
 from . import utility 
 
 class Tracker(object):
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         self.data = []
 
-    @abc.abstractmethod
     def __call__(self, simulation):
+        return NotImplementedError
+
+    def plot(self):
         return NotImplementedError
 
 
 class AgentCountTracker(Tracker):
 
     def __call__(self, simulation):
-        return len(simulation.agents)
+        self.data.append(len(simulation.agents))
+
+    def plot(self):
+        pyplot.style.use('ggplot')
+
+        line, = pyplot.plot(self.data, label="Global Agent Count")
+        line.set_antialiased(True)
+
+        pyplot.xlabel('Timestep')
+        pyplot.ylabel('Agent Count')
+        pyplot.title('Global Agent Count Over Time')
+        pyplot.legend()
+
+        pyplot.show()

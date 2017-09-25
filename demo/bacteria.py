@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 # third party
 from PyQt5 import QtGui, QtCore
 import numpy as np
-from adjsim import simulation, utility, decision
+from adjsim import simulation, utility, decision, analysis
 
 
 # CONSTANTS
@@ -108,6 +108,7 @@ class BacteriaSimulation(simulation.VisualSimulation):
         super().__init__()
 
         self.end_condition = end_condition
+        self.trackers["agent_count"] = analysis.AgentCountTracker()
         
         # create bacteria agents
         for i in range(5):
@@ -124,3 +125,4 @@ class BacteriaSimulation(simulation.VisualSimulation):
 if __name__ == "__main__":    
     sim = BacteriaSimulation()
     sim.simulate(100)
+    sim.trackers["agent_count"].plot()

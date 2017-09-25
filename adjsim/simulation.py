@@ -193,7 +193,7 @@ class Simulation(object):
     def _track(self):
         try:
             for tracker in self.trackers.values():
-                tracker.data.append(tracker(self))
+                tracker(self)
         except:
             raise utility.InvalidTrackerException
 
