@@ -1,107 +1,126 @@
-#-------------------------------------------------------------------------------
-# ADJSIM SIMULATION FRAMEWORK - JUPITER MOON SYSTEM
-# Designed and developed by Sever Topan
-#-------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
 # IMPORTS
-#-------------------------------------------------------------------------------
 # standard
 import random
+import sys
+import os
 
 # third party
 from PyQt5 import QtGui, QtCore
-import AdjSim
+import numpy as np
 
-#-------------------------------------------------------------------------------
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from adjsim import decision, simulation, utility
+
 # CONSTANTS
-#-------------------------------------------------------------------------------
-
 GRAV_CONSTANT = 6.674e-11
 TIMESTEP_LENGTH = 10000
 DISTANCE_MULTIPLIER = 10000000
 
-#-------------------------------------------------------------------------------
-# ABILITIES
-#-------------------------------------------------------------------------------
 
-# ABILITY - APPLY GRAVITY
-#-------------------------------------------------------------------------------
-applyGravity_predicateList = []
+def gravity(simulation, source):
+    # We need an ordering guarantee in the set traversal, so we list it.
+    agent_list = list(simulation.agents)
 
-applyGravity_condition = lambda targetSet : True
+    # Reset acceleration.
+    for agent in agent_list:
+        if agent == source:
+            agent_list.remove(agent)
+            continue
 
-def applyGravity_effect(targetSet):
-    # reset acceleration
-    for agent in targetSet.source.agentSet:
-        agent.traits['xAcc'].value = 0
-        agent.traits['yAcc'].value = 0
+        agent.acc = np.array([0., 0.])
 
-    # calculate new accelleration
-    for baseAgent in targetSet.source.agentSet:
-        for targetAgent in targetSet.source.agentSet:
-            if targetAgent == baseAgent:
-                continue
+    # Calculate new accelleration.
+    for source_agent in agent_list:
+        for target_agent in agent_list:
+            if source_agent == target_agent:
+                break
 
-            xDist = (baseAgent.xCoord - targetAgent.xCoord) * DISTANCE_MULTIPLIER
-            yDist = (baseAgent.yCoord - targetAgent.yCoord) * DISTANCE_MULTIPLIER
-            absDist = (xDist**2 + yDist**2)**0.5
-            absAcc = baseAgent.traits['mass'].value * GRAV_CONSTANT / (absDist**2)
+            dist = (source_agent.pos - target_agent.pos) * DISTANCE_MULTIPLIER
+            abs_dist_sq = np.sum(dist**2)
+            abs_dist = abs_dist_sq**0.5
+            abs_acc_target = source_agent.mass * GRAV_CONSTANT / abs_dist_sq
+            abs_acc_source = target_agent.mass * GRAV_CONSTANT / abs_dist_sq
 
-            targetAgent.traits['xAcc'].value += absAcc * (xDist / absDist)
-            targetAgent.traits['yAcc'].value += absAcc * (yDist / absDist)
+            target_agent.acc += abs_acc_target * dist / abs_dist
+            source_agent.acc += -abs_acc_source * dist / abs_dist
 
+    # Calculate velocity and position
+    for agent in agent_list:
+        agent.vel += agent.acc*TIMESTEP_LENGTH
+        agent.pos += agent.vel*TIMESTEP_LENGTH/DISTANCE_MULTIPLIER
 
-    # calculate new velocity and position
-    for agent in targetSet.source.agentSet:
-        agent.traits['xVel'].value += agent.traits['xAcc'].value * TIMESTEP_LENGTH
-        agent.traits['yVel'].value += agent.traits['yAcc'].value * TIMESTEP_LENGTH
-
-        agent.xCoord += agent.traits['xVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
-        agent.yCoord += agent.traits['yVel'].value * TIMESTEP_LENGTH / DISTANCE_MULTIPLIER
+    source.step_complete = True
 
 
-    targetSet.source.abilities['applyGravity'].blockedDuration = 1
+class Jupiter(simulation.VisualAgent):
+    def __init__(self):
+        super().__init__()
+        self.vel = np.array([0., 0.])
+        self.pos = np.array([0., 0.])
+        self.acc = np.array([0., 0.])
+        self.mass = 1.898e27
+        self.size = 10
+        self.color = QtGui.QColor(utility.ORANGE)
 
-#-------------------------------------------------------------------------------
-# AGENT GENERATION FUNCTIONS
-#-------------------------------------------------------------------------------
+class Io(simulation.VisualAgent):
+    def __init__(self):
+        super().__init__()
+        self.vel = np.array([0., 17.38e3])
+        self.pos = np.array([42., 0.])
+        self.acc = np.array([0., 0.])
+        self.mass = 8.9e22
+        self.size = 3
+        self.color = QtGui.QColor(utility.GREY)
 
-# PLANET CREATION FUNCTION
-#-------------------------------------------------------------------------------
-def createPlanet(name, mass, size, color, xPos, yPos, xVel, yVel, environment, style = QtCore.Qt.SolidPattern):
-   planet = AdjSim.Simulation.Agent(environment, name, xPos, yPos)
-   planet.addTrait('type', 'planet')
-   planet.addTrait('xVel', xVel)
-   planet.addTrait('yVel', yVel)
-   planet.addTrait('xAcc', 0.0)
-   planet.addTrait('yAcc', 0.0)
-   planet.addTrait('mass', mass)
-   planet.addTrait('castLog_acc', set())
-   planet.size = size
-   planet.color = color
-   planet.style = style
+class Europa(simulation.VisualAgent):
+    def __init__(self):
+        super().__init__()
+        self.vel = np.array([0., 13.7e3])
+        self.pos = np.array([67., 0.])
+        self.acc = np.array([0., 0.])
+        self.mass = 4.8e22
+        self.size = 3
+        self.color = QtGui.QColor(utility.BLUE_LIGHT)
 
-   environment.agentSet.add(planet)
+class Ganymede(simulation.VisualAgent):
+    def __init__(self):
+        super().__init__()
+        self.vel = np.array([0., 10.88e3])
+        self.pos = np.array([107., 0.])
+        self.acc = np.array([0., 0.])
+        self.mass = 1.48e23
+        self.size = 5
+        self.color = QtGui.QColor(utility.RED_DARK)
 
-#-------------------------------------------------------------------------------
-# AGENT CREATION SCRIPT
-#-------------------------------------------------------------------------------
-def generateEnv(environment):
-    # jupiter system
-    createPlanet('jupiter', 1.898e27, 10, QtGui.QColor(AdjSim.Constants.ORANGE), 0, 0, 0.0 , 0, environment, QtCore.Qt.Dense1Pattern)
-    createPlanet('io', 8.9e22, 3, QtGui.QColor(AdjSim.Constants.GREY), 42, 0, 0.0, 17.38e3, environment)
-    createPlanet('europa', 4.8e22, 3, QtGui.QColor(AdjSim.Constants.BLUE_LIGHT), 67, 0, 0.0, 13.7e3, environment)
-    createPlanet('ganymede', 1.48e23, 5, QtGui.QColor(AdjSim.Constants.RED_DARK), 107, 0, 0.0, 10.88e3, environment)
-    createPlanet('callisto', 1.08e23, 4, QtGui.QColor(AdjSim.Constants.BROWN_LIGHT), 188, 0, 0.0, 8.21e3, environment)
+class Callisto(simulation.VisualAgent):
+    def __init__(self):
+        super().__init__()
+        self.vel = np.array([0., 8.21e3])
+        self.pos = np.array([188., 0.])
+        self.acc = np.array([0., 0.])
+        self.mass = 1.08e23
+        self.size = 4
+        self.color = QtGui.QColor(utility.BROWN_LIGHT)
 
-    environment.abilities["applyGravity"] = AdjSim.Simulation.Ability(environment, "applyGravity", environment, \
-        applyGravity_predicateList, applyGravity_condition, applyGravity_effect)
+class Physics(simulation.Agent):
+    def __init__(self):
+        super().__init__()
+        self.actions["gravity"] = gravity
+        self.decision = decision.RandomSingleCastDecision()
 
-#-------------------------------------------------------------------------------
+class JupiterMoonSystemSimulation(simulation.VisualSimulation):
+    def __init__(self):
+        super().__init__()
+        self.agents.add(Physics())
+        self.agents.add(Jupiter())
+        self.agents.add(Io())
+        self.agents.add(Europa())
+        self.agents.add(Ganymede())
+        self.agents.add(Callisto())
+
 # MAIN FUNCTION
-#-------------------------------------------------------------------------------
 if __name__ == "__main__":
-    adjSim = AdjSim.AdjSim()
-    generateEnv(adjSim.environment)
-    adjSim.simulate(100, graphicsEnabled=True, plotIndices=True)
+    sim = JupiterMoonSystemSimulation()
+    sim.simulate(100)
