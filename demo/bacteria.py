@@ -107,7 +107,7 @@ class BacteriaSimulation(simulation.VisualSimulation):
         super().__init__()
 
         self.end_condition = end_condition
-        self.trackers["agent_count"] = analysis.AgentCountTracker()
+        self.trackers["agent_count"] = analysis.AgentTypeCountTracker()
         
         # create bacteria agents
         for i in range(5):

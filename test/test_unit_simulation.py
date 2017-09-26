@@ -41,7 +41,7 @@ def test_invalid_end_condition():
 
 
 def test_visual_trivial():
-    from adjsim import simulation, analysis, utility
+    from adjsim import simulation, utility
 
     test_sim = simulation.VisualSimulation()
     test_sim._wait_on_visual_init = 0
@@ -49,7 +49,7 @@ def test_visual_trivial():
 
 
 def test_visual_move():
-    from adjsim import simulation, analysis, utility, decision
+    from adjsim import simulation, utility, decision
 
     def move(env, source):
         source.x += 10
@@ -70,7 +70,7 @@ def test_visual_move():
     common.step_simulate_interpolation(test_sim)
 
 def test_visual_color():
-    from adjsim import simulation, analysis, utility, decision, color
+    from adjsim import simulation, utility, decision, color
     from PyQt5 import QtGui
 
     def change(env, source):
@@ -93,7 +93,7 @@ def test_visual_color():
     common.step_simulate_interpolation(test_sim)
 
 def test_visual_order():
-    from adjsim import simulation, analysis, utility, decision
+    from adjsim import simulation, utility, decision
     from PyQt5 import QtGui
 
     order_log = []

@@ -2,7 +2,6 @@
 import collections
 
 import numpy as np
-from PyQt5 import QtGui
 
 #-------------------------------------------------------------------------------
 # Containers
@@ -67,7 +66,7 @@ class InvalidTrackerException(Exception):
         Simulation.trackers should be a list of callable functors that inherit from Tracker.
         They must implement their __call__ method to take a Simulation object, and return the data that is desired.
         """
-    
+
     def __init__(self):
         super().__init__(InvalidTrackerException.MESSAGE)
 
@@ -75,7 +74,7 @@ class InvalidTrackerException(Exception):
 class InvalidAgentException(Exception):
 
     MESSAGE = """An agent must inherit from the Agent object."""
-    
+
     def __init__(self):
         super().__init__(InvalidAgentException.MESSAGE)
 
@@ -86,7 +85,7 @@ class InvalidActionException(Exception):
 
         Action must be a callable that takes in a Simulation object.
         The callable return values will be ignored. Changes should be made in place in the Simulation object."""
-    
+
     def __init__(self):
         super().__init__(InvalidActionException.MESSAGE)
 
@@ -95,14 +94,14 @@ class InvalidEndConditionException(Exception):
     MESSAGE = """An end condition of invalid format has been supplied.
 
         An end condition must be a callable that takes in Simulation and returns a bool."""
-    
+
     def __init__(self):
         super().__init__(InvalidEndConditionException.MESSAGE)
 
 class InvalidCallbackException(Exception):
 
     MESSAGE = """A callback of invalid format has been supplied."""
-    
+
     def __init__(self):
         super().__init__(InvalidCallbackException.MESSAGE)
 
@@ -111,7 +110,7 @@ class InvalidDecisionException(Exception):
     MESSAGE = """An Decision Module of invalid format has been supplied.
 
         decision must be a callable takes in Simulation and a source agent."""
-    
+
     def __init__(self):
         super().__init__(InvalidDecisionException.MESSAGE)
 
