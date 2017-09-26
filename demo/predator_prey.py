@@ -6,9 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 
 # third party
-from PyQt5 import QtGui, QtCore
 import numpy as np
-from adjsim import simulation, utility, decision
+from adjsim import simulation, utility, decision, color
 
 
 # CONSTANTS
@@ -29,7 +28,7 @@ class Predator(simulation.VisualAgent):
         self.pos = pos
         self.calories = random.randint(50, 75)
         self.divide_threshold = 125
-        self.color = QtGui.QColor(utility.RED_DARK)
+        self.color = color.RED_DARK
         self.size = 10
 
         self.decision = decision.RandomRepeatedCastDecision()

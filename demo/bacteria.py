@@ -6,9 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 
 # third party
-from PyQt5 import QtGui, QtCore
 import numpy as np
-from adjsim import simulation, utility, decision, analysis
+from adjsim import simulation, utility, decision, analysis, color
 
 
 # CONSTANTS
@@ -26,7 +25,7 @@ class Bacteria(simulation.VisualAgent):
         self.pos = pos
         self.calories = random.randint(50, 75)
         self.divide_threshold = 75
-        self.color = QtGui.QColor(utility.GREEN)
+        self.color = color.GREEN
         self.size = 10
 
         self.decision = decision.RandomRepeatedCastDecision()
@@ -44,7 +43,7 @@ class Yogurt(simulation.VisualAgent):
 
         self.pos = pos
         self.calories = random.randint(5, 35)
-        self.color = QtGui.QColor(utility.PINK)
+        self.color = color.PINK
         self.size = 5
         
         self.decision = decision.RandomSingleCastDecision()

@@ -14,6 +14,7 @@ from . import utility
 from . import analysis
 from . import visual
 from . import decision
+from . import color
 
 class _ActionSuite(utility.InheritableDict):
 
@@ -66,7 +67,7 @@ class VisualAgent(SpatialAgent):
     """docstring for Agent."""
 
     DEFAULT_SIZE = 10
-    DEFAULT_COLOR = QtGui.QColor(utility.BLUE_DARK)
+    DEFAULT_COLOR = color.BLUE_DARK
     DEFAULT_STYLE = QtCore.Qt.SolidPattern
 
     def __init__(self, pos=SpatialAgent.DEFAULT_POS, size=DEFAULT_SIZE, color=DEFAULT_COLOR,

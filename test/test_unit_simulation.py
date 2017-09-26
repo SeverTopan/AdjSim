@@ -70,14 +70,14 @@ def test_visual_move():
     common.step_simulate_interpolation(test_sim)
 
 def test_visual_color():
-    from adjsim import simulation, analysis, utility, decision
+    from adjsim import simulation, analysis, utility, decision, color
     from PyQt5 import QtGui
 
     def change(env, source):
         if env.time % 2:
-            source.color = QtGui.QColor(utility.BLUE_DARK)
+            source.color = color.BLUE_DARK
         else:
-            source.color = QtGui.QColor(utility.RED_DARK)
+            source.color = color.RED_DARK
 
     class TestAgent(simulation.VisualAgent):
         def __init__(self, x, y):

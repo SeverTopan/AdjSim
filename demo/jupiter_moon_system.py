@@ -6,12 +6,11 @@ import sys
 import os
 
 # third party
-from PyQt5 import QtGui, QtCore
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from adjsim import decision, simulation, utility
+from adjsim import decision, simulation, utility, color
 
 # CONSTANTS
 GRAV_CONSTANT = 6.674e-11
@@ -62,7 +61,7 @@ class Jupiter(simulation.VisualAgent):
         self.acc = np.array([0., 0.])
         self.mass = 1.898e27
         self.size = 10
-        self.color = QtGui.QColor(utility.ORANGE)
+        self.color = color.ORANGE
 
 class Io(simulation.VisualAgent):
     def __init__(self):
@@ -72,7 +71,7 @@ class Io(simulation.VisualAgent):
         self.acc = np.array([0., 0.])
         self.mass = 8.9e22
         self.size = 3
-        self.color = QtGui.QColor(utility.GREY)
+        self.color = color.GREY
 
 class Europa(simulation.VisualAgent):
     def __init__(self):
@@ -82,7 +81,7 @@ class Europa(simulation.VisualAgent):
         self.acc = np.array([0., 0.])
         self.mass = 4.8e22
         self.size = 3
-        self.color = QtGui.QColor(utility.BLUE_LIGHT)
+        self.color = color.BLUE_LIGHT
 
 class Ganymede(simulation.VisualAgent):
     def __init__(self):
@@ -92,7 +91,7 @@ class Ganymede(simulation.VisualAgent):
         self.acc = np.array([0., 0.])
         self.mass = 1.48e23
         self.size = 5
-        self.color = QtGui.QColor(utility.RED_DARK)
+        self.color = color.RED_DARK
 
 class Callisto(simulation.VisualAgent):
     def __init__(self):
@@ -102,7 +101,7 @@ class Callisto(simulation.VisualAgent):
         self.acc = np.array([0., 0.])
         self.mass = 1.08e23
         self.size = 4
-        self.color = QtGui.QColor(utility.BROWN_LIGHT)
+        self.color = color.BROWN_LIGHT
 
 class Physics(simulation.Agent):
     def __init__(self):

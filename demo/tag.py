@@ -8,9 +8,8 @@ import numpy as np
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-from adjsim import simulation, utility, decision
+from adjsim import simulation, utility, decision, color
 
-from PyQt5 import QtGui
 
 ARENA_BOUND = 100
 TAG_DIST_SQUARE = 100
@@ -44,11 +43,11 @@ def tag(simulation, source):
     assert nearest_neighbour
 
     nearest_neighbour.is_it = True
-    nearest_neighbour.color = QtGui.QColor(utility.RED_DARK)
+    nearest_neighbour.color = color.RED_DARK
     nearest_neighbour.order = 1
     source.is_it = False
     source.order = 0
-    source.color = QtGui.QColor(utility.BLUE_DARK)
+    source.color = color.BLUE_DARK
 
 class Tagger(simulation.VisualAgent):
 
@@ -56,7 +55,7 @@ class Tagger(simulation.VisualAgent):
         super().__init__()
 
         self.is_it = is_it
-        self.color = QtGui.QColor(utility.RED_DARK) if is_it else QtGui.QColor(utility.BLUE_DARK)
+        self.color = color.RED_DARK if is_it else color.BLUE_DARK
         self.pos = np.array([x, y])
         self.decision = decision.RandomSingleCastDecision()
 
