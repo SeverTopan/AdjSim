@@ -38,6 +38,7 @@ def test_invalid_decision():
     action = lambda env, source: 0
 
     agent = simulation.Agent()
+    agent.decision = None
     agent.actions["trivial"] = action
 
     test_sim = simulation.Simulation()
