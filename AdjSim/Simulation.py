@@ -15,6 +15,8 @@ from . import analysis
 from . import visual
 from . import decision
 from . import color
+from . import index
+from . import callback
 
 class _ActionSuite(utility.InheritableDict):
 
@@ -35,6 +37,7 @@ class Agent(object):
         self.step_complete = False
         
         self._exists = True
+        self._movement_callback = None
 
 class SpatialAgent(Agent):
     """
@@ -44,7 +47,27 @@ class SpatialAgent(Agent):
 
     def __init__(self, pos=DEFAULT_POS):
         super().__init__()
-        self.pos = pos
+        self._pos = pos
+
+    @property
+    def pos(self):
+        return self._pos
+
+    @pos.setter
+    def pos(self, value):
+        # assert pos type
+        if not type(value) == np.ndarray or value.shape != (2,):
+            raise TypeError
+        
+        # Make immutable so that we have control over the agent movement callback.
+        value.flags.writeable = False
+
+        self._pos = value
+
+        # Trigger callback.
+        # This will always be non-None if the agent has been added to a simulation.
+        if self._movement_callback is not None:
+            self._movement_callback(self)
 
     @property
     def x(self):
@@ -52,7 +75,7 @@ class SpatialAgent(Agent):
 
     @x.setter
     def x(self, value):
-        self.pos[0] = value
+        self.pos = np.array([value, self.y])
 
     @property
     def y(self):
@@ -60,7 +83,7 @@ class SpatialAgent(Agent):
 
     @y.setter
     def y(self, value):
-        self.pos[1] = value
+        self.pos = np.array([self.x, value])
 
 
 class VisualAgent(SpatialAgent):
@@ -73,23 +96,41 @@ class VisualAgent(SpatialAgent):
     def __init__(self, pos=SpatialAgent.DEFAULT_POS, size=DEFAULT_SIZE, color=DEFAULT_COLOR,
                  style=DEFAULT_STYLE):
         super().__init__(pos)
-        self.pos = pos
         self.size = size
         self.color = color
         self.style = style
 
 class _AgentSuite(utility.InheritableSet):
 
+    def __init__(self, callback_suite):
+        super().__init__()
+
+        # Store references for callbacks
+        self.callback_suite = callback_suite
+
     def add(self, agent):
         if not issubclass(type(agent), Agent):
             raise utility.InvalidAgentException
 
+        # Add agent.
         self._data.add(agent)
 
+        # Register movement callback.
+        agent._movement_callback = self.callback_suite.agent_moved
+
+        # Trigger addition callback.
+        self.callback_suite.agent_added(agent)
+
     def discard(self, value):
+        # 'Euthanize' and remove agent.
         value._exists = False
         value.step_complete = True
-        return self._data.discard(value)
+        return_val = self._data.discard(value)
+
+        # Trigger callbacks.
+        self.callback_suite.agent_removed(value)
+
+        return return_val
 
     def visual_snapshot(self):
         return_set = set()
@@ -114,29 +155,33 @@ class _TrackerSuite(utility.InheritableDict):
 
         self._data[key] = value
 
-class _Callback(utility.InheritableDict):
-
-    def __setitem__(self, key, value):
-        try:
-            assert callable(value)
-        except:
-            raise utility.InvalidCallbackException
-
-        self._data[key] = value
-
 class _CallbackSuite(object):
     def __init__(self):
-        self.agent_added = _Callback()
-        self.agent_removed = _Callback()
+        self.agent_added = callback.AgentChangedCallback()
+        self.agent_removed = callback.AgentChangedCallback()
+        self.agent_moved = callback.AgentChangedCallback()
+
+
+class _IndexSuite(object):
+    def __init__(self, simulation):
+        self._grid = None
+        self._simulation = simulation
+
+    @property
+    def grid(self):
+        return self._grid()
+
+    def initialize_grid(self):
+        self._grid = index.GridIndex(self._simulation)
 
 
 class Simulation(object):
     """docstring for Environment."""
 
     def __init__(self):
-        self.agents = _AgentSuite()
-        self.trackers = _TrackerSuite()
         self.callbacks = _CallbackSuite()
+        self.agents = _AgentSuite(self.callbacks)
+        self.trackers = _TrackerSuite()
         self.end_condition = None
         self.time = 0
 

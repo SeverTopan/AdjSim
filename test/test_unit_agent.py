@@ -51,7 +51,6 @@ def test_agent_add():
         def __init__(self):
             super().__init__()
             self.actions["increment"] = increment_agents
-            self.count = 0
             self.decision = decision.RandomSingleCastDecision()
 
     test_sim = simulation.Simulation()
@@ -64,18 +63,18 @@ def test_agent_add():
 def test_agent_remove():
     from adjsim import simulation, analysis, decision
 
-    def increment_agents(env, source):
+    def decrement_agents(env, source):
         env.agents.remove(source)
 
     class TestAgent(simulation.Agent):
         def __init__(self):
             super().__init__()
-            self.actions["increment"] = increment_agents
-            self.count = 0
+            self.actions["decrement"] = decrement_agents
             self.decision = decision.RandomSingleCastDecision()
 
     test_sim = simulation.Simulation()
-    test_sim.agents.add(TestAgent())
+    for _ in range(20):
+        test_sim.agents.add(TestAgent())
 
     common.step_simulate_interpolation(test_sim)
 

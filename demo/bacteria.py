@@ -74,7 +74,7 @@ def eat(simulation, source):
 def move(simulation, source):
     movement = (np.random.rand(2) - 0.5) * MOVE_DIST
     if np.sum((source.pos + movement)**2) < MOVEMENT_BOUND and source.calories > MOVEMENT_COST:
-        source.pos += movement
+        source.pos = source.pos + movement
         source.calories -= MOVEMENT_COST
         source.step_complete = True
 

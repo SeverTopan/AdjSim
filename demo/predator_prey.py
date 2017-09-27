@@ -72,18 +72,15 @@ def eat(simulation, source):
     if closest_distance > EAT_DIST_SQUARE:
         return
 
-    print(nearest_neighbour in simulation.agents)
-
     source.calories = np.clip(source.calories + nearest_neighbour.calories, 0, CALORIE_UPPER_BOUND_PREDATOR)
     simulation.agents.remove(nearest_neighbour)
-    print(nearest_neighbour in simulation.agents)
     
     source.step_complete = True
 
 def move(simulation, source):
     movement = (np.random.rand(2) - 0.5) * MOVE_DIST
     if np.sum((source.pos + movement)**2) < MOVEMENT_BOUND and source.calories > MOVEMENT_COST:
-        source.pos += movement
+        source.pos = source.pos + movement
         source.calories -= MOVEMENT_COST
         source.step_complete = True 
 
