@@ -66,6 +66,7 @@ class AgentTypeCountTracker(Tracker):
             # Increment the counter.
             self.data[type(agent)][-1] += 1
 
+            
     def plot(self):
         pyplot.style.use('ggplot')
 

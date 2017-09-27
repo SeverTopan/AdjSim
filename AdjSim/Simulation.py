@@ -144,7 +144,7 @@ class Simulation(object):
 
     @staticmethod
     def _print_banner():
-        welcomeMessage = "- AdjSim ABM Engine -"
+        welcomeMessage = "- AdjSim Reinforcement-Learning ABM Engine -"
 
         print("-".rjust(len(welcomeMessage), "-"))
         print(welcomeMessage)
@@ -170,9 +170,10 @@ class Simulation(object):
 
             agent.step_complete = False
 
+        self.time += 1
+
         self._track()
 
-        self.time += 1
 
     def simulate(self, num_timesteps):
 

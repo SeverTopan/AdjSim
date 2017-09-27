@@ -72,7 +72,7 @@ def test_invalid_type():
         test_sim.trackers["count"] = lambda x: 0
 
 
-def test_agent_count():
+def test_trivial_agent_count():
     from adjsim import simulation, analysis
 
     test_sim = simulation.Simulation()
@@ -81,6 +81,49 @@ def test_agent_count():
     common.step_simulate_interpolation(test_sim)
 
     assert test_sim.trackers["count"].data == [0 for i in range(common.INTERPOLATION_NUM_TIMESTEP + 1)]
+
+def test_exponential_agent_count():
+    from adjsim import simulation, analysis, decision
+
+    def increment_agents(env, source):
+        env.agents.add(TestAgent()) 
+
+    class TestAgent(simulation.Agent):
+        def __init__(self):
+            super().__init__()
+            self.actions["increment"] = increment_agents
+            self.decision = decision.RandomSingleCastDecision()
+
+    test_sim = simulation.Simulation()
+    test_sim.agents.add(TestAgent())
+    test_sim.trackers["count"] = analysis.AgentCountTracker()
+    
+
+    common.step_simulate_interpolation(test_sim)
+
+    assert test_sim.trackers["count"].data == [2**i for i in range(common.INTERPOLATION_NUM_TIMESTEP + 1)]
+
+def test_exponential_agent_type_count():
+    from adjsim import simulation, analysis, decision
+
+    def increment_agents(env, source):
+        env.agents.add(TestAgent()) 
+
+    class TestAgent(simulation.Agent):
+        def __init__(self):
+            super().__init__()
+            self.actions["increment"] = increment_agents
+            self.decision = decision.RandomSingleCastDecision()
+
+    test_sim = simulation.Simulation()
+    test_sim.agents.add(TestAgent())
+    test_sim.trackers["count"] = analysis.AgentTypeCountTracker()
+    
+    common.step_simulate_interpolation(test_sim)
+
+    print(test_sim.trackers["count"].data)
+
+    assert test_sim.trackers["count"].data[TestAgent] == [2**i for i in range(common.INTERPOLATION_NUM_TIMESTEP + 1)]
 
 
     
