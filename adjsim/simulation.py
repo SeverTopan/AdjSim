@@ -164,15 +164,12 @@ class _CallbackSuite(object):
 
 class _IndexSuite(object):
     def __init__(self, simulation):
-        self._grid = None
-        self._simulation = simulation
+        self._grid = index.GridIndex(simulation)
 
     @property
     def grid(self):
-        return self._grid()
+        return self._grid
 
-    def initialize_grid(self):
-        self._grid = index.GridIndex(self._simulation)
 
 
 class Simulation(object):
@@ -182,6 +179,7 @@ class Simulation(object):
         self.callbacks = _CallbackSuite()
         self.agents = _AgentSuite(self.callbacks)
         self.trackers = _TrackerSuite()
+        self.indices = _IndexSuite(self)
         self.end_condition = None
         self.time = 0
 
