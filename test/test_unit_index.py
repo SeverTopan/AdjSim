@@ -119,3 +119,11 @@ def test_grid_move(grid_size):
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,0])*grid_size)) == 0
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,1])*grid_size)) == 2
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,2])*grid_size)) == 2
+
+
+# get inhabitants single
+# get inhabitants multiple ppl in one place
+# get inhabitants wrong types
+# call method before intialization
+# agents with no coords
+# removing a agent from a set returns back None, not an empty set

@@ -37,7 +37,6 @@ class Agent(object):
         self.step_complete = False
         
         self._exists = True
-        self._movement_callback = None
 
 class SpatialAgent(Agent):
     """
@@ -47,7 +46,12 @@ class SpatialAgent(Agent):
 
     def __init__(self, pos=DEFAULT_POS):
         super().__init__()
-        self._pos = pos
+        self._pos = None
+        self._movement_callback = None
+
+        # Go through setter so that we do proper type checks.
+        self.pos = pos
+        
 
     @property
     def pos(self):
@@ -116,7 +120,8 @@ class _AgentSuite(utility.InheritableSet):
         self._data.add(agent)
 
         # Register movement callback.
-        agent._movement_callback = self.callback_suite.agent_moved
+        if issubclass(type(agent), SpatialAgent):
+            agent._movement_callback = self.callback_suite.agent_moved
 
         # Trigger addition callback.
         self.callback_suite.agent_added(agent)
