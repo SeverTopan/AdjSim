@@ -22,8 +22,6 @@ INTIAL_COORDINATES = [(0,0),(1,0),(1,1),(0,1),                                  
                     (24,-1),(24,0),(24,4),(24,5),                                       # trailing 'winglets' on right
                     (34,2),(34,3),(35,2),(35,3)]                                        # right-most block
 
-INTIAL_COORDINATES_ = [(0,0), (0,1), (0,-1)]
-
 
 def compute(simulation, source):
 
