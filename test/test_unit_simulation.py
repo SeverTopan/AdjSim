@@ -71,7 +71,6 @@ def test_visual_move():
 
 def test_visual_color():
     from adjsim import simulation, utility, decision, color
-    from PyQt5 import QtGui
 
     def change(env, source):
         if env.time % 2:
@@ -94,7 +93,6 @@ def test_visual_color():
 
 def test_visual_order():
     from adjsim import simulation, utility, decision
-    from PyQt5 import QtGui
 
     order_log = []
     orders = [i for i in range(5)]

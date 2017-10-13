@@ -123,6 +123,9 @@ class _AgentSuite(utility.InheritableSet):
         if issubclass(type(agent), SpatialAgent):
             agent._movement_callback = self.callback_suite.agent_moved
 
+        # TODO: rework callbacks
+        if type(agent.decision) == decision.QLearningDecision:
+            self.callback_suite.simulation_complete.register(agent.decision._on_simulation_complete)
         # Trigger addition callback.
         self.callback_suite.agent_added(agent)
 
@@ -162,9 +165,15 @@ class _TrackerSuite(utility.InheritableDict):
 
 class _CallbackSuite(object):
     def __init__(self):
+        # Agent callbacks.
         self.agent_added = callback.AgentChangedCallback()
         self.agent_removed = callback.AgentChangedCallback()
         self.agent_moved = callback.AgentChangedCallback()
+        
+        self.simulation_step_started = callback.SimulationMilestoneCallback()
+        self.simulation_step_complete = callback.SimulationMilestoneCallback()
+        self.simulation_started = callback.SimulationMilestoneCallback()
+        self.simulation_complete = callback.SimulationMilestoneCallback()
 
 
 class _IndexSuite(object):
@@ -204,6 +213,9 @@ class Simulation(object):
         if self.time == 0:
             self._track()
 
+        # Call milestone callback.
+        self.callbacks.simulation_step_started(self)
+
         # Iterate through agents in sorted order
         for agent in sorted(self.agents, key=lambda a: a.order):
             # Check if agent has been removed in previous iteration
@@ -222,9 +234,15 @@ class Simulation(object):
 
         self._track()
 
+        # Call milestone callback.
+        self.callbacks.simulation_step_complete(self)
+
 
     def simulate(self, num_timesteps):
+        # Call milestone callback.
+        self.callbacks.simulation_started(self)
 
+        # Simulate.
         for i in range(num_timesteps):
             self._print_simulation_status(i + 1, num_timesteps)
     
@@ -238,6 +256,9 @@ class Simulation(object):
 
                 except TypeError:
                     raise utility.InvalidEndConditionException
+
+        # Call milestone callback.
+        self.callbacks.simulation_complete(self)
 
 
     def _track(self):

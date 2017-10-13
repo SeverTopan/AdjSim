@@ -85,3 +85,6 @@ def test_agent_move():
     common.step_simulate_interpolation(test_sim)
 
     assert move_callback.count == 4*common.INTERPOLATION_NUM_TIMESTEP # 2 agents * 2 updates per move
+
+
+# test simulation ended 

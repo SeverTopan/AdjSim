@@ -1,5 +1,6 @@
 
 import collections
+import math
 
 import numpy as np
 
@@ -107,14 +108,38 @@ class InvalidCallbackException(Exception):
 
 class InvalidDecisionException(Exception):
 
-    MESSAGE = """An Decision Module of invalid format has been supplied.
+    MESSAGE = """A Decision Module of invalid format has been supplied.
 
         decision must be a callable takes in Simulation and a source agent."""
 
     def __init__(self):
         super().__init__(InvalidDecisionException.MESSAGE)
 
+class InvalidPerceptionException(Exception):
 
+    MESSAGE = """A perception function of invalid format has been supplied. 
+    
+        perception must be a callable that accepts simualtion and source agent as arguments.
+        The perception function must return a tuple of types to be associated with a given agent state."""
+
+    def __init__(self):
+        super().__init__(InvalidPerceptionException.MESSAGE)
+
+class InvalidLossException(Exception):
+
+    MESSAGE = """A loss function of invalid format has been supplied. 
+    
+        loss must be a callable that accepts simualtion and source agent as arguments."""
+
+    def __init__(self):
+        super().__init__(InvalidLossException.MESSAGE)
+
+class MissingAttributeException(Exception):
+
+    MESSAGE = """An attribute that was registered with the observation found is not present in the target agent."""
+
+    def __init__(self):
+        super().__init__(MissingAttributeException.MESSAGE)
 #-------------------------------------------------------------------------------
 # Exposed Functions
 #-------------------------------------------------------------------------------
@@ -125,3 +150,10 @@ def distance_square(lhs, rhs):
 
 def distance(lhs, rhs):
     return distance_square**0.5
+
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
+def sigmoid_clamp(x, clamp_min, clamp_max):
+    clamp_delta = clamp_max - clamp_min
+    return sigmoid(x)*clamp_delta - clamp_min
