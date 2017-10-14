@@ -123,9 +123,6 @@ class _AgentSuite(utility.InheritableSet):
         if issubclass(type(agent), SpatialAgent):
             agent._movement_callback = self.callback_suite.agent_moved
 
-        # TODO: rework callbacks
-        if type(agent.decision) == decision.QLearningDecision:
-            self.callback_suite.simulation_complete.register(agent.decision._on_simulation_complete)
         # Trigger addition callback.
         self.callback_suite.agent_added(agent)
 
