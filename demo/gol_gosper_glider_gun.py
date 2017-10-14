@@ -36,7 +36,7 @@ def compute(simulation, source):
         # Add coordinates to global empty list.
         neighbour_coords = simulation.indices.grid.get_neighbour_coordinates(agent.pos)
         for coord in neighbour_coords:
-            if simulation.indices.grid.get_inhabitants(coord) is None:
+            if not simulation.indices.grid.get_inhabitants(coord):
                 global_empty_neighbours.add((coord[0], coord[1]))
 
         # Count local neighbours.
