@@ -64,7 +64,7 @@ class SimulatonWorkflowException(Exception):
 
     MESSAGE = """Steps have been invoked on a non-running simulation.
 
-        Please call 'start' in the simulation before 'step' or 'simulate'. 
+        Please call 'start' in the simulation before 'step'. 
         Follow up simulation completion with a call to 'end'.
         """
 

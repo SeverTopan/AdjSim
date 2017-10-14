@@ -80,6 +80,4 @@ class TaggerSimulation(core.VisualSimulation):
 
 if __name__ == "__main__":
     sim = TaggerSimulation()
-    sim.start()
     sim.simulate(100)
-    sim.end()  

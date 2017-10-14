@@ -39,7 +39,6 @@ def test_invalid_end_condition():
         common.step_simulate_interpolation(test_sim)
 
 
-
 def test_visual_trivial():
     from adjsim import core, utility
 

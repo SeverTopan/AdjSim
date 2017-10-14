@@ -90,6 +90,4 @@ class GameOfLife(core.VisualSimulation):
 # MAIN FUNCTION
 if __name__ == "__main__":
     sim = GameOfLife()
-    sim.start()
     sim.simulate(100)
-    sim.end()

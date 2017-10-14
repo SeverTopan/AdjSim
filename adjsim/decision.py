@@ -162,7 +162,7 @@ class QLearningDecision(FunctionalDecision):
 
     history_bank = {}
 
-    def __init__(self, perception, loss, 
+    def __init__(self, perception, loss, callbacks,
                  input_file_name=DEFAULT_IO_FILE_NAME, output_file_name=DEFAULT_IO_FILE_NAME,
                  discount_factor=DEFAULT_DISCOUNT_FACTOR, nonconformity_factor=DEFAULT_NONCONFORMITY_FACTOR):
         super().__init__(perception, loss)
@@ -176,6 +176,9 @@ class QLearningDecision(FunctionalDecision):
 
         # Load q_table
         self._load_q_table_from_disk()
+
+        # Register callbacks.
+        callbacks.simulation_complete.register(self._on_simulation_complete)
 
 
     def _load_q_table_from_disk(self):

@@ -152,7 +152,7 @@ class BacteriaTrainSimulation(core.Simulation):
 
         io_file_name = "bacteria_intelligent.qlearning.pkl"
         self.bacteria_decision = decision.QLearningDecision(perception=bacteria_perception, loss=bacteria_loss, 
-            input_file_name=io_file_name, output_file_name=io_file_name)
+            callbacks=self.callbacks, input_file_name=io_file_name, output_file_name=io_file_name)
         
         # create bacteria agents
         for i in range(5):
@@ -174,7 +174,7 @@ class BacteriaTestSimulation(core.VisualSimulation):
 
         io_file_name = "bacteria_intelligent.qlearning.pkl"
         self.bacteria_decision = decision.QLearningDecision(perception=bacteria_perception, loss=bacteria_loss, 
-            input_file_name=io_file_name, output_file_name=io_file_name, discount_factor=1)
+            callbacks=self.callbacks, input_file_name=io_file_name, output_file_name=io_file_name, discount_factor=1)
         
         # create bacteria agents
         for i in range(5):
@@ -191,16 +191,12 @@ class BacteriaTestSimulation(core.VisualSimulation):
 if __name__ == "__main__":    
     # Initial test.
     sim = BacteriaTestSimulation()
-    sim.start()
     sim.simulate(100)
-    sim.end()
     sim.trackers["agent_count"].plot()
 
     # Train.
     epochs = 100
     for _ in range(epochs):
         sim = BacteriaTrainSimulation()
-        sim.start()
         sim.simulate(100)
-        sim.end()
   

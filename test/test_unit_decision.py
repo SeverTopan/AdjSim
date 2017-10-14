@@ -28,11 +28,11 @@ def test_qlearning_basic(mutable_min, mutable_max):
     loss.count = 0
 
     class TestAgent(core.VisualAgent):
-        def __init__(self, x, y):
+        def __init__(self, x, y, sim):
             super().__init__(pos=np.array([x, y]))
 
             self.decision = decision.QLearningDecision(perception=perception, loss=loss, 
-                output_file_name=None, input_file_name=None)
+                callbacks=sim.callbacks, output_file_name=None, input_file_name=None)
 
             self.actions["move"] = move
 
@@ -40,12 +40,10 @@ def test_qlearning_basic(mutable_min, mutable_max):
 
 
     test_sim = core.Simulation()
-    agent = TestAgent(0, 0)
+    agent = TestAgent(0, 0, test_sim)
     test_sim.agents.add(agent)
 
-    test_sim.start()
     test_sim.simulate(1)
-    test_sim.end()
 
     # Check proper call counts.
     assert move.count == 1
@@ -56,7 +54,7 @@ def test_qlearning_basic(mutable_min, mutable_max):
     assert agent.decision.q_table[1].loss == 1
     assert len(agent.decision.q_table[1].action_premise.iterations) == 1
     assert len(agent.decision.q_table[1].action_premise.iterations[0].decision_mutables) == 1
-
+    
     decision_mutable_premise = agent.decision.q_table[1].action_premise.iterations[0].decision_mutables[0]
     assert decision_mutable_premise.name == "mutable"
     assert decision_mutable_premise.value < mutable_max and decision_mutable_premise.value > mutable_min

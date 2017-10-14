@@ -47,6 +47,10 @@ def gravity(simulation, source):
 
     # Calculate velocity and position
     for agent in agent_list:
+        if type(agent) == Callisto:
+            print("\nerroneous:", agent.pos, agent.acc, agent.vel)
+        if type(agent) == Europa:
+            print("healthy:", agent.pos, agent.acc, agent.vel)
         agent.vel += agent.acc*TIMESTEP_LENGTH
         agent.pos = agent.pos + agent.vel*TIMESTEP_LENGTH/DISTANCE_MULTIPLIER
 
@@ -122,6 +126,4 @@ class JupiterMoonSystemSimulation(core.VisualSimulation):
 # MAIN FUNCTION
 if __name__ == "__main__":
     sim = JupiterMoonSystemSimulation()
-    sim.start()
     sim.simulate(100)
-    sim.end()

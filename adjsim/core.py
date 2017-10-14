@@ -226,11 +226,7 @@ class Simulation(object):
         self.callbacks.simulation_complete(self)
 
 
-    def step(self):
-        # Check running status.
-        if not self._running:
-            raise utility.SimulatonWorkflowException()
-
+    def _step_single(self):
         # Perform setup in needed.
         if self.time == 0:
             self._track()
@@ -260,7 +256,7 @@ class Simulation(object):
         self.callbacks.simulation_step_complete(self)
 
 
-    def simulate(self, num_timesteps):
+    def step(self, num_timesteps=1):
         # Check running status.
         if not self._running:
             raise utility.SimulatonWorkflowException()
@@ -269,7 +265,7 @@ class Simulation(object):
         for i in range(num_timesteps):
             self._print_simulation_status(i + 1, num_timesteps)
     
-            self.step()
+            self._step_single()
 
             # Check end condition.
             if self.end_condition is not None:
@@ -280,6 +276,10 @@ class Simulation(object):
                 except TypeError:
                     raise utility.InvalidEndConditionException
 
+    def simulate(self, num_timesteps):
+        self.start()
+        self.step(num_timesteps)
+        self.end()
 
     def _track(self):
         try:
@@ -308,17 +308,36 @@ class VisualSimulation(Simulation):
     def __init__(self):
         super().__init__()
 
-        self._multistep_simuation_in_progress = False
         self._setup_required = True
         self._wait_on_visual_init = 1
 
+    def _super_step(self, num_timesteps):
+        super().step(num_timesteps)
 
-    def _run_visual(self, num_timestep=None):
+    def _step_single(self):
+        # Paint initial frame.
+        if self._setup_required:
+            self._setup_required = False
+            self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
+            time.sleep(self._wait_on_visual_init)
+
+        super()._step_single()
+
+        # Wait for animaiton.
+        self._visual_thread.update_semaphore.acquire(1)
+        self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
+
+    def step(self, num_timesteps=1):
+        # Check running status.
+        if not self._running:
+            raise utility.SimulatonWorkflowException()
+
         # Perform threading initialization for graphics.
+        self._setup_required = True
         self._update_semaphore = QtCore.QSemaphore(0)
         self._q_app = QtWidgets.QApplication([]) 
         self._view = visual.AdjGraphicsView(self._q_app.desktop().screenGeometry(), self._update_semaphore)
-        self._visual_thread = visual.AdjThread(self._q_app, self, num_timestep)
+        self._visual_thread = visual.AdjThread(self._q_app, self, num_timesteps)
 
         self._visual_thread.finished.connect(self._q_app.exit)
         self._visual_thread.update_signal.connect(self._view.update)
@@ -327,56 +346,9 @@ class VisualSimulation(Simulation):
         self._visual_thread.start()
         self._q_app.exec_()
 
-
         # Cleanup variables.
         self._visual_thread.quit()
         del self._visual_thread
         del self._view
         del self._q_app
         del self._update_semaphore
-
-
-    def _visual_step(self):
-        # Paint initial frame.
-        if self._setup_required:
-            self._setup_required = False
-            self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
-            time.sleep(self._wait_on_visual_init)
-
-        super().step()
-
-        # Wait for animaiton.
-        self._visual_thread.update_semaphore.acquire(1)
-        self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
-
-
-    def _visual_simulate(self, num_timesteps):
-        super().simulate(num_timesteps)
-
-
-    def step(self):
-        # Check running status.
-        if not self._running:
-            raise utility.SimulatonWorkflowException()
-        
-        # Delegate.
-        if self._multistep_simuation_in_progress:
-            self._visual_step()
-        else:
-            self._setup_required = True
-            self._run_visual()
-        
-
-    def simulate(self, num_timesteps):
-        # Check running status.
-        if not self._running:
-            raise utility.SimulatonWorkflowException()
-
-        self._multistep_simuation_in_progress = True
-        self._setup_required = True
-
-        self._run_visual(num_timesteps)
-
-        self._multistep_simuation_in_progress = False
-
-            

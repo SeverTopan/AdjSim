@@ -25,10 +25,7 @@ class AdjThread(QtCore.QThread):
         self.simulation_length = simulation_length
 
     def run(self):
-        if self.simulation_length is not None:
-            self.simulation._visual_simulate(self.simulation_length)
-        else:
-            self.simulation._visual_step()
+        self.simulation._super_step(self.simulation_length)
 
 class AgentEllipseAdapter(QtCore.QObject):
     """An adapter between QPropertyAnimation and QGraphicsEllipseItem
