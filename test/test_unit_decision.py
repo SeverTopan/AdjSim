@@ -43,7 +43,9 @@ def test_qlearning_basic(mutable_min, mutable_max):
     agent = TestAgent(0, 0)
     test_sim.agents.add(agent)
 
+    test_sim.start()
     test_sim.simulate(1)
+    test_sim.end()
 
     # Check proper call counts.
     assert move.count == 1

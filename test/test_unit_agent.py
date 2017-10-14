@@ -29,7 +29,7 @@ def test_trivial():
     test_sim.agents.add(TrivialAgent())
     test_sim.agents.add(TrivialSpatialAgent())
     test_sim.agents.add(TrivialVisualAgent())
-
+    
     common.step_simulate_interpolation(test_sim)
 
 def test_invalid_type():

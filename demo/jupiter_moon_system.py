@@ -122,4 +122,6 @@ class JupiterMoonSystemSimulation(core.VisualSimulation):
 # MAIN FUNCTION
 if __name__ == "__main__":
     sim = JupiterMoonSystemSimulation()
+    sim.start()
     sim.simulate(100)
+    sim.end()

@@ -60,6 +60,17 @@ class InheritableSet(collections.MutableSet):
 # Exceptions
 #-------------------------------------------------------------------------------
 
+class SimulatonWorkflowException(Exception):
+
+    MESSAGE = """Steps have been invoked on a non-running simulation.
+
+        Please call 'start' in the simulation before 'step' or 'simulate'. 
+        Follow up simulation completion with a call to 'end'.
+        """
+
+    def __init__(self):
+        super().__init__(SimulatonWorkflowException.MESSAGE)
+
 class InvalidTrackerException(Exception):
 
     MESSAGE = """A tracker of invalid format has been supplied.

@@ -191,12 +191,16 @@ class BacteriaTestSimulation(core.VisualSimulation):
 if __name__ == "__main__":    
     # Initial test.
     sim = BacteriaTestSimulation()
+    sim.start()
     sim.simulate(100)
+    sim.end()
     sim.trackers["agent_count"].plot()
 
     # Train.
     epochs = 100
     for _ in range(epochs):
         sim = BacteriaTrainSimulation()
+        sim.start()
         sim.simulate(100)
+        sim.end()
   

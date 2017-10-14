@@ -123,5 +123,7 @@ class BacteriaSimulation(core.VisualSimulation):
 # AGENT CREATION SCRIPT
 if __name__ == "__main__":    
     sim = BacteriaSimulation()
+    sim.start()
     sim.simulate(100)
+    sim.end()
     sim.trackers["agent_count"].plot()

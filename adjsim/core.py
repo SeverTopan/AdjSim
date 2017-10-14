@@ -198,6 +198,7 @@ class Simulation(object):
         self.time = 0
 
         self._prev_print_str_len = 0
+        self._running = False
 
     @staticmethod
     def _print_banner():
@@ -208,7 +209,31 @@ class Simulation(object):
         print("-".rjust(len(welcomeMessage), "-"))
 
 
+    def start(self):
+        if self._running == True:
+            raise Exception("Simulation already started.")
+
+        self._running = True
+
+        # Call milestone callback.
+        self.callbacks.simulation_started(self)
+
+
+    def end(self):
+        if self._running == False:
+            raise Exception("Simulation already ended.")
+
+        self._running = False
+
+        # Call milestone callback.
+        self.callbacks.simulation_complete(self)
+
+
     def step(self):
+        # Check running status.
+        if not self._running:
+            raise utility.SimulatonWorkflowException()
+
         # Perform setup in needed.
         if self.time == 0:
             self._track()
@@ -239,8 +264,9 @@ class Simulation(object):
 
 
     def simulate(self, num_timesteps):
-        # Call milestone callback.
-        self.callbacks.simulation_started(self)
+        # Check running status.
+        if not self._running:
+            raise utility.SimulatonWorkflowException()
 
         # Simulate.
         for i in range(num_timesteps):
@@ -256,9 +282,6 @@ class Simulation(object):
 
                 except TypeError:
                     raise utility.InvalidEndConditionException
-
-        # Call milestone callback.
-        self.callbacks.simulation_complete(self)
 
 
     def _track(self):
@@ -335,6 +358,11 @@ class VisualSimulation(Simulation):
 
 
     def step(self):
+        # Check running status.
+        if not self._running:
+            raise utility.SimulatonWorkflowException()
+        
+        # Delegate.
         if self._multistep_simuation_in_progress:
             self._visual_step()
         else:
@@ -343,6 +371,10 @@ class VisualSimulation(Simulation):
         
 
     def simulate(self, num_timesteps):
+        # Check running status.
+        if not self._running:
+            raise utility.SimulatonWorkflowException()
+
         self._multistep_simuation_in_progress = True
         self._setup_required = True
 

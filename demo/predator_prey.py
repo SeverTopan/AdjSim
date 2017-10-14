@@ -131,4 +131,6 @@ class PredatorPreySimulation(core.VisualSimulation):
 # AGENT CREATION SCRIPT
 if __name__ == "__main__":    
     sim = PredatorPreySimulation()
+    sim.start()
     sim.simulate(100)
+    sim.end()

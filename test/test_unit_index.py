@@ -247,7 +247,7 @@ def test_grid_move(grid_size):
     test_sim.agents.add(TestAgent(np.array([2,0])*grid_size))
 
     test_sim.indices.grid.initialize(grid_size)
-
+    test_sim.start()
 
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,0])*grid_size)) == 2
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,1])*grid_size)) == 3
@@ -264,3 +264,5 @@ def test_grid_move(grid_size):
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,0])*grid_size)) == 0
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,1])*grid_size)) == 2
     assert len(test_sim.indices.grid.get_neighbours(np.array([0,2])*grid_size)) == 2
+
+    test_sim.end()
