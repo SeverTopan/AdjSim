@@ -48,7 +48,7 @@ def gravity(simulation, source):
     # Calculate velocity and position
     for agent in agent_list:
         agent.vel += agent.acc*TIMESTEP_LENGTH
-        agent.pos += agent.vel*TIMESTEP_LENGTH/DISTANCE_MULTIPLIER
+        agent.pos = agent.pos + agent.vel*TIMESTEP_LENGTH/DISTANCE_MULTIPLIER
 
     source.step_complete = True
 
