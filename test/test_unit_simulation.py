@@ -128,11 +128,4 @@ def test_visual_order():
     common.step_simulate_interpolation(test_sim)
 
     assert order_log == [i for i in range(5)]*common.INTERPOLATION_NUM_TIMESTEP
-
-
-    
-    
-    
-
-
-    
+   

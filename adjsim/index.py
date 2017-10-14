@@ -2,6 +2,7 @@
 import numpy as np
 
 from . import core
+from . import utility
 
 class Index(object):
     pass
@@ -18,6 +19,7 @@ class GridIndex(Index):
         self._agent_mapping = {}
         self._simulation = simulation
         self._grid_size = 1
+        self._initialized = False
         
 
     def initialize(self, grid_size):
@@ -43,7 +45,15 @@ class GridIndex(Index):
         self._simulation.callbacks.agent_moved.register(self._update)
         self._simulation.callbacks.agent_removed.register(self._update)
 
+        # Set flag.
+        self._initialized = True
+
     def get_neighbour_coordinates(self, pos):
+        # Check flag.
+        if not self._initialized:
+            raise utility.IndexInitializationException()
+        
+        # Check type.
         if type(pos) != np.ndarray or pos.shape != (2,):
             raise TypeError
         
@@ -76,11 +86,15 @@ class GridIndex(Index):
         
         found = self._grid.get((pos[0], pos[1]))
         if found is None:
-            return None
+            return list()
         else:
             return list(found)
 
     def get_inhabitants(self, pos):
+        # Check flag.
+        if not self._initialized:
+            raise utility.IndexInitializationException()
+        
         # Check if input is iterable and NOT a single ndarray (which happens to also be iterable).
         try:
             iter(pos)
@@ -93,6 +107,11 @@ class GridIndex(Index):
 
 
     def get_neighbours(self, pos):
+        # Check flag.
+        if not self._initialized:
+            raise utility.IndexInitializationException()
+        
+        # Check type.
         if type(pos) != np.ndarray or pos.shape != (2,):
             raise TypeError
         

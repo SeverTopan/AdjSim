@@ -140,6 +140,15 @@ class MissingAttributeException(Exception):
 
     def __init__(self):
         super().__init__(MissingAttributeException.MESSAGE)
+
+class IndexInitializationException(Exception):
+
+    MESSAGE = """The index has not been initialized prior to invocation of a query.
+    
+        Please call the index's 'initialize' method before querying it."""
+
+    def __init__(self):
+        super().__init__(IndexInitializationException.MESSAGE)
 #-------------------------------------------------------------------------------
 # Exposed Functions
 #-------------------------------------------------------------------------------

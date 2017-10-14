@@ -122,6 +122,4 @@ def test_exponential_agent_type_count():
     common.step_simulate_interpolation(test_sim)
 
     assert test_sim.trackers["count"].data[TestAgent] == [2**i for i in range(common.INTERPOLATION_NUM_TIMESTEP + 1)]
-
-
     
