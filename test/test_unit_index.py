@@ -10,13 +10,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 @pytest.mark.parametrize("grid_size", [1, 5, 7, 12, 17])
 def test_grid_trivial(grid_size):
-    from adjsim import simulation, analysis, decision
+    from adjsim import core, analysis, decision
 
-    class TestAgent(simulation.SpatialAgent):
+    class TestAgent(core.SpatialAgent):
         def __init__(self, pos):
             super().__init__(pos=pos)
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
 
     test_sim.agents.add(TestAgent(np.array([0,0])*grid_size))
     test_sim.agents.add(TestAgent(np.array([0,1])*grid_size))
@@ -33,13 +33,13 @@ def test_grid_trivial(grid_size):
 
 @pytest.mark.parametrize("grid_size", [1, 5, 7, 12, 17])
 def test_grid_add_agent(grid_size):
-    from adjsim import simulation, analysis, decision
+    from adjsim import core, analysis, decision
 
-    class TestAgent(simulation.SpatialAgent):
+    class TestAgent(core.SpatialAgent):
         def __init__(self, pos):
             super().__init__(pos=pos)
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
 
     test_sim.indices.grid.initialize(grid_size)
     test_sim.agents.add(TestAgent(np.array([0,0])*grid_size))
@@ -55,13 +55,13 @@ def test_grid_add_agent(grid_size):
 
 @pytest.mark.parametrize("grid_size", [1, 5, 7, 12, 17])
 def test_grid_remove(grid_size):
-    from adjsim import simulation, analysis, decision
+    from adjsim import core, analysis, decision
 
-    class TestAgent(simulation.SpatialAgent):
+    class TestAgent(core.SpatialAgent):
         def __init__(self, pos):
             super().__init__(pos=pos)
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
 
     test_sim.agents.add(TestAgent(np.array([0,0])*grid_size))
     test_sim.agents.add(TestAgent(np.array([0,1])*grid_size))
@@ -83,18 +83,18 @@ def test_grid_remove(grid_size):
 
 @pytest.mark.parametrize("grid_size", [1, 5, 7, 12, 17])
 def test_grid_move(grid_size):
-    from adjsim import simulation, analysis, decision
+    from adjsim import core, analysis, decision
 
     def move(simulation, source):
         source.y += grid_size
 
-    class TestAgent(simulation.SpatialAgent):
+    class TestAgent(core.SpatialAgent):
         def __init__(self, pos):
             super().__init__(pos=pos)
             self.decision = decision.RandomSingleCastDecision()
             self.actions["move"] = move
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
 
     test_sim.agents.add(TestAgent(np.array([0,0])*grid_size))
     test_sim.agents.add(TestAgent(np.array([1,0])*grid_size))

@@ -8,24 +8,24 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 
 def test_trivial():
-    from adjsim import simulation, utility, decision
+    from adjsim import core, utility, decision
 
-    class TrivialAgent(simulation.Agent):
+    class TrivialAgent(core.Agent):
         def __init__(self):
             super().__init__()
             self.decision = decision.RandomSingleCastDecision()
 
-    class TrivialSpatialAgent(simulation.SpatialAgent):
+    class TrivialSpatialAgent(core.SpatialAgent):
         def __init__(self):
             super().__init__()
             self.decision = decision.RandomSingleCastDecision()
 
-    class TrivialVisualAgent(simulation.VisualAgent):
+    class TrivialVisualAgent(core.VisualAgent):
         def __init__(self):
             super().__init__()
             self.decision = decision.RandomSingleCastDecision()
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
     test_sim.agents.add(TrivialAgent())
     test_sim.agents.add(TrivialSpatialAgent())
     test_sim.agents.add(TrivialVisualAgent())
@@ -33,27 +33,27 @@ def test_trivial():
     common.step_simulate_interpolation(test_sim)
 
 def test_invalid_type():
-    from adjsim import simulation, utility
+    from adjsim import core, utility
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
 
     with pytest.raises(utility.InvalidAgentException):
         test_sim.agents.add({"I'm not valid!"})
 
 
 def test_agent_add():
-    from adjsim import simulation, analysis, decision
+    from adjsim import core, analysis, decision
 
     def increment_agents(env, source):
         env.agents.add(TestAgent()) 
 
-    class TestAgent(simulation.Agent):
+    class TestAgent(core.Agent):
         def __init__(self):
             super().__init__()
             self.actions["increment"] = increment_agents
             self.decision = decision.RandomSingleCastDecision()
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
     test_sim.agents.add(TestAgent())
 
     common.step_simulate_interpolation(test_sim)
@@ -61,18 +61,18 @@ def test_agent_add():
     assert len(test_sim.agents) == 2**common.INTERPOLATION_NUM_TIMESTEP
 
 def test_agent_remove():
-    from adjsim import simulation, analysis, decision
+    from adjsim import core, analysis, decision
 
     def decrement_agents(env, source):
         env.agents.remove(source)
 
-    class TestAgent(simulation.Agent):
+    class TestAgent(core.Agent):
         def __init__(self):
             super().__init__()
             self.actions["decrement"] = decrement_agents
             self.decision = decision.RandomSingleCastDecision()
 
-    test_sim = simulation.Simulation()
+    test_sim = core.Simulation()
     for _ in range(20):
         test_sim.agents.add(TestAgent())
 

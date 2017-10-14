@@ -10,7 +10,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from adjsim import decision, simulation, utility, color
+from adjsim import decision, core, utility, color
 
 # CONSTANTS
 GRAV_CONSTANT = 6.674e-11
@@ -53,7 +53,7 @@ def gravity(simulation, source):
     source.step_complete = True
 
 
-class Jupiter(simulation.VisualAgent):
+class Jupiter(core.VisualAgent):
     def __init__(self):
         super().__init__()
         self.vel = np.array([0., 0.])
@@ -63,7 +63,7 @@ class Jupiter(simulation.VisualAgent):
         self.size = 10
         self.color = color.ORANGE
 
-class Io(simulation.VisualAgent):
+class Io(core.VisualAgent):
     def __init__(self):
         super().__init__()
         self.vel = np.array([0., 17.38e3])
@@ -73,7 +73,7 @@ class Io(simulation.VisualAgent):
         self.size = 3
         self.color = color.GREY
 
-class Europa(simulation.VisualAgent):
+class Europa(core.VisualAgent):
     def __init__(self):
         super().__init__()
         self.vel = np.array([0., 13.7e3])
@@ -83,7 +83,7 @@ class Europa(simulation.VisualAgent):
         self.size = 3
         self.color = color.BLUE_LIGHT
 
-class Ganymede(simulation.VisualAgent):
+class Ganymede(core.VisualAgent):
     def __init__(self):
         super().__init__()
         self.vel = np.array([0., 10.88e3])
@@ -93,7 +93,7 @@ class Ganymede(simulation.VisualAgent):
         self.size = 5
         self.color = color.RED_DARK
 
-class Callisto(simulation.VisualAgent):
+class Callisto(core.VisualAgent):
     def __init__(self):
         super().__init__()
         self.vel = np.array([0., 8.21e3])
@@ -103,13 +103,13 @@ class Callisto(simulation.VisualAgent):
         self.size = 4
         self.color = color.BROWN_LIGHT
 
-class Physics(simulation.Agent):
+class Physics(core.Agent):
     def __init__(self):
         super().__init__()
         self.actions["gravity"] = gravity
         self.decision = decision.RandomSingleCastDecision()
 
-class JupiterMoonSystemSimulation(simulation.VisualSimulation):
+class JupiterMoonSystemSimulation(core.VisualSimulation):
     def __init__(self):
         super().__init__()
         self.agents.add(Physics())

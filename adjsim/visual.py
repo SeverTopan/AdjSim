@@ -9,7 +9,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import numpy as np
 
 # local
-from . import simulation
+from . import core
 from . import analysis
 
 ANIMATION_DURATION = 200

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 # third party
 import numpy as np
-from adjsim import simulation, utility, decision, analysis, color
+from adjsim import core, utility, decision, analysis, color
 
 
 # CONSTANTS
@@ -18,7 +18,7 @@ EAT_DIST_SQUARE = 150
 MOVE_DIST = 20
 
 
-class Bacteria(simulation.VisualAgent):
+class Bacteria(core.VisualAgent):
     def __init__(self, pos, decision_):
         super().__init__()
 
@@ -40,7 +40,7 @@ class Bacteria(simulation.VisualAgent):
         self.actions["wait"] = wait
         
 
-class Yogurt(simulation.VisualAgent):
+class Yogurt(core.VisualAgent):
     def __init__(self, pos):
         super().__init__()
 
@@ -143,7 +143,7 @@ def end_condition(simulation):
     return num_predators == 0
 
 
-class BacteriaTrainSimulation(simulation.Simulation):
+class BacteriaTrainSimulation(core.Simulation):
     def __init__(self):
         super().__init__()
 
@@ -165,7 +165,7 @@ class BacteriaTrainSimulation(simulation.Simulation):
                 self.agents.add(Yogurt(np.array([5*i, 5*j + 50], dtype=np.float)))
 
 
-class BacteriaTestSimulation(simulation.VisualSimulation):
+class BacteriaTestSimulation(core.VisualSimulation):
     def __init__(self):
         super().__init__()
 

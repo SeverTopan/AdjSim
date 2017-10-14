@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from . import simulation
+from . import core
 
 class Index(object):
     pass
@@ -25,7 +25,7 @@ class GridIndex(Index):
 
         for agent in self._simulation.agents:
             # Only iterate over derived of SpatialAgent
-            if not issubclass(type(agent), simulation.SpatialAgent):
+            if not issubclass(type(agent), core.SpatialAgent):
                 continue
 
             inquiry_array = np.floor(agent.pos/grid_size)*grid_size
@@ -101,7 +101,7 @@ class GridIndex(Index):
 
     def _update(self, agent):
         # We only care if the agent is spatial.
-        if not issubclass(type(agent), simulation.SpatialAgent):
+        if not issubclass(type(agent), core.SpatialAgent):
             return
 
         inquiry_array = self._agent_mapping.get(agent)

@@ -8,7 +8,7 @@ import numpy as np
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-from adjsim import simulation, utility, decision, color
+from adjsim import core, utility, decision, color
 
 
 ARENA_BOUND = 100
@@ -49,7 +49,7 @@ def tag(simulation, source):
     source.order = 0
     source.color = color.BLUE_DARK
 
-class Tagger(simulation.VisualAgent):
+class Tagger(core.VisualAgent):
 
     def __init__(self, x, y, is_it):
         super().__init__()
@@ -66,7 +66,7 @@ class Tagger(simulation.VisualAgent):
             self.order = 1
 
 
-class TaggerSimulation(simulation.VisualSimulation):
+class TaggerSimulation(core.VisualSimulation):
 
     def __init__(self):
         super().__init__()

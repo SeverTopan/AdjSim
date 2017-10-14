@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 # third party
 import numpy as np
-from adjsim import simulation, utility, decision, color
+from adjsim import core, utility, decision, color
 
 
 # CONSTANTS
@@ -21,7 +21,7 @@ EAT_DIST_SQUARE = 150
 MOVE_DIST = 20
 
 
-class Predator(simulation.VisualAgent):
+class Predator(core.VisualAgent):
     def __init__(self, pos):
         super().__init__()
 
@@ -40,7 +40,7 @@ class Predator(simulation.VisualAgent):
         self.actions["wait"] = wait
 
 
-class Prey(simulation.VisualAgent):
+class Prey(core.VisualAgent):
     def __init__(self, pos):
         super().__init__()
 
@@ -107,7 +107,7 @@ def wait(simulation, source):
     source.step_complete = True
 
 
-class PredatorPreySimulation(simulation.VisualSimulation):
+class PredatorPreySimulation(core.VisualSimulation):
     def __init__(self):
         super().__init__()
         thetaValues = [x*0.2 for x in range(1, 32)]

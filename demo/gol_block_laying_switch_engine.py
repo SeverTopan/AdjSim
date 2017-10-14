@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 # third party
 from PyQt5 import QtGui, QtCore
 import numpy as np
-from adjsim import simulation, utility, decision, analysis, color
+from adjsim import core, utility, decision, analysis, color
 
 
 # CONSTANTS
@@ -62,19 +62,19 @@ def compute(simulation, source):
         simulation.agents.add(Cell(array))
         
 
-class Cell(simulation.VisualAgent):
+class Cell(core.VisualAgent):
     def __init__(self, pos):
         super().__init__(pos=pos)
         self.size = 5
 
-class Meta(simulation.Agent):
+class Meta(core.Agent):
     def __init__(self):
         super().__init__()
 
         self.actions["compute"] = compute
         self.decision = decision.RandomSingleCastDecision()
 
-class GameOfLife(simulation.VisualSimulation):
+class GameOfLife(core.VisualSimulation):
     def __init__(self):
         super().__init__()
 
