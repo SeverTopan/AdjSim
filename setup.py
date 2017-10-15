@@ -9,7 +9,7 @@ if sys.version_info < (3,5):
 setup(name='adjsim',
       version='2.0.0',
       description='An Agent Based Modelling Engine tailored for Reinforcement Learning.',
-      long_description=open('README.md', 'r').read(),
+      long_description=open('README.rst', 'r').read(),
       url='https://github.com/SeverTopan/AdjSim',
       author='Sever Topan',
       packages=['adjsim'],
