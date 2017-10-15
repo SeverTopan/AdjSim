@@ -14,17 +14,17 @@ At its core, AdjSim is an agent-based modelling engine. It allows users to defin
 
 ### Graphical Simulation Representation
 
-The simulation can be viewed in real time as it unfolds, with graphics are rendered and animated using PyQt5. Below are  four of the distinct demos packadged with AdjSim, ranging from bacteria to moon system simulation.
+The simulation can be viewed in real time as it unfolds, with graphics are rendered and animated using PyQt5. Below are  four of the distinct examples packadged with AdjSim, ranging from bacteria to moon system simulation.
 
- | ![Bacteria Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_bacteria.png)| ![Predator Prey Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey.png) |
+ | ![Bacteria Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_bacteria.png)| ![Predator Prey Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_predator_prey.png) |
 |:-------------:|:-------------:|
-| ![GOL Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_game_of_life.png) | ![Jupiter Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_jupiter_moon_system.png) |
+| ![GOL Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_game_of_life.png) | ![Jupiter Demo](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_jupiter_moon_system.png) |
 
 ### Post Simulation Analysis Tools
 
 Agent properties can be marked for tracking during simulation, allowing for viewing the results of these values once the simulation completes. For example, we can track the population of each different type of agent, or the efficacy of the agent's ability to meet its intelligence module-defined goals.
 
-| ![QLearning Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_individual_learning.png)| ![Predator Prey Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey_population.png) |
+| ![QLearning Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_individual_learning.png)| ![Predator Prey Graph](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_predator_prey_population.png) |
 |:-------------:|:-------------:|
 
 ### Intelligence Module

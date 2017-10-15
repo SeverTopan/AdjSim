@@ -27,7 +27,7 @@ Graphical Simulation Representation
 
 The simulation can be viewed in real time as it unfolds, with graphics
 are rendered and animated using PyQt5. Below are four of the distinct
-demos packadged with AdjSim, ranging from bacteria to moon system
+examples packadged with AdjSim, ranging from bacteria to moon system
 simulation.
 
 +-------------------+------------------------+
@@ -69,9 +69,9 @@ Currently the intelligence module implements
    :target: https://coveralls.io/github/SeverTopan/AdjSim?branch=master
 .. |License: GPL v3| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
    :target: https://www.gnu.org/licenses/gpl-3.0
-.. |Bacteria Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_bacteria.png
-.. |Predator Prey Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey.png
-.. |GOL Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_game_of_life.png
-.. |Jupiter Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_jupiter_moon_system.png
-.. |QLearning Graph| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_individual_learning.png
-.. |Predator Prey Graph| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/demo/images/readme_predator_prey_population.png
+.. |Bacteria Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_bacteria.png
+.. |Predator Prey Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_predator_prey.png
+.. |GOL Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_game_of_life.png
+.. |Jupiter Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_jupiter_moon_system.png
+.. |QLearning Graph| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_individual_learning.png
+.. |Predator Prey Graph| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_predator_prey_population.png
