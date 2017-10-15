@@ -10,9 +10,6 @@ import os
 
 # Third party.
 import numpy as np
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from adjsim import core, utility, decision, color
 
 # Constants.

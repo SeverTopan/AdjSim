@@ -6,8 +6,6 @@ import numpy as np
 
 from . import common
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 @pytest.mark.parametrize("mutable_min,mutable_max", [(0, 1), (0, 7), (-7, 0),(300, 400) ])
 def test_qlearning_basic(mutable_min, mutable_max):
     from adjsim import core, utility, decision

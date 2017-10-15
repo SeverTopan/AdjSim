@@ -2,8 +2,6 @@
 # standard
 import random, math, sys, os
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 
 # third party
 import numpy as np

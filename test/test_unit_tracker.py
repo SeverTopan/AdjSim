@@ -4,8 +4,6 @@ import pytest
 
 from . import common
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 def test_valid():
     from adjsim import core, analysis, utility
 

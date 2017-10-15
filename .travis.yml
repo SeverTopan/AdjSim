@@ -5,7 +5,6 @@ python:
 install:
     - pip install coveralls pytest pytest-cov
     - pip install -e .
-    - python setup.py install
 
 before_script:
   - "export DISPLAY=:99.0"
