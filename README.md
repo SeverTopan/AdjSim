@@ -47,7 +47,7 @@ Make sure Python 3.5 or 3.6 is installed, then create a new environment with it.
     conda create --name adjsim python=3.6
     activate adjsim
 
-### Install Usin Pip (Recommended)
+### Install Using Pip (Recommended)
 
 Invoke pip. This works with either of the above virtual environments.
 
