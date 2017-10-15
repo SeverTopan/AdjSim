@@ -29,7 +29,7 @@ def test_invalid_too_many_arguments():
     test_sim = core.Simulation()
     test_sim.trackers["count"] = InvalidTracker()
 
-    with pytest.raises(utility.InvalidTrackerException):
+    with pytest.raises(utility.TrackerException):
         common.step_simulate_interpolation(test_sim)
 
 
@@ -43,7 +43,7 @@ def test_invalid_too_few_arguments():
     test_sim = core.Simulation()
     test_sim.trackers["count"] = InvalidTracker()
 
-    with pytest.raises(utility.InvalidTrackerException):
+    with pytest.raises(utility.TrackerException):
         common.step_simulate_interpolation(test_sim)
 
 def test_invalid_data():
@@ -59,7 +59,7 @@ def test_invalid_data():
     test_sim = core.Simulation()
     test_sim.trackers["count"] = InvalidTracker()
 
-    with pytest.raises(utility.InvalidTrackerException):
+    with pytest.raises(utility.TrackerException):
         common.step_simulate_interpolation(test_sim)
 
 
@@ -68,7 +68,7 @@ def test_invalid_type():
 
     test_sim = core.Simulation()
 
-    with pytest.raises(utility.InvalidTrackerException):
+    with pytest.raises(utility.TrackerException):
         test_sim.trackers["count"] = lambda x: 0
 
 

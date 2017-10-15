@@ -1,21 +1,28 @@
+"""Core AdjSim Module.
 
-# standard
+This module contains the core features of the ABM engine, specifically, the Simulation and Agent objects
+and the facilities to allow them to interact with one another.
+
+Designed and developed by Sever Topan.
+"""
+
+# Standard.
 import sys
 import time
 import random
 
-# third party
+# Third party.
 from PyQt5 import QtGui, QtCore, QtWidgets
 import numpy as np
 
-# local
+# Local.
 from . import core
 from . import analysis
 
 ANIMATION_DURATION = 200
 
 class AdjThread(QtCore.QThread):
-
+    """PyQt must run on the main thread, so we use this thread to run the simulation"""
     update_signal = QtCore.pyqtSignal(object)
 
     def __init__(self, app, simulation, simulation_length=None):
@@ -25,6 +32,7 @@ class AdjThread(QtCore.QThread):
         self.simulation_length = simulation_length
 
     def run(self):
+        """Run the simulation upon thread initialization."""
         self.simulation._super_step(self.simulation_length)
 
 class AgentEllipseAdapter(QtCore.QObject):
@@ -67,7 +75,7 @@ class AgentEllipseAdapter(QtCore.QObject):
 
 
 class AgentEllipse(QtWidgets.QGraphicsEllipseItem):
-    """docstring for AgentEllipse."""
+    """The Ellipse that represents the visual agents."""
 
     def __init__(self, agent, scene):
         QtWidgets.QGraphicsEllipseItem.__init__(self, 0, 0, 0, 0)
@@ -82,13 +90,15 @@ class AgentEllipse(QtWidgets.QGraphicsEllipseItem):
         self.setPos(agent.x, agent.y)
 
     def hoverEnterEvent(self, event):
+        # TODO.
         pass
 
     def hoverLeaveEvent(self, event):
+        # TODO.
         pass
 
 class AdjGraphicsView(QtWidgets.QGraphicsView):
-    """docstring for GraphicsView."""
+    """The Graphics View of the Visual Simulation."""
 
     def __init__(self, screen_geometry, update_semaphore):
         QtWidgets.QGraphicsView.__init__(self)
@@ -117,7 +127,11 @@ class AdjGraphicsView(QtWidgets.QGraphicsView):
 
     @QtCore.pyqtSlot(object)
     def update(self, agent_set):
+        """The Visual update method, called after each timestep.
 
+        Args:
+            agent_set (list): The list of VisualAgent objects that will be rendered.
+        """
         # begin update function
         del self.animations
         self.animations = QtCore.QParallelAnimationGroup()

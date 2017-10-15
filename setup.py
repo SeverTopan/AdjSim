@@ -1,7 +1,5 @@
-#-------------------------------------------------------------------------------
-# ADJECOSYSTEM SIMULATION FRAMEWORK
-# Designed and developed by Sever Topan
-#-------------------------------------------------------------------------------
+"""Setup"""
+
 from setuptools import setup
 import sys
 
@@ -9,7 +7,7 @@ if sys.version_info < (3,5):
     sys.exit('Python < 3.5 is not supported')
 
 setup(name='adjsim',
-      version='0.2.0',
+      version='2.0.0',
       description='A clever agent based modelling engine',
       long_description=open('README.md', 'r').read(),
       author='Sever Topan',

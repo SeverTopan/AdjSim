@@ -29,7 +29,7 @@ def test_invalid_type():
     agent = core.Agent()
     agent.decision = decision.RandomSingleCastDecision()
 
-    with pytest.raises(utility.InvalidActionException):
+    with pytest.raises(utility.ActionException):
         agent.actions["trivial"] = action
 
 def test_invalid_decision():
@@ -44,7 +44,7 @@ def test_invalid_decision():
     test_sim = core.Simulation()
     test_sim.agents.add(agent)
 
-    with pytest.raises(utility.InvalidDecisionException):
+    with pytest.raises(utility.DecisionException):
         common.step_simulate_interpolation(test_sim)
 
 
@@ -60,7 +60,7 @@ def test_invalid_too_few_arguments():
     test_sim = core.Simulation()
     test_sim.agents.add(agent)
 
-    with pytest.raises(utility.InvalidActionException):
+    with pytest.raises(utility.DecisionException):
         common.step_simulate_interpolation(test_sim)
 
 def test_invalid_too_many_arguments():
@@ -75,7 +75,7 @@ def test_invalid_too_many_arguments():
     test_sim = core.Simulation()
     test_sim.agents.add(agent)
 
-    with pytest.raises(utility.InvalidActionException):
+    with pytest.raises(utility.DecisionException):
         common.step_simulate_interpolation(test_sim)
 
 

@@ -1,38 +1,67 @@
+"""Analysis module.
+
+This module contains trackers, which are used to extract data from the simulation at
+simulation runtime.
+
+Designed and developed by Sever Topan.
 """
 
-"""
 
-
-# third party
+# Third Party.
 from matplotlib import pyplot
 import numpy as np
 
-# local
+# Local.
 from . import decision
 from . import utility 
 
 class Tracker(object):
+    """The abstract base tracker object. Trackers used to analyze the simulation.
+
+    All trackers must derive from this object. Trackers obtain data from the simulation after each
+    iteration and must store the obtained data in their data attribute. This is done by implementing the
+    __call__ method, and storing relevant data from the call method into the tracker's data attribute.
+
+    Attributes:
+        data (object): the data to store in the tracker.
+    """
 
     def __init__(self):
         self.data = None
 
     def __call__(self, simulation):
+        """Tracks data from the simulation.
+        
+        This functor call method is called after each simulation step. Desired data must be stored into
+        the tracker's data attribute.
+
+        Args:
+            simulation (Simulation): The simulation to track.
+        """
         return NotImplementedError
 
     def plot(self):
+        """Plots the data attribute using pyplot."""
         return NotImplementedError
 
 
 class AgentCountTracker(Tracker):
+    """Counts the number of agents at each timestep.
+
+    Attributes:
+        data (list): The number of agents at each timestep.
+    """
 
     def __init__(self):
         super().__init__()
         self.data = []
 
     def __call__(self, simulation):
+        """Tracks the number of agents in the simulation."""
         self.data.append(len(simulation.agents))
 
     def plot(self):
+        """Plots the data attribute using pyplot."""
         pyplot.style.use('ggplot')
 
         line, = pyplot.plot(self.data, label="Global Agent Count")
@@ -46,12 +75,18 @@ class AgentCountTracker(Tracker):
         pyplot.show()
 
 class AgentTypeCountTracker(Tracker):
+    """Counts the number of agents at each timestep by type.
 
+    Attributes:
+        data (dict): The number of agents at each timestep, organized 
+            by type entries in this dictionary.
+    """
     def __init__(self):
         super().__init__()
         self.data = {}
 
     def __call__(self, simulation):
+        """Tracks the number of agents in the simulation by type."""
         # Update the count of all known types to the current timestep.
         # This handles the case where population dips to zero for a known type.
         for agent_type_count in self.data.values():
@@ -68,6 +103,7 @@ class AgentTypeCountTracker(Tracker):
 
             
     def plot(self):
+        """Plots the data attribute using pyplot."""
         pyplot.style.use('ggplot')
 
         for agent_type, agent_type_count in self.data.items():

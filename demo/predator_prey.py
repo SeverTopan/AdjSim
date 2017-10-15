@@ -1,16 +1,22 @@
+"""Predator-Prey Simulation.
 
-# standard
+This simulation exemplifies predator-prey relationships
+(https://globalchange.umich.edu/globalchange1/current/lectures/predation/predation.html).
+The Prey photosynthesizes its calories while predators must approach prey and consume them.
+"""
+
+# Standard.
 import random, math, sys, os
+
+# Third party.
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-
-# third party
-import numpy as np
 from adjsim import core, utility, decision, color
 
 
-# CONSTANTS
+# Constants.
 MOVEMENT_COST = 8
 PHOTOSYNTHESIS_AMOUNT = 15
 PHOTOSYNTHESIS_BLOCK_RANGE = 5

@@ -1,16 +1,21 @@
+"""Tag Game Simulation.
+
+One of the most simple simulations. One Agent is "it" and can transfer the state of being "it" to 
+other agents by taggeing them. Agent count remains constant.
 """
-    
-"""
+
+# Standard.
 import sys
 import os
+
+# Third party.
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-
 from adjsim import core, utility, decision, color
 
-
+# Constants.
 ARENA_BOUND = 100
 TAG_DIST_SQUARE = 100
 MOVE_DIST = 20
@@ -21,10 +26,10 @@ def move(simulation, source):
     source.step_complete = True
 
 def tag(simulation, source):  
-
     if not source.is_it:
         return
 
+    # Find nearest neighbour.
     closest_distance = sys.float_info.max
     nearest_neighbour = None
     for agent in simulation.agents:
@@ -39,9 +44,9 @@ def tag(simulation, source):
     if closest_distance > TAG_DIST_SQUARE:
         return
 
-
     assert nearest_neighbour
 
+    # Perform Tag.
     nearest_neighbour.is_it = True
     nearest_neighbour.color = color.RED_DARK
     nearest_neighbour.order = 1

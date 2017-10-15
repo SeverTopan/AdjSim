@@ -1,5 +1,14 @@
+"""Color module.
+
+Contains color constants for visual simulations.
+
+Designed and developed by Sever Topan.
+"""
+
+# Third party. 
 from PyQt5 import QtGui
 
+# Constants.
 RED_LIGHT = QtGui.QColor('#ff6961')
 RED_DARK = QtGui.QColor('#c23b22')
 BLUE_LIGHT = QtGui.QColor('#aec6cf')

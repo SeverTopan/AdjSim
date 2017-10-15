@@ -10,7 +10,7 @@ A simulation framework. Intended for simulation of ecosystems.
 
 ### Engine
 
-At its core, AdjSim is an agent-based modelling engine. It allows users to define simulation environments through which agents interact through ability casting and timestep iteration. The framework is targeted towards agents that behave intelligently, for example a bacterium chasing down food. However, the framework is extremely flexible - from enabling physics simulation to defining an environment in which [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) plays out!
+At its core, AdjSim is an agent-based modelling engine. It allows users to define simulation environments through which agents interact through ability casting and timestep iteration. The framework is targeted towards agents that behave intelligently, for example a bacterium chasing down food. However, the framework is extremely flexible - from enabling physics simulation to defining an environment in which [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) plays out! AdjSim aims to be a foundational architecture on top of which reinforcement learning can be built.
 
 ### Graphical Simulation Representation
 
@@ -30,22 +30,6 @@ Agent properties can be marked for tracking during simulation, allowing for view
 ### Intelligence Module
 
 Perhaps the most computationally interesting aspect of AdjSim lies in its intelligence module. It allows agents to set goals (for example, the goal of a bacterium may be to maximize its calories), and assess its actions in terms of its ability to meet its goals. This allows the agents to learn which actions are best used in a given situation. Currently the intelligence module implements [Q-Learning](https://en.wikipedia.org/wiki/Q-learning), but more advanced reinforcement learning techniques are coming soon!
-
-## Current Development State
-
-Currently Implemented Features:
- - Core functionality - agent interaction through ability casting, timestep iterations
- - Core functionality - graphical representation using PyQt5
- - Core functionality - AdjSim Framework interface
-
-Partially Implemented Features:
- - Core functionality - post-simulation analysis tools
- - Core functionality - intelligence module
-
-Planned Features:
- - More test cases!
- - More refined API interface, possibly based on Class overloading
-
 
 ## Installing and Running AdjSim
 
@@ -72,17 +56,5 @@ Install Dependencies.
 Note: If you run into trouble importing PyQt5 when installing using the setup.py file, try using
 
     pip install -e .
-
-## Framework Structure
-
-The goal of this structure is to keep the fundamentals of a simulation in a simple, organized structure that can be used to simulate many different situations. It is essentially up to the writer of the simulation script. I aim to post more test cases to exemplify the versatility of the structure.
-
-**Agents:** The AdjSim environment can be thought of as a file system. The folders in this file system are agents. They are meant to represent a simulation entity, such as an electron, or a bacterium.
-
-**Traits:** AdjSim agents, like folders, contain data via 'traits', which are name - value pairs. Trait values can take on any type, including other agents! The same way a folder can contain another folder, an agent representing a dog can contain separate agents for its legs, body, head and tail.
-
-**Abilities:** Agents interact with each other using abilities. Abilities perform a set of effects when a condition is fulfilled. In the simplest test case provided, a 'bacterium' agent performs an 'eat' ability on a 'yogurt' agent if it is within range. The effects of the ability involve removing the yogurt, and having the bacterium consume the calories contained within the yogurt parcel. Abilities are also traits, and can be added, removed, or modified.
-
-A more detailed description of the Framework structure will be posted soon.
 
 

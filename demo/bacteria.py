@@ -1,16 +1,22 @@
+"""Bacteria Simulation.
 
-# standard
+Implementation of interaction between bacteria which exhibit agency, and static food.
+Bacteria simply must move towards the food and consume it. Bacteria will starve if they run out of 
+calories, and they have the ability to divide.
+"""
+
+# Standard.
 import random, math, sys, os
+
+# Third party.
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-
-# third party
-import numpy as np
 from adjsim import core, utility, decision, analysis, color
 
 
-# CONSTANTS
+# Constants.
 MOVEMENT_COST = 5
 MOVEMENT_BOUND = 70000
 CALORIE_UPPER_BOUND_PREDATOR = 200

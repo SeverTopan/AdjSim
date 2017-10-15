@@ -1,19 +1,22 @@
+"""Conway's Game of Life Simulation.
 
-# standard
+Implementation of Conway's Game of Life (https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
+"""
+
+# Standard.
 import random
 import sys
 import os
 
+# Third party.
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# third party
-from PyQt5 import QtGui, QtCore
-import numpy as np
 from adjsim import core, utility, decision, analysis, color
 
 
-# CONSTANTS
+# Constants.
 CELL_SIZE = 5
 INTIAL_COORDINATES = [(0,0),                          # 1st column
                     (2,0),(2,1),                    # 2nd column

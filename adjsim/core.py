@@ -1,15 +1,23 @@
-# standard
+"""Core adjsim module.
+
+This module contains the core features of the ABM engine, specifically, the Simulation and Agent objects
+and the facilities to allow them to interact with one another.
+
+Designed and developed by Sever Topan.
+"""
+
+# Standard.
 import random
 import time
 import sys
 import uuid
 import copy
 
-# third party
+# Third party.
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np
 
-# local
+# Local.
 from . import utility
 from . import analysis
 from . import visual
@@ -19,27 +27,52 @@ from . import index
 from . import callback
 
 class _ActionSuite(utility.InheritableDict):
+    """Container for Actions. May only store callables.
+
+    This object behaves through the same interface as a python 
+    dictionary.
+    """
 
     def __setitem__(self, key, value):
+        """Adds an item to the action suite."""
         if not callable(value):
-            raise utility.InvalidActionException
+            raise utility.ActionException
 
         self._data[key] = value
 
 class Agent(object):
-    """docstring for Agent."""
+    """The base Agent class. 
+    
+    All agents added to a simulation must be derived from this.
+
+    Attributes:
+        actions (_ActionSuite): The _ActionSuite container that holds all actions.
+        decision (decision.Decision): The decision object that the agent will use to determine action invocation.
+        order (int): The order in which this agent will take its step relative to others. Equal orders result in
+            no step order guarantee.
+        step_complete (bool): whether or not the agent has completed its step.
+    """
 
     def __init__(self):
         self.actions = _ActionSuite()
         self.decision = decision.NoCastDecision()
         self.order = 0
-        self.id = uuid.uuid4()
         self.step_complete = False
         
         self._exists = True
+        self._id = uuid.uuid4()        
+
+    @property
+    def id(self):
+        """ uuid: A unique identifier for the agent. Read-only."""
+        return self._id
 
 class SpatialAgent(Agent):
-    """
+    """The Spatial Agent class. 
+    
+    Builds upon Agent to incorporate 2d spatial coordinates representing the agent's position.
+    Any agent that desires to have the movement callback invoked when position is changed should
+    inherit from this class.
     """
 
     DEFAULT_POS = np.array([0, 0])
@@ -55,6 +88,7 @@ class SpatialAgent(Agent):
 
     @property
     def pos(self):
+        """np.ndarray: Obtains agent position. The returned array is NOT writeable."""
         return self._pos
 
     @pos.setter
@@ -75,6 +109,7 @@ class SpatialAgent(Agent):
 
     @property
     def x(self):
+        """int: Obtains agent's x-coordinate."""
         return self.pos[0]
 
     @x.setter
@@ -83,6 +118,7 @@ class SpatialAgent(Agent):
 
     @property
     def y(self):
+        """int: Obtains agent's y-coordinate."""
         return self.pos[1]
 
     @y.setter
@@ -91,7 +127,16 @@ class SpatialAgent(Agent):
 
 
 class VisualAgent(SpatialAgent):
-    """docstring for Agent."""
+    """The Visual Agent class. 
+    
+    Builds upon SpatialAgent to allow for agents to be visualized when simulated with a VisualSimulation.
+    Visual agents appear as circles with visual properties delineated by this class's attributes.
+
+    Attributes:
+        size (int): The size of the visualized agent.
+        color (QtGui.QColor): The color of the visualized agent.
+        style (QtCore.Qt.Pattern): The pattern of the visualized agent.
+    """
 
     DEFAULT_SIZE = 10
     DEFAULT_COLOR = color.BLUE_DARK
@@ -105,6 +150,14 @@ class VisualAgent(SpatialAgent):
         self.style = style
 
 class _AgentSuite(utility.InheritableSet):
+    """Container for agents. May only store objects derived from Agent.
+
+    This object behaves through the same interface as a python set. 
+    One additional function is provided to obtain a set copy for use in visualization.
+
+    Attributes:
+        callback_suite (_CallbackSuite): Reference to the simulation callback suite.
+    """
 
     def __init__(self, callback_suite):
         super().__init__()
@@ -113,6 +166,7 @@ class _AgentSuite(utility.InheritableSet):
         self.callback_suite = callback_suite
 
     def add(self, agent):
+        """Adds an item to the agent suite."""
         if not issubclass(type(agent), Agent):
             raise utility.InvalidAgentException
 
@@ -127,6 +181,7 @@ class _AgentSuite(utility.InheritableSet):
         self.callback_suite.agent_added(agent)
 
     def discard(self, value):
+        """Discards an item to the agent suite."""
         # 'Euthanize' and remove agent.
         value._exists = False
         value.step_complete = True
@@ -138,29 +193,52 @@ class _AgentSuite(utility.InheritableSet):
         return return_val
 
     def visual_snapshot(self):
+        """Obtains a copy of the agent suite for visualization.
+        
+        Returns:
+            A set of VisualAgent objects.
+        """
         return_set = set()
 
         for agent in self._data:
             if issubclass(type(agent), VisualAgent):
                 visual_copy = VisualAgent(pos=copy.copy(agent.pos), size=copy.copy(agent.size), 
                                           color=copy.copy(agent.color), style=copy.copy(agent.style))
-                visual_copy.id = copy.copy(agent.id)
+                visual_copy._id = copy.copy(agent.id)
                 return_set.add(visual_copy)
 
         return return_set
 
 
 class _TrackerSuite(utility.InheritableDict):
+    """Container for trackers. May only store objects derived from Tracker.
+
+    This object behaves through the same interface as a python dictionary. 
+    """
 
     def __setitem__(self, key, value):
+        """Adds an item to the tracker suite."""
         try:
             assert issubclass(type(value), analysis.Tracker)
         except:
-            raise utility.InvalidTrackerException
+            raise utility.TrackerException
 
         self._data[key] = value
 
 class _CallbackSuite(object):
+    """Container for callbacks.
+
+    Attributes:
+        agent_added (callback.AgentChangedCallback): Fires when an Agent is added to the agent set.
+        agent_removed (callback.AgentChangedCallback): Fires when an Agent is removed from the agent set.
+        agent_moved (callback.AgentChangedCallback): Fires when a SpatialAgent's pos attribute is set.
+        simulation_step_started (callback.SimulationMilestoneCallback): Fires when a Simulation step is started.
+        simulation_step_complete (callback.SimulationMilestoneCallback): Fires when a Simulation step is ended.
+        simulation_started (callback.SimulationMilestoneCallback): Fires when the Simulation starts.
+        simulation_complete (callback.SimulationMilestoneCallback): Fires when the Simulation ends.
+        
+    """
+
     def __init__(self):
         # Agent callbacks.
         self.agent_added = callback.AgentChangedCallback()
@@ -174,17 +252,32 @@ class _CallbackSuite(object):
 
 
 class _IndexSuite(object):
+    """Container for indidces.
+    """
+
     def __init__(self, simulation):
         self._grid = index.GridIndex(simulation)
 
     @property
     def grid(self):
+        """Obtain the grid index."""
         return self._grid
 
 
 
 class Simulation(object):
-    """docstring for Environment."""
+    """The base Simulation object.
+
+    This is the core object that is used to run adjsim simulations.
+
+    Attributes:
+        callbacks (_CallbackSuite): The Simulation's callbacks.
+        agents (_AgentSuite): The Simulation's agents.
+        trackers (_TrackerSuite): The Simulation's trackers.
+        indices (_IndexSuite): The Simulation's indices.
+        end_condition (callable): The Simulation's end condition.
+        time (int): The current Simulation time. Reflects step count.
+    """
 
     def __init__(self):
         self.callbacks = _CallbackSuite()
@@ -199,6 +292,7 @@ class Simulation(object):
 
     @staticmethod
     def _print_banner():
+        """Prints the AdjSim Banner."""
         welcomeMessage = "- AdjSim Reinforcement-Learning ABM Engine -"
 
         print("-".rjust(len(welcomeMessage), "-"))
@@ -207,6 +301,12 @@ class Simulation(object):
 
 
     def start(self):
+        """Starts a simulation instance.
+
+        Note:
+            This must be called before a call to the step function. This function triggers the
+            simulation_started callback.
+        """
         if self._running == True:
             raise Exception("Simulation already started.")
 
@@ -217,6 +317,11 @@ class Simulation(object):
 
 
     def end(self):
+        """Ends a simulation instance.
+
+        Note:
+            This function triggers the simulation_ended callback.
+        """
         if self._running == False:
             raise Exception("Simulation already ended.")
 
@@ -227,6 +332,10 @@ class Simulation(object):
 
 
     def _step_single(self):
+        """Performs a single simulation step. 
+        
+        This is where one iteration of the ABM loop occurs.
+        """
         # Perform setup in needed.
         if self.time == 0:
             self._track()
@@ -243,8 +352,8 @@ class Simulation(object):
             # Delegate action casting to decision module.
             try:
                 agent.decision(self, agent)
-            except TypeError:
-                raise utility.InvalidDecisionException
+            except:
+                raise utility.DecisionException
 
             agent.step_complete = False
 
@@ -257,6 +366,14 @@ class Simulation(object):
 
 
     def step(self, num_timesteps=1):
+        """Performs a given number of simulation steps. 
+        
+        Note:
+            This is where ABM loop occurs. This function must be called after the simulation has been started.
+
+        Args:
+            num_timesteps (int): the number of timesteps to simulate.
+        """
         # Check running status.
         if not self._running:
             raise utility.SimulatonWorkflowException()
@@ -273,23 +390,38 @@ class Simulation(object):
                     if self.end_condition(self):
                         break
 
-                except TypeError:
-                    raise utility.InvalidEndConditionException
+                except:
+                    raise utility.EndConditionException
 
     def simulate(self, num_timesteps):
+        """Performs a given number of simulation steps while handling simulation start/end.
+        
+        Note:
+            This convinience method simply calls start, step(num_timesteps), and end.
+
+        Args:
+            num_timesteps (int): the number of timesteps to simulate.
+        """
         self.start()
         self.step(num_timesteps)
         self.end()
 
     def _track(self):
+        """Calls the Simulation's trackers."""
         try:
             for tracker in self.trackers.values():
                 tracker(self)
         except:
-            raise utility.InvalidTrackerException
+            raise utility.TrackerException
 
 
     def _print_simulation_status(self, timestep, num_timesteps):
+        """Prints the simulation status at a given timestep.
+        
+        Args:
+            timestep (int): The current timestep.
+            num_timesteps (int): The total number of timesteps.
+        """
         # Flush previous message.
         sys.stdout.write("\r" + " " * self._prev_print_str_len)
         sys.stdout.flush()
@@ -304,6 +436,11 @@ class Simulation(object):
 
         
 class VisualSimulation(Simulation):
+    """The Visual Simulation object.
+
+    This derivation of the Simulation object uses PyQt5 to render a visual representation
+    of an active simulation.
+    """
 
     def __init__(self):
         super().__init__()
@@ -312,9 +449,15 @@ class VisualSimulation(Simulation):
         self._wait_on_visual_init = 1
 
     def _super_step(self, num_timesteps):
+        """Calls the step method on Simulation base.
+        
+        Args:
+            num_timesteps (int): The number of timesteps to simulate.
+        """
         super().step(num_timesteps)
 
     def _step_single(self):
+        """Visual implementation of single step."""
         # Paint initial frame.
         if self._setup_required:
             self._setup_required = False
@@ -328,6 +471,11 @@ class VisualSimulation(Simulation):
         self._visual_thread.update_signal.emit(self.agents.visual_snapshot())
 
     def step(self, num_timesteps=1):
+        """Perform a given number of visual simulation steps.
+        
+        Args:
+            num_timesteps (int): The number of timesteps to simulate.
+        """
         # Check running status.
         if not self._running:
             raise utility.SimulatonWorkflowException()

@@ -1,14 +1,29 @@
+"""Index module.
 
+This module contains indices for fast lookup of agents given certain properties.
+
+Designed and developed by Sever Topan.
+"""
+
+# Third party.
 import numpy as np
 
+# Local.
 from . import core
 from . import utility
 
 class Index(object):
+    """Base index object."""
     pass
 
 class GridIndex(Index):
+    """An Index that stores agent location based on discrete entries within a grid.
 
+    The grid spans infinite space, and its dimensions are defined by the grid_size paramenter upon 
+    initialization. GridIndex must be initialized before it can be used in a simulation.
+    """
+
+    # Constants.
     NEIGHBOUR_ITERATION_LIST = [[1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1], [0,-1], [1,-1]]
     NEIGHBOUR_ITERATION_ARRAYS = [np.array(i) for i in NEIGHBOUR_ITERATION_LIST]
 
@@ -23,6 +38,11 @@ class GridIndex(Index):
         
 
     def initialize(self, grid_size):
+        """Initialize the index with the given grid size.
+
+        Args:
+            grid_size (int): The size of the grid.
+        """
         self._grid_size = grid_size
 
         for agent in self._simulation.agents:
@@ -49,6 +69,14 @@ class GridIndex(Index):
         self._initialized = True
 
     def get_neighbour_coordinates(self, pos):
+        """Obtain the cells neighbouring a given cell.
+
+        Args:
+            pos (np.ndarray): The query position.
+
+        Returns:
+            A list of 2d np.ndarray objects listing the cells neighbouring a given cell.
+        """
         # Check flag.
         if not self._initialized:
             raise utility.IndexInitializationException()
@@ -68,6 +96,14 @@ class GridIndex(Index):
         return return_list
 
     def _get_inhabitants_list(self, pos):
+        """Obtain a list of all agents agents inhabiting a list of cells.
+
+        Args:
+            pos (list): A list of the positions to query.
+
+        Returns:
+            A list of agents.
+        """
         # Iterate through pos indices.
         return_list = []
         for array in pos:
@@ -81,6 +117,14 @@ class GridIndex(Index):
         return return_list
 
     def _get_inhabitants_single(self, pos):
+        """Obtain a list of all agents agents inhabiting a given cell.
+
+        Args:
+            pos (np.ndarray): The query position.
+
+        Returns:
+            A list of agents.
+        """
         if type(pos) != np.ndarray or pos.shape != (2,):
                 raise TypeError
         
@@ -91,6 +135,15 @@ class GridIndex(Index):
             return list(found)
 
     def get_inhabitants(self, pos):
+        """Obtain a list of all agents agents inhabiting a given cell or a list of cells.
+
+        Args:
+            pos (np.ndarray, list): The query position, or a list of query positions.
+        
+        Returns:
+            A list of agents.
+        """
+
         # Check flag.
         if not self._initialized:
             raise utility.IndexInitializationException()
@@ -107,6 +160,14 @@ class GridIndex(Index):
 
 
     def get_neighbours(self, pos):
+        """Obtain a list of all agents agents inhabiting cells neighbouring a given position.
+
+        Args:
+            pos (np.ndarray, list): The query position.
+
+        Returns:
+            A list of agents.
+        """
         # Check flag.
         if not self._initialized:
             raise utility.IndexInitializationException()
@@ -119,6 +180,11 @@ class GridIndex(Index):
 
 
     def _update(self, agent):
+        """Callback function called upon an agent moving.
+
+        Args:
+            agent (Agent): The agent that moved.
+        """
         # We only care if the agent is spatial.
         if not issubclass(type(agent), core.SpatialAgent):
             return

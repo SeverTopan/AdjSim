@@ -35,7 +35,7 @@ def test_invalid_end_condition():
     test_sim = core.Simulation()
     test_sim.end_condition = True
 
-    with pytest.raises(utility.InvalidEndConditionException):
+    with pytest.raises(utility.EndConditionException):
         common.step_simulate_interpolation(test_sim)
 
 

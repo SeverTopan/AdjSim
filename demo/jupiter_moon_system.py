@@ -1,18 +1,21 @@
+"""Jupiter Moon System Simulation.
 
-# IMPORTS
-# standard
+Exemplifies implementation of physics into adjsim.
+"""
+
+# Standard.
 import random
 import sys
 import os
 
-# third party
+# Third party.
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from adjsim import decision, core, utility, color
 
-# CONSTANTS
+# Constants.
 GRAV_CONSTANT = 6.674e-11
 TIMESTEP_LENGTH = 10000
 DISTANCE_MULTIPLIER = 10000000
