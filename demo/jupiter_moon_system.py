@@ -21,13 +21,10 @@ DISTANCE_MULTIPLIER = 10000000
 def gravity(simulation, source):
     # We need an ordering guarantee in the set traversal, so we list it.
     agent_list = list(simulation.agents)
+    agent_list.remove(source)
 
     # Reset acceleration.
     for agent in agent_list:
-        if agent == source:
-            agent_list.remove(agent)
-            continue
-
         agent.acc = np.array([0., 0.])
 
     # Calculate new accelleration.
@@ -47,10 +44,6 @@ def gravity(simulation, source):
 
     # Calculate velocity and position
     for agent in agent_list:
-        if type(agent) == Callisto:
-            print("\nerroneous:", agent.pos, agent.acc, agent.vel)
-        if type(agent) == Europa:
-            print("healthy:", agent.pos, agent.acc, agent.vel)
         agent.vel += agent.acc*TIMESTEP_LENGTH
         agent.pos = agent.pos + agent.vel*TIMESTEP_LENGTH/DISTANCE_MULTIPLIER
 
