@@ -47,8 +47,7 @@ For example, we can track the population of each different type of
 agent, or the efficacy of the agent's ability to meet its intelligence
 module-defined goals.
 
-\| |QLearning Graph|\ \| |Predator Prey Graph| \|
-\|:-------------:\|:-------------:\|
+|QLearning Graph| |Predator Prey Graph|
 
 Intelligence Module
 ~~~~~~~~~~~~~~~~~~~
