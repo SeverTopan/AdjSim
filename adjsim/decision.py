@@ -178,6 +178,13 @@ class RandomSingleCastDecision(Decision):
         if len(source.actions) == 0:
             return
 
+        # Set decision mutable values to random values.
+        decision_mutable_names = [d for d in dir(source) if type(getattr(source, d)) == DecisionMutableFloat]
+        for decision_mutable_name in decision_mutable_names:
+            decision_mutable = getattr(source, decision_mutable_name)
+            value = random.uniform(decision_mutable.min_val, decision_mutable.max_val)
+            decision_mutable._set_value(value)
+
         # Randomly execute an action.
         try:
             action = random.choice(list(source.actions.values()))
@@ -198,6 +205,13 @@ class RandomRepeatedCastDecision(Decision):
 
         # Randomly execute an action while the agent has not completed their timestep.
         while not source.step_complete:
+            # Set decision mutable values to random values.
+            decision_mutable_names = [d for d in dir(source) if type(getattr(source, d)) == DecisionMutableFloat]
+            for decision_mutable_name in decision_mutable_names:
+                decision_mutable = getattr(source, decision_mutable_name)
+                value = random.uniform(decision_mutable.min_val, decision_mutable.max_val)
+                decision_mutable._set_value(value)
+
             try:
                 action = random.choice(list(source.actions.values()))
                 action(simulation, source)
