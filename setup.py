@@ -3,11 +3,8 @@
 from setuptools import setup
 import sys
 
-if sys.version_info < (3,5):
-    sys.exit('Python < 3.5 is not supported')
-
 setup(name='adjsim',
-      version='2.0.0',
+      version='2.0.1',
       description='An Agent Based Modelling Engine tailored for Reinforcement Learning.',
       long_description=open('README.rst', 'r').read(),
       url='https://github.com/SeverTopan/AdjSim',
