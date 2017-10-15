@@ -3,53 +3,53 @@ import os
 import pytest
 
 def test_tag():
-    from demo import tag
+    from examples.tag.simulation import TaggerSimulation
 
-    sim = tag.TaggerSimulation()
+    sim = TaggerSimulation()
     sim._wait_on_visual_init = 0
     sim.simulate(20)
 
 def test_bacteria():
-    from demo import bacteria
+    from examples.bacteria.simulation import BasicBacteriaSimulation
 
-    sim = bacteria.BacteriaSimulation()
+    sim = BasicBacteriaSimulation()
     sim._wait_on_visual_init = 0
     sim.simulate(20)
 
-def test_bacteria_intelligent():
-    from demo import bacteria_qlearning
+def test_bacteria_qlearning():
+    from examples.bacteria.simulation import QLearningBacteriaTrainSimulation, QLearningBacteriaTestSimulation
 
-    sim = bacteria_qlearning.BacteriaTrainSimulation()
+    sim = QLearningBacteriaTrainSimulation()
     sim.simulate(10)
 
-    sim = bacteria_qlearning.BacteriaTestSimulation()
+    sim = QLearningBacteriaTestSimulation()
     sim.simulate(10)
 
 def test_predator_prey():
-    from demo import predator_prey
+    from examples.predator_prey.simulation import PredatorPreySimulation
 
-    sim = predator_prey.PredatorPreySimulation()
+    sim = PredatorPreySimulation()
     sim._wait_on_visual_init = 0
     sim.simulate(10)
 
 def test_jupiter_moon_system():
-    from demo import jupiter_moon_system
+    from examples.physics.simulation import JupiterMoonSystemSimulation
 
-    sim = jupiter_moon_system.JupiterMoonSystemSimulation()
+    sim = JupiterMoonSystemSimulation()
     sim._wait_on_visual_init = 0
     sim.simulate(10)
 
 def test_gol_gosper_glider_gun():
-    from demo import gol_gosper_glider_gun
+    from examples.game_of_life.simulation import GosperGliderGun
 
-    sim = gol_gosper_glider_gun.GameOfLife()
+    sim = GosperGliderGun()
     sim._wait_on_visual_init = 0
     sim.simulate(10)
 
 def test_gol_block_laying_switch_engine():
-    from demo import gol_block_laying_switch_engine
+    from examples.game_of_life.simulation import BlockLayingSwitchEngine
 
-    sim = gol_block_laying_switch_engine.GameOfLife()
+    sim = BlockLayingSwitchEngine()
     sim._wait_on_visual_init = 0
     sim.simulate(10)
     

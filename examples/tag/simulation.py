@@ -79,7 +79,3 @@ class TaggerSimulation(core.VisualSimulation):
 
         self.agents.add(Tagger(-10, -10, True))
 
-
-if __name__ == "__main__":
-    sim = TaggerSimulation()
-    sim.simulate(100)

@@ -1,14 +1,19 @@
-# TODO 
-# standard
+"""Bacteria Simulation.
+
+Implementation of interaction between bacteria which exhibit agency, and static food.
+Bacteria simply must move towards the food and consume it. Bacteria will starve if they run out of 
+calories, and they have the ability to divide.
+"""
+
+# Standard.
 import random, math, sys, os
 
-
-# third party
+# Third party.
 import numpy as np
 from adjsim import core, utility, decision, analysis, color
 
 
-# CONSTANTS
+# Constants.
 MOVEMENT_COST = 5
 MOVEMENT_BOUND = 70000
 CALORIE_UPPER_BOUND_PREDATOR = 200
@@ -52,9 +57,6 @@ class Yogurt(core.VisualAgent):
         self.actions["wait"] = wait
 
 
-def bacteria_loss(simulation, source):
-    return -source.calories
-
 def find_closest_food(simulation, source):
     closest_distance = sys.float_info.max
     nearest_neighbour = None
@@ -68,6 +70,10 @@ def find_closest_food(simulation, source):
             closest_distance = distance
 
     return (nearest_neighbour, closest_distance)
+
+
+def bacteria_loss(simulation, source):
+    return -source.calories
 
 
 def bacteria_perception(simulation, source):
@@ -92,6 +98,7 @@ def bacteria_perception(simulation, source):
 
     return (rounded_distance, rounded_theta, rounded_calories, 1)
         
+
 def eat(simulation, source):
     nearest_food, distance = find_closest_food(simulation, source)
 
@@ -102,6 +109,7 @@ def eat(simulation, source):
     simulation.agents.remove(nearest_food)
     
     source.step_complete = True
+
 
 def move(simulation, source):
     move_rho = source.move_rho.value
@@ -117,10 +125,12 @@ def move(simulation, source):
         source.calories -= MOVEMENT_COST
         source.step_complete = True
 
+
 def starve(simulation, source):
     if source.calories <= MOVEMENT_COST:
         simulation.agents.remove(source)
         source.step_complete = True
+
 
 def divide(simulation, source):
     if source.calories > source.divide_threshold:
@@ -129,8 +139,10 @@ def divide(simulation, source):
         source.calories -= source.divide_threshold
         source.step_complete = True
 
+
 def wait(simulation, source):
     source.step_complete = True
+
 
 def end_condition(simulation):
     num_predators = 0
@@ -141,7 +153,27 @@ def end_condition(simulation):
     return num_predators == 0
 
 
-class BacteriaTrainSimulation(core.Simulation):
+class BasicBacteriaSimulation(core.VisualSimulation):
+    def __init__(self):
+        super().__init__()
+
+        self.end_condition = end_condition
+        self.trackers["agent_count"] = analysis.AgentTypeCountTracker()
+
+        self.bacteria_decision = decision.RandomRepeatedCastDecision()
+        
+        # create bacteria agents
+        for i in range(5):
+            for j in range(5):
+                self.agents.add(Bacteria(np.array([10*i, 10*j], dtype=np.float), self.bacteria_decision))
+
+        # create yogurt agents
+        for i in range(20):
+            for j in range(20):
+                self.agents.add(Yogurt(np.array([5*i, 5*j + 50], dtype=np.float)))
+
+    
+class QLearningBacteriaTrainSimulation(core.Simulation):
     def __init__(self):
         super().__init__()
 
@@ -163,7 +195,7 @@ class BacteriaTrainSimulation(core.Simulation):
                 self.agents.add(Yogurt(np.array([5*i, 5*j + 50], dtype=np.float)))
 
 
-class BacteriaTestSimulation(core.VisualSimulation):
+class QLearningBacteriaTestSimulation(core.VisualSimulation):
     def __init__(self):
         super().__init__()
 
@@ -183,18 +215,3 @@ class BacteriaTestSimulation(core.VisualSimulation):
         for i in range(20):
             for j in range(20):
                 self.agents.add(Yogurt(np.array([5*i, 5*j + 50], dtype=np.float)))
-
-    
-# AGENT CREATION SCRIPT
-if __name__ == "__main__":    
-    # Initial test.
-    sim = BacteriaTestSimulation()
-    sim.simulate(100)
-    sim.trackers["agent_count"].plot()
-
-    # Train.
-    epochs = 100
-    for _ in range(epochs):
-        sim = BacteriaTrainSimulation()
-        sim.simulate(100)
-  
