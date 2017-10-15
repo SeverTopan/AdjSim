@@ -1,8 +1,6 @@
 {% set name = "adjsim" %}
 {% set version = "2.0.1" %}
 {% set file_ext = "tar.gz" %}
-{% set hash_type = "sha256" %}
-{% set hash_value = "be8dff5fdc10ba5ab5b8a6330a1a11fcd74b12a71202c178b985bd1a359001f0" %}
 
 package:
   name: '{{ name|lower }}'
@@ -11,7 +9,6 @@ package:
 source:
   fn: '{{ name }}-{{ version }}.{{ file_ext }}'
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ file_ext }}
-  '{{ hash_type }}': '{{ hash_value }}'
 
 build:
   number: 0
@@ -40,28 +37,10 @@ about:
   license_family: GPL3
   license_file: ''
   summary: An Agent Based Modelling Engine tailored for Reinforcement Learning.
-  description: "AdjSim Simulation Framework\n===========================\n\n|Build Status| |Coverage Status| |License: GPL v3|\n\nA simulation framework. Intended for simulation of ecosystems.\n\n    Designed\
-    \ and developed by Sever Topan\n\nFeatures\n--------\n\nEngine\n~~~~~~\n\nAt its core, AdjSim is an agent-based modelling engine. It allows users\nto define simulation environments through which agents\
-    \ interact through\nability casting and timestep iteration. The framework is targeted\ntowards agents that behave intelligently, for example a bacterium\nchasing down food. However, the framework is\
-    \ extremely flexible - from\nenabling physics simulation to defining an environment in which\n`Conway's Game of\nLife <https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life>`__ plays\nout! AdjSim aims\
-    \ to be a foundational architecture on top of which\nreinforcement learning can be built.\n\nGraphical Simulation Representation\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nThe simulation can be viewed\
-    \ in real time as it unfolds, with graphics\nare rendered and animated using PyQt5. Below are four of the distinct\nexamples packadged with AdjSim, ranging from bacteria to moon system\nsimulation.\n\
-    \n+-------------------+------------------------+\n| |Bacteria Demo|   | |Predator Prey Demo|   |\n+===================+========================+\n| |GOL Demo|        | |Jupiter Demo|         |\n+-------------------+------------------------+\n\
-    \nPost Simulation Analysis Tools\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nAgent properties can be marked for tracking during simulation, allowing\nfor viewing the results of these values once the simulation\
-    \ completes.\nFor example, we can track the population of each different type of\nagent, or the efficacy of the agent's ability to meet its intelligence\nmodule-defined goals.\n\n|QLearning Graph| |Predator\
-    \ Prey Graph|\n\nIntelligence Module\n~~~~~~~~~~~~~~~~~~~\n\nPerhaps the most computationally interesting aspect of AdjSim lies in\nits intelligence module. It allows agents to set goals (for example,\
-    \ the\ngoal of a bacterium may be to maximize its calories), and assess its\nactions in terms of its ability to meet its goals. This allows the\nagents to learn which actions are best used in a given\
-    \ situation.\nCurrently the intelligence module implements\n`Q-Learning <https://en.wikipedia.org/wiki/Q-learning>`__, but more\nadvanced reinforcement learning techniques are coming soon!\n\nInstalling\
-    \ and Running AdjSim\n-----------------------------\n\nIt is reccommended to run AdjSim using virtual python environments\nprovided by Anaconda or Pip. The following describes the installation\nprocedure\
-    \ for each of these.\n\nClone the GitHub repository.\n\n::\n\n     git clone https://github.com/SeverTopan/AdjSim\n\nMake sure Python 3.5 or greater are installed, then create a new\nenvironment with\
-    \ it.\n\n::\n\n    # If using Virtualenv\n    virtualenv --python=/usr/bin/python3.6 venv\n    source venv/bin/activate\n\n    # If using Anaconda\n    conda create --name adjsim python=3.6\n    activate\
-    \ adjsim\n\nInstall Dependencies.\n\n::\n\n     python setup.py install\n\nNote: If you run into trouble importing PyQt5 when installing using the\nsetup.py file, try using\n\n::\n\n    pip install\
-    \ -e .\n\n.. |Build Status| image:: https://travis-ci.org/SeverTopan/AdjSim.svg?branch=master\n   :target: https://travis-ci.org/SeverTopan/AdjSim\n.. |Coverage Status| image:: https://coveralls.io/repos/github/SeverTopan/AdjSim/badge.svg?branch=master\n\
-    \   :target: https://coveralls.io/github/SeverTopan/AdjSim?branch=master\n.. |License: GPL v3| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg\n   :target: https://www.gnu.org/licenses/gpl-3.0\n\
-    .. |Bacteria Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_bacteria.png\n.. |Predator Prey Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_predator_prey.png\n\
-    .. |GOL Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_game_of_life.png\n.. |Jupiter Demo| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_jupiter_moon_system.png\n\
-    .. |QLearning Graph| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_individual_learning.png\n.. |Predator Prey Graph| image:: https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/images/readme_predator_prey_population.png\n\
-    \n\n"
+  description: "At its core, AdjSim is an agent-based modelling engine. It allows users to define simulation environments through which agents\
+    \ interact through ability casting and timestep iteration. The framework is targeted towards agents that behave intelligently, for example a bacterium chasing down food. However, the framework is\
+    \ extremely flexible - from enabling physics simulation to defining an environment in which `Conway's Game of Life plays out! AdjSim aims\
+    \ to be a foundational architecture on top of which reinforcement learning can be built."
   doc_url: ''
   dev_url: ''
 
