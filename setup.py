@@ -25,6 +25,6 @@ setup(name='adjsim',
           'Programming Language :: Python :: 3.6',
       ],
       keywords='agent based modelling ABM reinforcement learning',
-      install_requires=['PyQt5', 'matplotlib', 'numpy'],
+      install_requires=['PyQt5==5.9', 'matplotlib==2.0', 'numpy==1.13'],
       python_requires='>=3.5, <3.7',
       )
