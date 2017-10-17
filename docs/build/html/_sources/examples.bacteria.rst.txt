@@ -1,0 +1,46 @@
+examples\.bacteria package
+==========================
+
+Submodules
+----------
+
+examples\.bacteria\.run\_bacteria\_basic module
+-----------------------------------------------
+
+.. automodule:: examples.bacteria.run_bacteria_basic
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+examples\.bacteria\.run\_bacteria\_qlearning module
+---------------------------------------------------
+
+.. automodule:: examples.bacteria.run_bacteria_qlearning
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+examples\.bacteria\.run\_bacteria\_qlearning\_training\_loop module
+-------------------------------------------------------------------
+
+.. automodule:: examples.bacteria.run_bacteria_qlearning_training_loop
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+examples\.bacteria\.simulation module
+-------------------------------------
+
+.. automodule:: examples.bacteria.simulation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: examples.bacteria
+    :members:
+    :undoc-members:
+    :show-inheritance:

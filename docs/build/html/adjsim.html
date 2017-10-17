@@ -1,0 +1,1094 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>adjsim package &mdash; AdjSim 2.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="AdjSim 2.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to AdjSim’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> AdjSim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">adjsim package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.analysis">adjsim.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.callback">adjsim.callback module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.color">adjsim.color module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.core">adjsim.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.decision">adjsim.decision module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.index">adjsim.index module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.utility">adjsim.utility module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim.visual">adjsim.visual module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-adjsim">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AdjSim</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>adjsim package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/adjsim.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="adjsim-package">
+<h1>adjsim package<a class="headerlink" href="#adjsim-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-adjsim.analysis">
+<span id="adjsim-analysis-module"></span><h2>adjsim.analysis module<a class="headerlink" href="#module-adjsim.analysis" title="Permalink to this headline">¶</a></h2>
+<p>Analysis module.</p>
+<p>This module contains trackers, which are used to extract data from the simulation at
+simulation runtime.</p>
+<p>Designed and developed by Sever Topan.</p>
+<dl class="class">
+<dt id="adjsim.analysis.AgentCountTracker">
+<em class="property">class </em><code class="descclassname">adjsim.analysis.</code><code class="descname">AgentCountTracker</code><a class="headerlink" href="#adjsim.analysis.AgentCountTracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.analysis.Tracker" title="adjsim.analysis.Tracker"><code class="xref py py-class docutils literal"><span class="pre">adjsim.analysis.Tracker</span></code></a></p>
+<p>Counts the number of agents at each timestep.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>data (list): The number of agents at each timestep.</dd>
+</dl>
+<dl class="method">
+<dt id="adjsim.analysis.AgentCountTracker.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.analysis.AgentCountTracker.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the data attribute using pyplot.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.analysis.AgentTypeCountTracker">
+<em class="property">class </em><code class="descclassname">adjsim.analysis.</code><code class="descname">AgentTypeCountTracker</code><a class="headerlink" href="#adjsim.analysis.AgentTypeCountTracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.analysis.Tracker" title="adjsim.analysis.Tracker"><code class="xref py py-class docutils literal"><span class="pre">adjsim.analysis.Tracker</span></code></a></p>
+<p>Counts the number of agents at each timestep by type.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><dl class="first last docutils">
+<dt>data (dict): The number of agents at each timestep, organized </dt>
+<dd>by type entries in this dictionary.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="adjsim.analysis.AgentTypeCountTracker.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.analysis.AgentTypeCountTracker.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the data attribute using pyplot.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.analysis.Tracker">
+<em class="property">class </em><code class="descclassname">adjsim.analysis.</code><code class="descname">Tracker</code><a class="headerlink" href="#adjsim.analysis.Tracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The abstract base tracker object. Trackers used to analyze the simulation.</p>
+<p>All trackers must derive from this object. Trackers obtain data from the simulation after each
+iteration and must store the obtained data in their data attribute. This is done by implementing the
+__call__ method, and storing relevant data from the call method into the tracker’s data attribute.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>data (object): the data to store in the tracker.</dd>
+</dl>
+<dl class="method">
+<dt id="adjsim.analysis.Tracker.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.analysis.Tracker.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the data attribute using pyplot.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adjsim.callback">
+<span id="adjsim-callback-module"></span><h2>adjsim.callback module<a class="headerlink" href="#module-adjsim.callback" title="Permalink to this headline">¶</a></h2>
+<p>Callback module.</p>
+<p>This module contains callback objects, which are used to invoke user code at specific times during the simulation.</p>
+<p>Designed and developed by Sever Topan.</p>
+<dl class="class">
+<dt id="adjsim.callback.AgentChangedCallback">
+<em class="property">class </em><code class="descclassname">adjsim.callback.</code><code class="descname">AgentChangedCallback</code><a class="headerlink" href="#adjsim.callback.AgentChangedCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.callback.SingleParameterCallback" title="adjsim.callback.SingleParameterCallback"><code class="xref py py-class docutils literal"><span class="pre">adjsim.callback.SingleParameterCallback</span></code></a></p>
+<p>Callback specialization class for changed agent properties.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.callback.Callback">
+<em class="property">class </em><code class="descclassname">adjsim.callback.</code><code class="descname">Callback</code><a class="headerlink" href="#adjsim.callback.Callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The abstract base callback object. Callbacks are events that are called at specific times during the simulation.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>subscriptions (set): The callables that will be called.</dd>
+</dl>
+<dl class="method">
+<dt id="adjsim.callback.Callback.is_registered">
+<code class="descname">is_registered</code><span class="sig-paren">(</span><em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.callback.Callback.is_registered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a callback is registered.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.callback.Callback.register">
+<code class="descname">register</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.callback.Callback.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a callback.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.callback.Callback.unregister">
+<code class="descname">unregister</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.callback.Callback.unregister" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregisters a callback.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.callback.SimulationMilestoneCallback">
+<em class="property">class </em><code class="descclassname">adjsim.callback.</code><code class="descname">SimulationMilestoneCallback</code><a class="headerlink" href="#adjsim.callback.SimulationMilestoneCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.callback.SingleParameterCallback" title="adjsim.callback.SingleParameterCallback"><code class="xref py py-class docutils literal"><span class="pre">adjsim.callback.SingleParameterCallback</span></code></a></p>
+<p>Callback specialization class for simulation milestones.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.callback.SingleParameterCallback">
+<em class="property">class </em><code class="descclassname">adjsim.callback.</code><code class="descname">SingleParameterCallback</code><a class="headerlink" href="#adjsim.callback.SingleParameterCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.callback.Callback" title="adjsim.callback.Callback"><code class="xref py py-class docutils literal"><span class="pre">adjsim.callback.Callback</span></code></a></p>
+<p>Callback class for a single parameter callback.</p>
+<dl class="method">
+<dt id="adjsim.callback.SingleParameterCallback.is_registered">
+<code class="descname">is_registered</code><span class="sig-paren">(</span><em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.callback.SingleParameterCallback.is_registered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks callback registration.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>callback (callable): the callback.</dd>
+<dt>Returns:</dt>
+<dd>True if the callback has previously been registered</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.callback.SingleParameterCallback.register">
+<code class="descname">register</code><span class="sig-paren">(</span><em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.callback.SingleParameterCallback.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers the callback.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>callback (callable): the callback.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.callback.SingleParameterCallback.unregister">
+<code class="descname">unregister</code><span class="sig-paren">(</span><em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.callback.SingleParameterCallback.unregister" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregisters the callback.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>callback (callable): the callback.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adjsim.color">
+<span id="adjsim-color-module"></span><h2>adjsim.color module<a class="headerlink" href="#module-adjsim.color" title="Permalink to this headline">¶</a></h2>
+<p>Color module.</p>
+<p>Contains color constants for visual simulations.</p>
+<p>Designed and developed by Sever Topan.</p>
+</div>
+<div class="section" id="module-adjsim.core">
+<span id="adjsim-core-module"></span><h2>adjsim.core module<a class="headerlink" href="#module-adjsim.core" title="Permalink to this headline">¶</a></h2>
+<p>Core adjsim module.</p>
+<p>This module contains the core features of the ABM engine, specifically, the Simulation and Agent objects
+and the facilities to allow them to interact with one another.</p>
+<p>Designed and developed by Sever Topan.</p>
+<dl class="class">
+<dt id="adjsim.core.Agent">
+<em class="property">class </em><code class="descclassname">adjsim.core.</code><code class="descname">Agent</code><a class="headerlink" href="#adjsim.core.Agent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The base Agent class.</p>
+<p>All agents added to a simulation must be derived from this.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><p class="first">actions (_ActionSuite): The _ActionSuite container that holds all actions.
+decision (decision.Decision): The decision object that the agent will use to determine action invocation.
+order (int): The order in which this agent will take its step relative to others. Equal orders result in</p>
+<blockquote>
+<div>no step order guarantee.</div></blockquote>
+<p class="last">step_complete (bool): whether or not the agent has completed its step.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="adjsim.core.Agent.id">
+<code class="descname">id</code><a class="headerlink" href="#adjsim.core.Agent.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>uuid: A unique identifier for the agent. Read-only.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.core.Simulation">
+<em class="property">class </em><code class="descclassname">adjsim.core.</code><code class="descname">Simulation</code><a class="headerlink" href="#adjsim.core.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The base Simulation object.</p>
+<p>This is the core object that is used to run adjsim simulations.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>callbacks (_CallbackSuite): The Simulation’s callbacks.
+agents (_AgentSuite): The Simulation’s agents.
+trackers (_TrackerSuite): The Simulation’s trackers.
+indices (_IndexSuite): The Simulation’s indices.
+end_condition (callable): The Simulation’s end condition.
+time (int): The current Simulation time. Reflects step count.</dd>
+</dl>
+<dl class="method">
+<dt id="adjsim.core.Simulation.end">
+<code class="descname">end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.core.Simulation.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ends a simulation instance.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>This function triggers the simulation_ended callback.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.core.Simulation.simulate">
+<code class="descname">simulate</code><span class="sig-paren">(</span><em>num_timesteps</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.core.Simulation.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a given number of simulation steps while handling simulation start/end.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>This convinience method simply calls start, step(num_timesteps), and end.</dd>
+<dt>Args:</dt>
+<dd>num_timesteps (int): the number of timesteps to simulate.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.core.Simulation.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.core.Simulation.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts a simulation instance.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>This must be called before a call to the step function. This function triggers the
+simulation_started callback.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.core.Simulation.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>num_timesteps=1</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.core.Simulation.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a given number of simulation steps.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>This is where ABM loop occurs. This function must be called after the simulation has been started.</dd>
+<dt>Args:</dt>
+<dd>num_timesteps (int): the number of timesteps to simulate.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.core.SpatialAgent">
+<em class="property">class </em><code class="descclassname">adjsim.core.</code><code class="descname">SpatialAgent</code><span class="sig-paren">(</span><em>pos=array([0</em>, <em>0])</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.core.SpatialAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.core.Agent" title="adjsim.core.Agent"><code class="xref py py-class docutils literal"><span class="pre">adjsim.core.Agent</span></code></a></p>
+<p>The Spatial Agent class.</p>
+<p>Builds upon Agent to incorporate 2d spatial coordinates representing the agent’s position.
+Any agent that desires to have the movement callback invoked when position is changed should
+inherit from this class.</p>
+<dl class="attribute">
+<dt id="adjsim.core.SpatialAgent.DEFAULT_POS">
+<code class="descname">DEFAULT_POS</code><em class="property"> = array([0, 0])</em><a class="headerlink" href="#adjsim.core.SpatialAgent.DEFAULT_POS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.core.SpatialAgent.pos">
+<code class="descname">pos</code><a class="headerlink" href="#adjsim.core.SpatialAgent.pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>np.ndarray: Obtains agent position. The returned array is NOT writeable.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.core.SpatialAgent.x">
+<code class="descname">x</code><a class="headerlink" href="#adjsim.core.SpatialAgent.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>int: Obtains agent’s x-coordinate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.core.SpatialAgent.y">
+<code class="descname">y</code><a class="headerlink" href="#adjsim.core.SpatialAgent.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>int: Obtains agent’s y-coordinate.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.core.VisualAgent">
+<em class="property">class </em><code class="descclassname">adjsim.core.</code><code class="descname">VisualAgent</code><span class="sig-paren">(</span><em>pos=array([0</em>, <em>0])</em>, <em>size=10</em>, <em>color=&lt;PyQt5.QtGui.QColor object&gt;</em>, <em>style=1</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.core.VisualAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.core.SpatialAgent" title="adjsim.core.SpatialAgent"><code class="xref py py-class docutils literal"><span class="pre">adjsim.core.SpatialAgent</span></code></a></p>
+<p>The Visual Agent class.</p>
+<p>Builds upon SpatialAgent to allow for agents to be visualized when simulated with a VisualSimulation.
+Visual agents appear as circles with visual properties delineated by this class’s attributes.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>size (int): The size of the visualized agent.
+color (QtGui.QColor): The color of the visualized agent.
+style (QtCore.Qt.Pattern): The pattern of the visualized agent.</dd>
+</dl>
+<dl class="attribute">
+<dt id="adjsim.core.VisualAgent.DEFAULT_COLOR">
+<code class="descname">DEFAULT_COLOR</code><em class="property"> = &lt;PyQt5.QtGui.QColor object&gt;</em><a class="headerlink" href="#adjsim.core.VisualAgent.DEFAULT_COLOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.core.VisualAgent.DEFAULT_SIZE">
+<code class="descname">DEFAULT_SIZE</code><em class="property"> = 10</em><a class="headerlink" href="#adjsim.core.VisualAgent.DEFAULT_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.core.VisualAgent.DEFAULT_STYLE">
+<code class="descname">DEFAULT_STYLE</code><em class="property"> = 1</em><a class="headerlink" href="#adjsim.core.VisualAgent.DEFAULT_STYLE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.core.VisualSimulation">
+<em class="property">class </em><code class="descclassname">adjsim.core.</code><code class="descname">VisualSimulation</code><a class="headerlink" href="#adjsim.core.VisualSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.core.Simulation" title="adjsim.core.Simulation"><code class="xref py py-class docutils literal"><span class="pre">adjsim.core.Simulation</span></code></a></p>
+<p>The Visual Simulation object.</p>
+<p>This derivation of the Simulation object uses PyQt5 to render a visual representation
+of an active simulation.</p>
+<dl class="method">
+<dt id="adjsim.core.VisualSimulation.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>num_timesteps=1</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.core.VisualSimulation.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a given number of visual simulation steps.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>num_timesteps (int): The number of timesteps to simulate.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adjsim.decision">
+<span id="adjsim-decision-module"></span><h2>adjsim.decision module<a class="headerlink" href="#module-adjsim.decision" title="Permalink to this headline">¶</a></h2>
+<p>Decision module.</p>
+<p>This module contains the different decision functors used by agents to call actions.
+Also contains helper classes used by these.</p>
+<p>Designed and developed by Sever Topan.</p>
+<dl class="class">
+<dt id="adjsim.decision.Decision">
+<em class="property">class </em><code class="descclassname">adjsim.decision.</code><code class="descname">Decision</code><a class="headerlink" href="#adjsim.decision.Decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The base decision class.</p>
+<p>A decision is a functor that performs selective and structured agent computation during a
+simulation step.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.decision.DecisionMutableFloat">
+<em class="property">class </em><code class="descclassname">adjsim.decision.</code><code class="descname">DecisionMutableFloat</code><span class="sig-paren">(</span><em>min_val</em>, <em>max_val</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.decision.DecisionMutableFloat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Contains a bounded float that the decision module will modify.</p>
+<p>A decision mutable float represents a value that a particular decision module will try to optimize for.
+This float must be given viable bounds between which the decision module will try to find an optimal 
+value to fulfill its loss function.</p>
+<dl class="attribute">
+<dt id="adjsim.decision.DecisionMutableFloat.max_val">
+<code class="descname">max_val</code><a class="headerlink" href="#adjsim.decision.DecisionMutableFloat.max_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>float: Obtain the maximum bound.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.decision.DecisionMutableFloat.min_val">
+<code class="descname">min_val</code><a class="headerlink" href="#adjsim.decision.DecisionMutableFloat.min_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>float: Obtain the minimum bound.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.decision.DecisionMutableFloat.value">
+<code class="descname">value</code><a class="headerlink" href="#adjsim.decision.DecisionMutableFloat.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>float: Obtain the value.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.decision.FunctionalDecision">
+<em class="property">class </em><code class="descclassname">adjsim.decision.</code><code class="descname">FunctionalDecision</code><span class="sig-paren">(</span><em>perception</em>, <em>loss</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.decision.FunctionalDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.decision.Decision" title="adjsim.decision.Decision"><code class="xref py py-class docutils literal"><span class="pre">adjsim.decision.Decision</span></code></a></p>
+<p>An abastract decision class that uses adjsim’s functional step implementation.</p>
+<p>Essentially, the agent acts as a function. The inputs to this function are retrieved from
+the perception callable. This is referred to as an observation. The observation is then used in
+the rest of the decision process to decide which action to call, and what to set decision mutable 
+values to.</p>
+<p>The loss callable is used to determine how well an agent is performing. The decision module can employ
+reinforcement learning through optimizing the loss function via intelligently selected action premises.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>perception (callable): The perception callable. Can return any value.
+loss (callable): The loss callable. Must return a float-convertible object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.decision.NoCastDecision">
+<em class="property">class </em><code class="descclassname">adjsim.decision.</code><code class="descname">NoCastDecision</code><a class="headerlink" href="#adjsim.decision.NoCastDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A decision to not do any computation during a simulation step.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.decision.QLearningDecision">
+<em class="property">class </em><code class="descclassname">adjsim.decision.</code><code class="descname">QLearningDecision</code><span class="sig-paren">(</span><em>perception</em>, <em>loss</em>, <em>callbacks</em>, <em>input_file_name='C:\Users\Sev\Anaconda3\envs\adjsim\lib\site-packages\sphinx\__main__.qlearning.pkl'</em>, <em>output_file_name='C:\Users\Sev\Anaconda3\envs\adjsim\lib\site-packages\sphinx\__main__.qlearning.pkl'</em>, <em>discount_factor=0.95</em>, <em>nonconformity_probability=0.3</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.decision.QLearningDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.decision.FunctionalDecision" title="adjsim.decision.FunctionalDecision"><code class="xref py py-class docutils literal"><span class="pre">adjsim.decision.FunctionalDecision</span></code></a></p>
+<p>A decision module based on Q-Learning.</p>
+<p>This module employs Q-Learning (<a class="reference external" href="https://en.wikipedia.org/wiki/Q-learning">https://en.wikipedia.org/wiki/Q-learning</a>), a reinforcement
+learning technique, to incrementally enhance its performance as measured by the provided loss
+function. Over many simulations, the performance of the agent will be increased.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">perception (callable): The perception callable. Can return any value.
+loss (callable): The loss callable. Must return a float-convertible object.
+callbacks (_CallbackSuite): The simulation’s callback suite. Used by the decision module</p>
+<blockquote>
+<div>to register neccessary callbacks.</div></blockquote>
+<dl class="docutils">
+<dt>input_file_name (string): The name of the .pkl file from which to read a previous Q-Table.</dt>
+<dd>The previous Q-Table will be used as a starting point in the current simulation.</dd>
+</dl>
+<p>output_file_name (string): The name of the .pkl file where the new Q-Table will be saved.
+discount_factor (float): The dscount factor (gamma) used in the temporal-differnce calculation</p>
+<blockquote>
+<div>of agent loss. Defaults to 0.95.</div></blockquote>
+<dl class="last docutils">
+<dt>nonconformity_probability (float): When an agent finds an existing entry in its Q-Table, it will </dt>
+<dd>still choose to perform a random action with a probability equivalent to 
+nonconformity_probability. Defaults to 0.3.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="adjsim.decision.QLearningDecision.DEFAULT_DISCOUNT_FACTOR">
+<code class="descname">DEFAULT_DISCOUNT_FACTOR</code><em class="property"> = 0.95</em><a class="headerlink" href="#adjsim.decision.QLearningDecision.DEFAULT_DISCOUNT_FACTOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.decision.QLearningDecision.DEFAULT_IO_FILE_NAME">
+<code class="descname">DEFAULT_IO_FILE_NAME</code><em class="property"> = 'C:\\Users\\Sev\\Anaconda3\\envs\\adjsim\\lib\\site-packages\\sphinx\\__main__.qlearning.pkl'</em><a class="headerlink" href="#adjsim.decision.QLearningDecision.DEFAULT_IO_FILE_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.decision.QLearningDecision.DEFAULT_NONCONFORMITY_FACTOR">
+<code class="descname">DEFAULT_NONCONFORMITY_FACTOR</code><em class="property"> = 0.3</em><a class="headerlink" href="#adjsim.decision.QLearningDecision.DEFAULT_NONCONFORMITY_FACTOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.decision.QLearningDecision.PRINT_DEBUG">
+<code class="descname">PRINT_DEBUG</code><em class="property"> = False</em><a class="headerlink" href="#adjsim.decision.QLearningDecision.PRINT_DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.decision.QLearningDecision.history_bank">
+<code class="descname">history_bank</code><em class="property"> = {}</em><a class="headerlink" href="#adjsim.decision.QLearningDecision.history_bank" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adjsim.decision.QLearningDecision.printBestMoveDict">
+<code class="descname">printBestMoveDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.decision.QLearningDecision.printBestMoveDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debug printing of the Q-Table</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.decision.RandomRepeatedCastDecision">
+<em class="property">class </em><code class="descclassname">adjsim.decision.</code><code class="descname">RandomRepeatedCastDecision</code><a class="headerlink" href="#adjsim.decision.RandomRepeatedCastDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.decision.Decision" title="adjsim.decision.Decision"><code class="xref py py-class docutils literal"><span class="pre">adjsim.decision.Decision</span></code></a></p>
+<p>A decision to cast multiple randomly-chosen action during a simulation step.</p>
+<p>Actions are repeatedly cast until the agent’s step_complete attribute is set to True.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.decision.RandomSingleCastDecision">
+<em class="property">class </em><code class="descclassname">adjsim.decision.</code><code class="descname">RandomSingleCastDecision</code><a class="headerlink" href="#adjsim.decision.RandomSingleCastDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.decision.Decision" title="adjsim.decision.Decision"><code class="xref py py-class docutils literal"><span class="pre">adjsim.decision.Decision</span></code></a></p>
+<p>A decision to cast a single randomly-chosen action during a simulation step.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adjsim.index">
+<span id="adjsim-index-module"></span><h2>adjsim.index module<a class="headerlink" href="#module-adjsim.index" title="Permalink to this headline">¶</a></h2>
+<p>Index module.</p>
+<p>This module contains indices for fast lookup of agents given certain properties.</p>
+<p>Designed and developed by Sever Topan.</p>
+<dl class="class">
+<dt id="adjsim.index.GridIndex">
+<em class="property">class </em><code class="descclassname">adjsim.index.</code><code class="descname">GridIndex</code><span class="sig-paren">(</span><em>simulation</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.index.GridIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#adjsim.index.Index" title="adjsim.index.Index"><code class="xref py py-class docutils literal"><span class="pre">adjsim.index.Index</span></code></a></p>
+<p>An Index that stores agent location based on discrete entries within a grid.</p>
+<p>The grid spans infinite space, and its dimensions are defined by the grid_size paramenter upon 
+initialization. GridIndex must be initialized before it can be used in a simulation.</p>
+<dl class="attribute">
+<dt id="adjsim.index.GridIndex.NEIGHBOUR_ITERATION_ARRAYS">
+<code class="descname">NEIGHBOUR_ITERATION_ARRAYS</code><em class="property"> = [array([1, 0]), array([1, 1]), array([0, 1]), array([-1,  1]), array([-1,  0]), array([-1, -1]), array([ 0, -1]), array([ 1, -1])]</em><a class="headerlink" href="#adjsim.index.GridIndex.NEIGHBOUR_ITERATION_ARRAYS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.index.GridIndex.NEIGHBOUR_ITERATION_LIST">
+<code class="descname">NEIGHBOUR_ITERATION_LIST</code><em class="property"> = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]</em><a class="headerlink" href="#adjsim.index.GridIndex.NEIGHBOUR_ITERATION_LIST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adjsim.index.GridIndex.get_inhabitants">
+<code class="descname">get_inhabitants</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.index.GridIndex.get_inhabitants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain a list of all agents agents inhabiting a given cell or a list of cells.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pos (np.ndarray, list): The query position, or a list of query positions.</dd>
+<dt>Returns:</dt>
+<dd>A list of agents.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.index.GridIndex.get_neighbour_coordinates">
+<code class="descname">get_neighbour_coordinates</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.index.GridIndex.get_neighbour_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the cells neighbouring a given cell.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pos (np.ndarray): The query position.</dd>
+<dt>Returns:</dt>
+<dd>A list of 2d np.ndarray objects listing the cells neighbouring a given cell.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.index.GridIndex.get_neighbours">
+<code class="descname">get_neighbours</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.index.GridIndex.get_neighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain a list of all agents agents inhabiting cells neighbouring a given position.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pos (np.ndarray, list): The query position.</dd>
+<dt>Returns:</dt>
+<dd>A list of agents.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="adjsim.index.GridIndex.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><em>grid_size</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.index.GridIndex.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the index with the given grid size.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>grid_size (int): The size of the grid.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.index.Index">
+<em class="property">class </em><code class="descclassname">adjsim.index.</code><code class="descname">Index</code><a class="headerlink" href="#adjsim.index.Index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base index object.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adjsim.utility">
+<span id="adjsim-utility-module"></span><h2>adjsim.utility module<a class="headerlink" href="#module-adjsim.utility" title="Permalink to this headline">¶</a></h2>
+<p>Utility module.</p>
+<p>This module contains miscellaneous utility objects and functions for use in adjsim.</p>
+<p>Designed and developed by Sever Topan.</p>
+<dl class="exception">
+<dt id="adjsim.utility.ActionException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">ActionException</code><a class="headerlink" href="#adjsim.utility.ActionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.ActionException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An exception has occurred while calling an action.\n\n    Action must be a callable that takes in a Simulation object.\n    The callable return values will be ignored. Changes should be made in place in the Simulation object.\n    Actions should set step_complete to True once no subsequent actions need be called.\n    '</em><a class="headerlink" href="#adjsim.utility.ActionException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.DecisionException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">DecisionException</code><a class="headerlink" href="#adjsim.utility.DecisionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.DecisionException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An error has occurred while invoking a decision module.\n\n    Decision must be a callable takes in Simulation and a source agent. It should perform the\n    neccessary computation for a given agent.\n    '</em><a class="headerlink" href="#adjsim.utility.DecisionException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.EndConditionException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">EndConditionException</code><a class="headerlink" href="#adjsim.utility.EndConditionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.EndConditionException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An error has occurred while invoking the end_condition.\n\n    An end condition must be a callable that takes in Simulation and returns a bool.\n    '</em><a class="headerlink" href="#adjsim.utility.EndConditionException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.IndexInitializationException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">IndexInitializationException</code><a class="headerlink" href="#adjsim.utility.IndexInitializationException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.IndexInitializationException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = &quot;The index has not been initialized prior to invocation of a query.\n    \n    Please call the index's 'initialize' method before querying it.\n    &quot;</em><a class="headerlink" href="#adjsim.utility.IndexInitializationException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.utility.InheritableDict">
+<em class="property">class </em><code class="descclassname">adjsim.utility.</code><code class="descname">InheritableDict</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.InheritableDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.MutableMapping</span></code></p>
+<p>An inheritable dict interface.</p>
+<p>Overridable functions: __getitem__, __setitem__, __delitem__, __iter__, __len__.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.utility.InheritableSet">
+<em class="property">class </em><code class="descclassname">adjsim.utility.</code><code class="descname">InheritableSet</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.InheritableSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.MutableSet</span></code></p>
+<p>An inheritable set interface.</p>
+<p>Overridable functions: __contains__, __iter__, __len__, add, discard.</p>
+<dl class="method">
+<dt id="adjsim.utility.InheritableSet.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.InheritableSet.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adjsim.utility.InheritableSet.discard">
+<code class="descname">discard</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.InheritableSet.discard" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.InvalidAgentException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">InvalidAgentException</code><a class="headerlink" href="#adjsim.utility.InvalidAgentException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.InvalidAgentException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An agent must inherit from the Agent object.'</em><a class="headerlink" href="#adjsim.utility.InvalidAgentException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.InvalidCallbackException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">InvalidCallbackException</code><a class="headerlink" href="#adjsim.utility.InvalidCallbackException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.InvalidCallbackException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'A callback of invalid format has been supplied.'</em><a class="headerlink" href="#adjsim.utility.InvalidCallbackException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.LossException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">LossException</code><a class="headerlink" href="#adjsim.utility.LossException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.LossException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An error has occurred while invoking a loss callable.\n    \n    Loss must be a callable that accepts simualtion and source agent as arguments.\n    It must return a float-convertibale object. The lower the loss, the better the \n    action is considered to be.\n    '</em><a class="headerlink" href="#adjsim.utility.LossException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.MissingAttributeException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">MissingAttributeException</code><a class="headerlink" href="#adjsim.utility.MissingAttributeException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.MissingAttributeException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An attribute that was registered with the observation found is not present in the target agent.'</em><a class="headerlink" href="#adjsim.utility.MissingAttributeException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.PerceptionException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">PerceptionException</code><a class="headerlink" href="#adjsim.utility.PerceptionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.PerceptionException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An error has occurred while invoking a perception callable.\n    \n    Perception must be a callable that accepts simualtion and source agent as arguments.\n    The perception function must return a tuple of types to be associated with a given agent state.\n    '</em><a class="headerlink" href="#adjsim.utility.PerceptionException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.SimulatonWorkflowException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">SimulatonWorkflowException</code><a class="headerlink" href="#adjsim.utility.SimulatonWorkflowException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.SimulatonWorkflowException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = &quot;Steps have been invoked on a non-running simulation.\n\n    Please call 'start' in the simulation before 'step'. \n    Follow up simulation completion with a call to 'end'.\n    &quot;</em><a class="headerlink" href="#adjsim.utility.SimulatonWorkflowException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="adjsim.utility.TrackerException">
+<em class="property">exception </em><code class="descclassname">adjsim.utility.</code><code class="descname">TrackerException</code><a class="headerlink" href="#adjsim.utility.TrackerException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dl class="attribute">
+<dt id="adjsim.utility.TrackerException.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'An Exception has occurred while calling a Tracker.\n\n    Simulation.trackers should be a list of callable functors that inherit from Tracker.\n    They must implement their __call__ method to take a Simulation object, and return the data that is desired.\n    '</em><a class="headerlink" href="#adjsim.utility.TrackerException.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="adjsim.utility.distance">
+<code class="descclassname">adjsim.utility.</code><code class="descname">distance</code><span class="sig-paren">(</span><em>lhs</em>, <em>rhs</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the the distance between two np.ndarray functions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>lhs (np.ndarray): the left hand side argument.
+rhs (np.ndarray): the right hand side argument.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="adjsim.utility.distance_square">
+<code class="descclassname">adjsim.utility.</code><code class="descname">distance_square</code><span class="sig-paren">(</span><em>lhs</em>, <em>rhs</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.distance_square" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the square of the distance between two np.ndarray functions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>lhs (np.ndarray): the left hand side argument.
+rhs (np.ndarray): the right hand side argument.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="adjsim.utility.sigmoid">
+<code class="descclassname">adjsim.utility.</code><code class="descname">sigmoid</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.sigmoid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the sigmoid function.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>x (float): The value to apply the sigmoid to.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="adjsim.utility.sigmoid_clamp">
+<code class="descclassname">adjsim.utility.</code><code class="descname">sigmoid_clamp</code><span class="sig-paren">(</span><em>x</em>, <em>clamp_min</em>, <em>clamp_max</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.utility.sigmoid_clamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the sigmoid function and skew the results to vertiacally span between clamp_min and clamp_max.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>x (float): The value to apply the sigmoid to.
+clamp_min (float): The value to skew the minimum to.
+clamp_max (float): The value to skew the maximum to.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adjsim.visual">
+<span id="adjsim-visual-module"></span><h2>adjsim.visual module<a class="headerlink" href="#module-adjsim.visual" title="Permalink to this headline">¶</a></h2>
+<p>Core AdjSim Module.</p>
+<p>This module contains the core features of the ABM engine, specifically, the Simulation and Agent objects
+and the facilities to allow them to interact with one another.</p>
+<p>Designed and developed by Sever Topan.</p>
+<dl class="class">
+<dt id="adjsim.visual.AdjGraphicsView">
+<em class="property">class </em><code class="descclassname">adjsim.visual.</code><code class="descname">AdjGraphicsView</code><span class="sig-paren">(</span><em>screen_geometry</em>, <em>update_semaphore</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AdjGraphicsView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QGraphicsView</span></code></p>
+<p>The Graphics View of the Visual Simulation.</p>
+<dl class="method">
+<dt id="adjsim.visual.AdjGraphicsView.timestepAnimationCallback">
+<code class="descname">timestepAnimationCallback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AdjGraphicsView.timestepAnimationCallback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adjsim.visual.AdjGraphicsView.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>agent_set</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AdjGraphicsView.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Visual update method, called after each timestep.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>agent_set (list): The list of VisualAgent objects that will be rendered.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.visual.AdjThread">
+<em class="property">class </em><code class="descclassname">adjsim.visual.</code><code class="descname">AdjThread</code><span class="sig-paren">(</span><em>app</em>, <em>simulation</em>, <em>simulation_length=None</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AdjThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<p>PyQt must run on the main thread, so we use this thread to run the simulation</p>
+<dl class="method">
+<dt id="adjsim.visual.AdjThread.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AdjThread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the simulation upon thread initialization.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.visual.AdjThread.update_signal">
+<code class="descname">update_signal</code><a class="headerlink" href="#adjsim.visual.AdjThread.update_signal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.visual.AgentEllipse">
+<em class="property">class </em><code class="descclassname">adjsim.visual.</code><code class="descname">AgentEllipse</code><span class="sig-paren">(</span><em>agent</em>, <em>scene</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AgentEllipse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtWidgets.QGraphicsEllipseItem</span></code></p>
+<p>The Ellipse that represents the visual agents.</p>
+<dl class="method">
+<dt id="adjsim.visual.AgentEllipse.hoverEnterEvent">
+<code class="descname">hoverEnterEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AgentEllipse.hoverEnterEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adjsim.visual.AgentEllipse.hoverLeaveEvent">
+<code class="descname">hoverLeaveEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AgentEllipse.hoverLeaveEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adjsim.visual.AgentEllipseAdapter">
+<em class="property">class </em><code class="descclassname">adjsim.visual.</code><code class="descname">AgentEllipseAdapter</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#adjsim.visual.AgentEllipseAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<p>An adapter between QPropertyAnimation and QGraphicsEllipseItem</p>
+<p>This is in place because of PyQt’s inablility to handle this functionality
+via multiple inheritance.</p>
+<dl class="attribute">
+<dt id="adjsim.visual.AgentEllipseAdapter.size">
+<code class="descname">size</code><a class="headerlink" href="#adjsim.visual.AgentEllipseAdapter.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.visual.AgentEllipseAdapter.x">
+<code class="descname">x</code><a class="headerlink" href="#adjsim.visual.AgentEllipseAdapter.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adjsim.visual.AgentEllipseAdapter.y">
+<code class="descname">y</code><a class="headerlink" href="#adjsim.visual.AgentEllipseAdapter.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adjsim">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-adjsim" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to AdjSim’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Sever Topan.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

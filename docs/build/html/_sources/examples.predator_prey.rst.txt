@@ -1,0 +1,30 @@
+examples\.predator\_prey package
+================================
+
+Submodules
+----------
+
+examples\.predator\_prey\.run\_predator\_prey module
+----------------------------------------------------
+
+.. automodule:: examples.predator_prey.run_predator_prey
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+examples\.predator\_prey\.simulation module
+-------------------------------------------
+
+.. automodule:: examples.predator_prey.simulation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: examples.predator_prey
+    :members:
+    :undoc-members:
+    :show-inheritance:

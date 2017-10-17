@@ -1,0 +1,10 @@
+AdjSim
+======
+
+.. toctree::
+   :maxdepth: 4
+
+   adjsim
+   examples
+   setup
+   test
