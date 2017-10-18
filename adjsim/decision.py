@@ -17,17 +17,30 @@ import re
 # Local.
 from . import utility
 
-class DecisionMutableFloat(object):
+class DecisionMutableValue(object):
+    """Base class for decision mutable objects.
+
+    A decision mutable value represents a value that a particular decision module will try to optimize for.
+    They are used to parameterize functions within AdjSim's definition of an 'action'.
+    """
+    pass
+
+class DecisionMutableFloat(DecisionMutableValue):
     """Contains a bounded float that the decision module will modify.
 
     A decision mutable float represents a value that a particular decision module will try to optimize for.
     This float must be given viable bounds between which the decision module will try to find an optimal 
     value to fulfill its loss function.
+
+    Bounds are inclusive: value in [min_val, max_val].
     """
+
     def __init__(self, min_val, max_val):
+        super().__init__()
+
         self._value = float(max_val - min_val)
-        self._min_val = min_val
-        self._max_val = max_val
+        self._min_val = float(min_val)
+        self._max_val = float(max_val)
 
     @property
     def value(self):
@@ -49,7 +62,78 @@ class DecisionMutableFloat(object):
         if value < self._min_val or value > self._max_val:
             raise ValueError
 
-        self._value = value
+        self._value = float(value)
+
+    def _set_value_random(self):
+        """Private function to assign value based on uniform random distribution inside range."""
+        self._value = random.uniform(self.min_val, self.max_val)
+
+class DecisionMutableBool(DecisionMutableValue):
+    """Contains a boolean that the decision module will modify.
+
+    A decision mutable bool represents a value that a particular decision module will try to optimize for.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._value = False
+
+    @property
+    def value(self):
+        """bool: Obtain the value."""
+        return self._value
+
+    def _set_value(self, value):
+        """Private setter for use by decision modules."""
+        self._value = bool(value)
+
+    def _set_value_random(self):
+        """Private function to assign value based on uniform random distribution inside range."""
+        self._value = bool(random.getrandbits(1))
+
+
+class DecisionMutableInt(DecisionMutableValue):
+    """Contains a bounded integer that the decision module will modify.
+
+    A decision mutable integer represents a value that a particular decision module will try to optimize for.
+    This integer must be given viable bounds between which the decision module will try to find an optimal 
+    value to fulfill its loss function.
+
+    Bounds are inclusive: value in [min_val, max_val].    
+    """
+
+    def __init__(self, min_val, max_val):
+        super().__init__()
+
+        self._value = int(max_val - min_val)
+        self._min_val = int(min_val)
+        self._max_val = int(max_val)
+
+    @property
+    def value(self):
+        """int: Obtain the value."""
+        return self._value
+
+    @property
+    def min_val(self):
+        """int: Obtain the minimum bound."""
+        return self._min_val
+
+    @property
+    def max_val(self):
+        """int: Obtain the maximum bound."""
+        return self._max_val
+
+    def _set_value(self, value):
+        """Private setter for use by decision modules."""
+        if value < self._min_val or value > self._max_val:
+            raise ValueError
+
+        self._value = int(value)
+
+    def _set_value_random(self):
+        """Private function to assign value based on uniform random distribution inside range."""
+        self._value = random.randint(self.min_val, self.max_val)
 
 class _DecisionMutablePremise(object):
     """Container for a decision mutable in an action premise iteration.
@@ -206,11 +290,10 @@ class RandomRepeatedCastDecision(Decision):
         # Randomly execute an action while the agent has not completed their timestep.
         while not source.step_complete:
             # Set decision mutable values to random values.
-            decision_mutable_names = [d for d in dir(source) if type(getattr(source, d)) == DecisionMutableFloat]
+            decision_mutable_names = [d for d in dir(source) if issubclass(type(getattr(source, d)), DecisionMutableValue)]
             for decision_mutable_name in decision_mutable_names:
                 decision_mutable = getattr(source, decision_mutable_name)
-                value = random.uniform(decision_mutable.min_val, decision_mutable.max_val)
-                decision_mutable._set_value(value)
+                decision_mutable._set_value_random()
 
             try:
                 action = random.choice(list(source.actions.values()))
