@@ -1,9 +1,6 @@
 # AdjSim Simulation Framework
 [![Build Status](https://travis-ci.org/SeverTopan/AdjSim.svg?branch=master)](https://travis-ci.org/SeverTopan/AdjSim) [![Coverage Status](https://coveralls.io/repos/github/SeverTopan/AdjSim/badge.svg?branch=master)](https://coveralls.io/github/SeverTopan/AdjSim?branch=master) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-A simulation framework. Intended for simulation of ecosystems.
-
-
 > Designed and developed by Sever Topan
 
 ## Features
@@ -31,6 +28,12 @@ Agent properties can be marked for tracking during simulation, allowing for view
 
 Perhaps the most computationally interesting aspect of AdjSim lies in its intelligence module. It allows agents to set goals (for example, the goal of a bacterium may be to maximize its calories), and assess its actions in terms of its ability to meet its goals. This allows the agents to learn which actions are best used in a given situation. Currently the intelligence module implements [Q-Learning](https://en.wikipedia.org/wiki/Q-learning), but more advanced reinforcement learning techniques are coming soon!
 
+
+## Documentation
+
+Please find the class documentation files at https://severtopan.github.io/AdjSim/.
+
+
 ## Installing and Running AdjSim
 
 ### Set Up Virtual Environment
@@ -55,7 +58,7 @@ Invoke pip. This works with either of the above virtual environments.
 
 ### Install Using Anaconda
 
-Invoke conda. This only works with an anaconda environment.
+Invoke conda. This only works with an anaconda environment. Currently only available for Windows.
 
     conda install -c st7anaconda adjsim
 
