@@ -204,7 +204,7 @@ class QLearningBacteriaTestSimulation(core.VisualSimulation):
 
         io_file_name = "bacteria_intelligent.qlearning.pkl"
         self.bacteria_decision = decision.QLearningDecision(perception=bacteria_perception, loss=bacteria_loss, 
-            callbacks=self.callbacks, input_file_name=io_file_name, output_file_name=io_file_name, discount_factor=1)
+            callbacks=self.callbacks, input_file_name=io_file_name, output_file_name=io_file_name, nonconformity_probability=0)
         
         # create bacteria agents
         for i in range(5):
