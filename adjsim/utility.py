@@ -199,7 +199,7 @@ def distance(lhs, rhs):
         lhs (np.ndarray): the left hand side argument.
         rhs (np.ndarray): the right hand side argument.
     """
-    return distance_square**0.5
+    return distance_square(lhs, rhs)**0.5
 
 def sigmoid(x):
     """Apply the sigmoid function.
