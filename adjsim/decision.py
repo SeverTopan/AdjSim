@@ -369,7 +369,7 @@ class QLearningDecision(FunctionalDecision):
     DEFAULT_DISCOUNT_FACTOR = 0.95
     DEFAULT_NONCONFORMITY_FACTOR = 0.3
 
-    history_bank = {}
+    
 
     def __init__(self, perception, loss, callbacks,
                  input_file_name=DEFAULT_IO_FILE_NAME, output_file_name=DEFAULT_IO_FILE_NAME,
@@ -378,6 +378,7 @@ class QLearningDecision(FunctionalDecision):
 
         # Initialize members.
         self.q_table = {}
+        self.history_bank = {}
         self.input_file_name = input_file_name
         self.output_file_name = output_file_name
         self.discount_factor = discount_factor
@@ -483,11 +484,11 @@ class QLearningDecision(FunctionalDecision):
 
         # Bank history.
         history_item = _QLearningHistoryItem(observation, action_premise, current_loss)
-        agent_history = QLearningDecision.history_bank.get(source.id)
+        agent_history = self.history_bank.get(source.id)
         if agent_history is None:
-            QLearningDecision.history_bank[source.id] = [history_item]
+            self.history_bank[source.id] = [history_item]
         else:
-            QLearningDecision.history_bank[source.id].append(history_item)
+            self.history_bank[source.id].append(history_item)
 
     def _update_q_table_from_history_bank(self):
         """Update Q-Table from the history bank.
@@ -501,7 +502,7 @@ class QLearningDecision(FunctionalDecision):
         sys.stdout.flush()
 
         # Process history.
-        for agent_history in QLearningDecision.history_bank.values():
+        for agent_history in self.history_bank.values():
             # Apply temporal difference on banked data.
             for i in range(len(agent_history) - 2, -1, -1):
                 agent_history[i].loss += self.discount_factor*agent_history[i + 1].loss
@@ -514,7 +515,7 @@ class QLearningDecision(FunctionalDecision):
                     self.q_table[history_item.observation] = _QTableEntry(history_item.action_premise, history_item.loss)
 
         # Clear history bank.
-        QLearningDecision.history_bank.clear()
+        self.history_bank.clear()
 
         # Ui.
         sys.stdout.write("done\n")
