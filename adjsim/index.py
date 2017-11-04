@@ -43,6 +43,9 @@ class GridIndex(Index):
         Args:
             grid_size (int): The size of the grid.
         """
+        if grid_size <= 0:
+            raise ValueError("Grid must be initialized with a positive value.")
+            
         self._grid_size = grid_size
 
         for agent in self._simulation.agents:
