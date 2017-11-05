@@ -3,6 +3,13 @@
 
 > Designed and developed by Sever Topan
 
+## Navigation
+
+1. [Feature Abstract](#Features)
+2. [Installation Instructions](INSTALL.md)
+3. [Tutorial](tutorial/tutorial.ipynb)
+4. [Class Documentation](https://severtopan.github.io/AdjSim/)
+
 ## Features
 
 ### Engine
@@ -29,51 +36,6 @@ Agent properties can be marked for tracking during simulation, allowing for view
 Perhaps the most computationally interesting aspect of AdjSim lies in its intelligence module. It allows agents to set goals (for example, the goal of a bacterium may be to maximize its calories), and assess its actions in terms of its ability to meet its goals. This allows the agents to learn which actions are best used in a given situation. Currently the intelligence module implements [Q-Learning](https://en.wikipedia.org/wiki/Q-learning), but more advanced reinforcement learning techniques are coming soon!
 
 
-## Documentation
 
-Please find the class documentation files at https://severtopan.github.io/AdjSim/.
-
-
-## Installing and Running AdjSim
-
-### Set Up Virtual Environment
-
-It is reccommended to run AdjSim using virtual python environments provided by Anaconda or Pip. The following describes the installation procedure for each of these.
-
-Make sure Python 3.5 or 3.6 is installed, then create a new environment with it.
-
-    # If using Virtualenv
-    virtualenv --python=/usr/bin/python3.6 venv
-    source venv/bin/activate
-
-    # If using Anaconda
-    conda create --name adjsim python=3.6
-    activate adjsim
-
-### Install Using Pip (Recommended)
-
-Invoke pip. This works with either of the above virtual environments.
-
-    pip install adjsim
-
-### Install Using Anaconda
-
-Invoke conda. This only works with an anaconda environment. Currently only available for Windows.
-
-    conda install -c st7anaconda adjsim
-
-### Install Using GitHub Repository
-
-Clone the GitHub repository.
-
-     git clone https://github.com/SeverTopan/AdjSim
-
-Install Dependencies.
-
-     python setup.py install
-
-Note: If you run into trouble importing PyQt5 when installing using the setup.py file, try using
-
-    pip install -e .
 
 
