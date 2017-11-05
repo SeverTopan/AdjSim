@@ -14,6 +14,9 @@ import pickle
 import random
 import re
 
+# Third party.
+from matplotlib import pyplot
+
 # Local.
 from . import utility
 
@@ -152,7 +155,7 @@ class _DecisionMutablePremise(object):
 
     def __repr__(self):
         """Debug printing."""
-        return "(" + str(self.name) + " - " + str(self.value) + ")"
+        return "(" + repr(self.name) + " - " + repr(self.value) + ")"
 
 
 class _ActionPremiseIteration(object):
@@ -196,7 +199,7 @@ class _ActionPremiseIteration(object):
 
     def __repr__(self):
         """Debug printing."""
-        return str(self.action_name) + " - " + str(self.decision_mutables)
+        return repr(self.action_name) + " - " + repr(self.decision_mutables)
 
 class _ActionPremise(object):
     """Container for an action premse.
@@ -232,7 +235,7 @@ class _ActionPremise(object):
 
     def __repr__(self):
         """Debug printing."""
-        return str(self.iterations)
+        return repr(self.iterations)
 
 class Decision(object):
     """The base decision class.
@@ -263,11 +266,10 @@ class RandomSingleCastDecision(Decision):
             return
 
         # Set decision mutable values to random values.
-        decision_mutable_names = [d for d in dir(source) if type(getattr(source, d)) == DecisionMutableFloat]
+        decision_mutable_names = [d for d in dir(source) if issubclass(type(getattr(source, d)), DecisionMutableValue)]
         for decision_mutable_name in decision_mutable_names:
             decision_mutable = getattr(source, decision_mutable_name)
-            value = random.uniform(decision_mutable.min_val, decision_mutable.max_val)
-            decision_mutable._set_value(value)
+            decision_mutable._set_value_random()
 
         # Randomly execute an action.
         try:
@@ -340,7 +342,7 @@ class _QTableEntry(object):
         self.loss = loss
 
     def __repr__(self):
-        return self.loss + " : " + self.action_premise.__repr__()
+        return repr(self.loss) + " : " + repr(self.action_premise)
 
 class QLearningDecision(FunctionalDecision):
     """A decision module based on Q-Learning.
@@ -365,11 +367,11 @@ class QLearningDecision(FunctionalDecision):
     """
 
     DEFAULT_IO_FILE_NAME = re.sub("\.py", ".qlearning.pkl", sys.argv[0])
-    PRINT_DEBUG = False
     DEFAULT_DISCOUNT_FACTOR = 0.95
     DEFAULT_NONCONFORMITY_FACTOR = 0.3
 
-    
+    print_debug = False
+    plot_loss_history = False
 
     def __init__(self, perception, loss, callbacks,
                  input_file_name=DEFAULT_IO_FILE_NAME, output_file_name=DEFAULT_IO_FILE_NAME,
@@ -405,15 +407,10 @@ class QLearningDecision(FunctionalDecision):
         self.q_table = pickle.load(open(self.input_file_name, "rb"))
 
         # Ui messages.
-        if QLearningDecision.PRINT_DEBUG:
-            self.printBestMoveDict()
+        if QLearningDecision.print_debug:
+            self.print_q_table()
         sys.stdout.write("done\n")
         sys.stdout.flush()
-
-    def printBestMoveDict(self):
-        """Debug printing of the Q-Table"""
-        for observation, item in self.q_table.items():
-            print("   ", observation, " > ", item.action_premise)
 
     def __call__(self, simulation, source):
         """The functor call that executes Q-learning.
@@ -452,13 +449,12 @@ class QLearningDecision(FunctionalDecision):
                 action_premise_iteration = _ActionPremiseIteration()
 
                 # Set decision mutable values to random values, save to action premise.
-                decision_mutable_names = [d for d in dir(source) if type(getattr(source, d)) == DecisionMutableFloat]
+                decision_mutable_names = [d for d in dir(source) if issubclass(type(getattr(source, d)), DecisionMutableValue)]
                 for decision_mutable_name in decision_mutable_names:
                     decision_mutable = getattr(source, decision_mutable_name)
-                    value = random.uniform(decision_mutable.min_val, decision_mutable.max_val)
+                    decision_mutable._set_value_random()
 
-                    decision_mutable._set_value(value)
-                    action_premise_iteration.decision_mutables.append(_DecisionMutablePremise(decision_mutable_name, value))
+                    action_premise_iteration.decision_mutables.append(_DecisionMutablePremise(decision_mutable_name, decision_mutable.value))
 
                 # Cast fallback decision, save to action premise.
                 try:
@@ -514,6 +510,10 @@ class QLearningDecision(FunctionalDecision):
                 if existing_q_entry is None or existing_q_entry.loss > history_item.loss:
                     self.q_table[history_item.observation] = _QTableEntry(history_item.action_premise, history_item.loss)
 
+        # Debug plotting.
+        if QLearningDecision.plot_loss_history:
+            self.invoke_plot_loss_history()
+
         # Clear history bank.
         self.history_bank.clear()
 
@@ -548,8 +548,8 @@ class QLearningDecision(FunctionalDecision):
             os.remove(temp_file_name)
 
         # print messages
-        if QLearningDecision.PRINT_DEBUG:
-            self.printBestMoveDict()
+        if QLearningDecision.print_debug:
+            self.print_q_table()
 
         # Ui.
         sys.stdout.write("done\n")
@@ -564,4 +564,30 @@ class QLearningDecision(FunctionalDecision):
         self._update_q_table_from_history_bank()
         self._save_q_table_to_disk()
 
+    def print_q_table(self):
+        """Debug printing of the Q-Table"""
+        for observation, item in self.q_table.items():
+            print("   ", observation, " > ", item)
+
+    def invoke_plot_loss_history(self):
+        """Plotting of loss history."""
+        pyplot.style.use('ggplot')
+
+        loss_history = []
+
+        for agent_history in self.history_bank.values():
+            loss_history.append([])
+            for item in agent_history:
+                loss_history[-1].append(item.loss)
+
+        for item in loss_history:
+            line, = pyplot.plot(item)
+            line.set_antialiased(True)
         
+
+        pyplot.xlabel('Timestep')
+        pyplot.ylabel('Agent Loss')
+        pyplot.title('Agent Loss Over Time')
+        pyplot.legend()
+
+        pyplot.show()
