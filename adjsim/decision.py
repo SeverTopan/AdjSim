@@ -13,9 +13,12 @@ import re
 import pickle
 import random
 import re
+import copy
+import math
 
 # Third party.
 from matplotlib import pyplot
+import numpy as np
 
 # Local.
 from . import utility
@@ -41,7 +44,7 @@ class DecisionMutableFloat(DecisionMutableValue):
     def __init__(self, min_val, max_val):
         super().__init__()
 
-        self._value = float(max_val - min_val)
+        self._value = None
         self._min_val = float(min_val)
         self._max_val = float(max_val)
 
@@ -79,7 +82,7 @@ class DecisionMutableBool(DecisionMutableValue):
 
     def __init__(self):
         super().__init__()
-        self._value = False
+        self._value = None
 
     @property
     def value(self):
@@ -108,7 +111,7 @@ class DecisionMutableInt(DecisionMutableValue):
     def __init__(self, min_val, max_val):
         super().__init__()
 
-        self._value = int(max_val - min_val)
+        self._value = None
         self._min_val = int(min_val)
         self._max_val = int(max_val)
 
@@ -137,6 +140,200 @@ class DecisionMutableInt(DecisionMutableValue):
     def _set_value_random(self):
         """Private function to assign value based on uniform random distribution inside range."""
         self._value = random.randint(self.min_val, self.max_val)
+
+class ArrayConstraint(object):
+    """Abstract base class for array constraints."""
+    def satisfies(self, value):
+        raise NotImplementedError
+
+
+class SumConstraint(ArrayConstraint):
+    """Contrain an array so that all elements sum to a given value."""
+    def __init__(self, sum_constraint):
+        if sum_constraint is None:
+            raise ValueError("Sum may not be None.")
+
+        if math.isclose(sum_constraint, 0):
+            raise ValueError("Sum may not be 0.")
+
+        self.sum = sum_constraint
+
+    def satisfies(self, value):
+        return math.isclose(np.sum(value), self.sum)
+
+
+class RangeConstraint(ArrayConstraint):
+    """Contrain an array so that all elements fall in a given range."""
+    def __init__(self, min_val, max_val):
+        if min_val is None or max_val is None:
+            raise ValueError("Bounds may not be None.")
+
+        self.min_val = min_val
+        self.max_val = max_val
+
+    def satisfies(self, value):
+        return (value >= self.min_val).all() and (value <= self.max_val).all()
+
+
+class DecisionMutableBoolArray(DecisionMutableValue):
+    """Contains an array of booleans that the decision module will modify.
+
+    A decision mutable bool array represents a value that a particular decision module will try to optimize for.
+    """
+
+    def __init__(self, shape):
+        super().__init__()
+        if not np.any(shape):
+            raise ValueError("Invalid shape.")
+
+        self._shape = tuple(shape)
+        self._value = np.zeros(self._shape, dtype=np.bool_)
+
+    @property
+    def value(self):
+        """np.array: Obtain the value."""
+        return self._value
+
+    @property
+    def shape(self):
+        """np.array: Obtain the array shape."""
+        return self._shape
+
+    def _set_value(self, value):
+        """Private setter for use by decision modules."""
+        if not isinstance(value, np.ndarray) or value.dtype != np.bool_:
+            raise TypeError
+            
+        if value.shape != self._shape:
+            raise ValueError
+
+        self._value = value
+
+    def _set_value_random(self):
+        """Private function to assign random array value based on constraints."""
+        self._value = np.random.random(self._shape) > 0.5
+
+
+class DecisionMutableIntArray(DecisionMutableValue):
+    """Contains an integer array that the decision module will modify.
+
+    A decision mutable integer array represents a value that a particular decision module will try to optimize for.
+    This integer must be given viable constraints between which the decision module will try to find an optimal 
+    value to fulfill its loss function.
+
+    A constraint must be specified. SumContraint is not supported.
+    """
+
+    def __init__(self, shape, constraint=None):
+        super().__init__()
+
+        # Error check constraints.
+        if not issubclass(type(constraint), ArrayConstraint):
+            raise ValueError("Invalid constraint.")
+
+        if not np.any(shape):
+            raise ValueError("Invalid shape.")
+
+        self._constraint = copy.copy(constraint)
+        self._shape = tuple(shape)
+        self._value = np.zeros(self._shape, dtype=np.int_)
+
+    @property
+    def value(self):
+        """np.array: Obtain the value."""
+        return self._value
+
+    @property
+    def constraint(self):
+        """ArrayContraint: Obtain a copy of the constraint."""
+        return copy.copy(self._constraint)
+
+    @property
+    def shape(self):
+        """np.array: Obtain the array shape."""
+        return self._shape
+
+    def _set_value(self, value):
+        """Private setter for use by decision modules."""
+        if not isinstance(value, np.ndarray) or value.dtype != np.int_:
+            raise TypeError
+            
+        if value.shape != self._shape or not self.constraint.satisfies(value):
+            raise ValueError
+
+        self._value = value
+
+    def _set_value_random(self):
+        """Private function to assign random array value based on constraints."""
+        
+        if isinstance(self._constraint, RangeConstraint):
+            self._value = np.random.randint(self._constraint.min_val, self._constraint.max_val, size=self._shape)
+
+        else:
+            raise ValueError("Invalid constraint type.")
+
+class DecisionMutableFloatArray(DecisionMutableValue):
+    """Contains an float array that the decision module will modify.
+
+    A decision mutable float array represents a value that a particular decision module will try to optimize for.
+    This float must be given viable constraints between which the decision module will try to find an optimal 
+    value to fulfill its loss function.
+
+    A constraint must be specified. 
+    """
+
+    def __init__(self, shape, constraint):
+        super().__init__()
+
+        # Error check constraints.
+        if not issubclass(type(constraint), ArrayConstraint):
+            raise ValueError("Invalid constraint.")
+
+        if not np.any(shape):
+            raise ValueError("Invalid shape.")
+
+        self._constraint = copy.copy(constraint)
+        self._shape = tuple(shape)
+        self._value = np.zeros(self._shape, dtype=np.float_)
+
+    @property
+    def value(self):
+        """np.array: Obtain the value."""
+        return self._value
+
+    @property
+    def constraint(self):
+        """ArrayContraint: Obtain a copy of the constraint."""
+        return copy.copy(self._constraint)
+
+    @property
+    def shape(self):
+        """np.array: Obtain the array shape."""
+        return self._shape
+
+    def _set_value(self, value):
+        """Private setter for use by decision modules."""
+        if not isinstance(value, np.ndarray) or value.dtype != np.float_:
+            raise TypeError
+
+        if value.shape != self._shape  or not self.constraint.satisfies(value):
+            raise ValueError
+
+        self._value = value
+
+    def _set_value_random(self):
+        """Private function to assign random array value based on constraints."""
+        
+        if isinstance(self._constraint, RangeConstraint):
+            self._value = np.random.uniform(self._constraint.min_val, self._constraint.max_val, size=self._shape)
+
+        elif isinstance(self._constraint, SumConstraint):
+            temp = np.random.random(size=self._shape)
+            self._value = temp/np.sum(temp)*self._constraint.sum
+
+        else:
+            raise ValueError("Invalid constraint type.")
+
 
 class _DecisionMutablePremise(object):
     """Container for a decision mutable in an action premise iteration.
