@@ -17,4 +17,4 @@ if __name__ == "__main__":
     epochs = 100
     for _ in range(epochs):
         sim = QLearningBacteriaTrainSimulation()
-        sim.simulate(100)
+        sim.simulate(350)

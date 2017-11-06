@@ -15,6 +15,7 @@ from adjsim import core, utility, decision, analysis, color
 
 # Constants.
 MOVEMENT_COST = 5
+WAIT_COST = 1
 MOVEMENT_BOUND = 70000
 CALORIE_UPPER_BOUND_PREDATOR = 200
 EAT_DIST_SQUARE = 150
@@ -55,6 +56,14 @@ class Yogurt(core.VisualAgent):
         self.decision = decision.RandomSingleCastDecision()
 
         self.actions["wait"] = wait
+
+class Meta(core.Agent):
+    def __init__(self):
+        self.order = 1
+
+        self.decision = decision.RandomSingleCastDecision()
+
+        self.actions["starve"] = starve
 
 
 def find_closest_food(simulation, source):
@@ -127,10 +136,14 @@ def move(simulation, source):
 
 
 def starve(simulation, source):
-    if source.calories <= MOVEMENT_COST:
-        simulation.agents.remove(source)
-        source.step_complete = True
+    for agent in list(simulation.agents):
+        if type(agent) != Bacteria:
+            continue
 
+        if agent.calories <= 0:
+            simulation.agents.remove(agent)
+        else:
+            agent.calories -= WAIT_COST
 
 def divide(simulation, source):
     if source.calories > source.divide_threshold:
@@ -145,12 +158,12 @@ def wait(simulation, source):
 
 
 def end_condition(simulation):
-    num_predators = 0
-
+    """End if there are no more bacteria."""
     for agent in simulation.agents:
-        num_predators += 1
+        if type(agent) == Bacteria:
+            return False
 
-    return num_predators == 0
+    return True
 
 
 class BasicBacteriaSimulation(core.VisualSimulation):

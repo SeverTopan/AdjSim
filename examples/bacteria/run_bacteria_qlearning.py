@@ -6,8 +6,10 @@ calories, and they have the ability to divide.
 """
 
 from simulation import QLearningBacteriaTestSimulation
+from adjsim import decision
 
 if __name__ == "__main__":    
+    decision.QLearningDecision.plot_loss_history = True
     sim = QLearningBacteriaTestSimulation()
     sim.simulate(100)
     sim.trackers["agent_count"].plot()
