@@ -4,6 +4,7 @@
 # Standard.
 import sys
 import os
+import copy
 
 # Third party.
 import numpy as np
@@ -21,8 +22,8 @@ def perception(simulation, source):
 def loss(simulation, source):
     # Use change in commodities as loss.
     delta = source.commodities - source.previous_commodities
-    source.previous_commodities = source.commodities
-    return -np.sum(delta)
+    source.previous_commodities = copy.copy(source.commodities)
+    return -np.sum(delta) if simulation.time > 1 else 0 # Ignore delta calculation of first timestep.
 
 def trade_commodity(simulation, source):
 
@@ -77,8 +78,11 @@ def trade_commodity(simulation, source):
     else:
         simulation.transaction_mediation_log[mediation_log_entry] = sell_amount
 
-def allocate_workforce(simulation, source):
-    
+def allocate_production(simulation, source):
+    if not source.production_allocation is None:
+        return
+
+    source.production_allocation = source.production_allocation_assignation.value
 
 def done(simulation, source):
     source.step_complete = True
@@ -88,7 +92,9 @@ def pre_step(simulation, source):
     # Generate commodities.
     for agent in simulation.agents:
         if type(agent) == Trader:
-            agent.commodities += agent.production_rates
+            allocation = np.zeros((len(COMMODITIES),)) if agent.production_allocation is None else agent.production_allocation
+            agent.commodities += agent.production_rates * allocation
+            agent.production_allocation = None
 
     # Refund mediation log.
     for key, val in simulation.transaction_mediation_log.items():
@@ -183,12 +189,16 @@ class Trader(core.Agent):
         self.name = name
         self.commodities = np.zeros([len(COMMODITIES)])
         self.production_rates = production_rates
+        self.production_capacity = len(production_rates)
+        self.production_allocation = None
         self.index = index
 
         self.trade_sell_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1)
         self.trade_buy_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1)
         self.trade_target_index = decision.DecisionMutableInt(0, total_num_traders - 1)
         self.trade_amount = decision.DecisionMutableFloat(0, MAX_TRADE_AMOUNT)
+        sum_constraint = decision.SumConstraint(self.production_capacity)
+        self.production_allocation_assignation = decision.DecisionMutableFloatArray((len(COMMODITIES),), sum_constraint)
 
         self.previous_commodities = production_rates 
 
@@ -199,6 +209,7 @@ class Trader(core.Agent):
 
         self.actions["done"] = done
         self.actions["trade_commodity"] = trade_commodity
+        self.actions["allocate_production"] = allocate_production
         
 
 class Meta(core.Agent):

@@ -8,15 +8,12 @@ def run(length):
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders)
+    sim = TraderSimulation(traders, is_training=True)
     sim.simulate(length)
     return sim
 
 if __name__ == "__main__":
 
-    for _ in range(10):
-        run(1000)
-    
     decision.QLearningDecision.print_debug = True
     decision.QLearningDecision.plot_loss_history = True
     sim = run(1000)
