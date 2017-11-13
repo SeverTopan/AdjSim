@@ -787,4 +787,4 @@ class QLearningDecision(FunctionalDecision):
         pyplot.title('Agent Loss Over Time')
         pyplot.legend()
 
-        pyplot.show()
+        pyplot.show(block=False)

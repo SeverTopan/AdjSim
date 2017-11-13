@@ -72,7 +72,7 @@ class AgentCountTracker(Tracker):
         pyplot.title('Global Agent Count Over Time')
         pyplot.legend()
 
-        pyplot.show()
+        pyplot.show(block=False)
 
 class AgentTypeCountTracker(Tracker):
     """Counts the number of agents at each timestep by type.
@@ -116,4 +116,4 @@ class AgentTypeCountTracker(Tracker):
         pyplot.title('Agent Count by Type Over Time')
         pyplot.legend()
 
-        pyplot.show()
+        pyplot.show(block=False)
