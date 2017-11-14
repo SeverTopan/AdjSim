@@ -17,13 +17,14 @@ CONVERSION_ARRAY = np.array([[1, 1],
                              [1, 1]])
 
 def perception(simulation, source):
-    return None
+    return round(np.average(source.commodities)/10)*10
 
 def loss(simulation, source):
-    # Use change in commodities as loss.
-    delta = source.commodities - source.previous_commodities
-    source.previous_commodities = copy.copy(source.commodities)
-    return -np.sum(delta) if simulation.time > 1 else 0 # Ignore delta calculation of first timestep.
+    # # Use change in commodities as loss.
+    # delta = source.commodities - source.previous_commodities
+    # source.previous_commodities = copy.copy(source.commodities)
+    # return -np.sum(delta) if simulation.time > 1 else 0 # Ignore delta calculation of first timestep.
+    return -np.average(source.commodities)
 
 def trade_commodity(simulation, source):
 
@@ -146,7 +147,7 @@ class TransactionTracker(analysis.Tracker):
     def __repr__(self):
         return self.data.__repr__()
 
-    def plot(self):
+    def plot(self, block=True):
         pyplot.style.use('ggplot')
 
         commodity_log_list = [[] for _ in COMMODITIES]
@@ -170,7 +171,7 @@ class TransactionTracker(analysis.Tracker):
         pyplot.title('Commodity Trade Log')
         pyplot.legend()
 
-        pyplot.show()
+        pyplot.show(block=block)
 
 class MediationLogEntry(object):
     @staticmethod
@@ -206,6 +207,7 @@ class Trader(core.Agent):
         self.decision = decision.QLearningDecision(perception, loss, simulation.callbacks,
             input_file_name=io_file_name, output_file_name=io_file_name, 
             nonconformity_probability=decision.QLearningDecision.DEFAULT_NONCONFORMITY_FACTOR if simulation.is_training else 0)
+        simulation.trackers["qlearning_" + name] = analysis.QLearningHistoryTracker(self.decision)
 
         self.actions["done"] = done
         self.actions["trade_commodity"] = trade_commodity

@@ -18,6 +18,6 @@ if __name__ == "__main__":
         run(5000)
     
     decision.QLearningDecision.print_debug = True
-    decision.QLearningDecision.plot_loss_history = True
     sim = run(1000)
-    sim.trackers["transaction"].plot()
+    sim.trackers["qlearning_England"].plot()
+    sim.trackers["qlearning_Portugal"].plot()

@@ -16,9 +16,9 @@ def test_bacteria_qlearning():
     sim.simulate(10)
 
     decision.QLearningDecision.print_debug = True
-    decision.QLearningDecision.plot_loss_history = True
 
     sim = QLearningBacteriaTestSimulation()
     sim.simulate(10)
 
+    sim.trackers["qlearning"].plot(block=False)
     pyplot.close()

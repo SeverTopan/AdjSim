@@ -60,7 +60,7 @@ class AgentCountTracker(Tracker):
         """Tracks the number of agents in the simulation."""
         self.data.append(len(simulation.agents))
 
-    def plot(self):
+    def plot(self, block=True):
         """Plots the data attribute using pyplot."""
         pyplot.style.use('ggplot')
 
@@ -72,7 +72,7 @@ class AgentCountTracker(Tracker):
         pyplot.title('Global Agent Count Over Time')
         pyplot.legend()
 
-        pyplot.show(block=False)
+        pyplot.show(block=block)
 
 class AgentTypeCountTracker(Tracker):
     """Counts the number of agents at each timestep by type.
@@ -102,7 +102,7 @@ class AgentTypeCountTracker(Tracker):
             self.data[type(agent)][-1] += 1
 
             
-    def plot(self):
+    def plot(self, block=True):
         """Plots the data attribute using pyplot."""
         pyplot.style.use('ggplot')
 
@@ -116,4 +116,43 @@ class AgentTypeCountTracker(Tracker):
         pyplot.title('Agent Count by Type Over Time')
         pyplot.legend()
 
-        pyplot.show(block=False)
+        pyplot.show(block=block)
+
+class QLearningHistoryTracker(Tracker):
+    """Tracks the loss history of a given QLearningDecision module.
+
+    Attributes:
+        data (dict): A list of agent losses (per timestep).
+    """
+    def __init__(self, qlearning_module):
+        super().__init__()
+        self.data = []
+        self.qlearning_module = qlearning_module
+
+        qlearning_module.completion_callback.register(self._invoke)
+
+    def __call__(self, simulation):
+        """No-op; data is stored upon simulation completion"""
+        pass
+
+    def _invoke(self, history_bank):
+        """Callback upon QLearning module completion."""
+        for agent_history in history_bank.values():
+            self.data.append([])
+            for item in agent_history:
+                self.data[-1].append(item.loss)
+            
+    def plot(self, block=True):
+        """Plots the data attribute using pyplot."""
+        
+        pyplot.style.use('ggplot')
+
+        for item in self.data:
+            line, = pyplot.plot(item)
+            line.set_antialiased(True)
+
+        pyplot.xlabel('Timestep')
+        pyplot.ylabel('Agent Loss')
+        pyplot.title('Agent Loss Over Time')
+
+        pyplot.show(block=block)

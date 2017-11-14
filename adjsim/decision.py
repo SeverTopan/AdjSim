@@ -22,6 +22,7 @@ import numpy as np
 
 # Local.
 from . import utility
+from . import callback
 
 class DecisionMutableValue(object):
     """Base class for decision mutable objects.
@@ -568,7 +569,6 @@ class QLearningDecision(FunctionalDecision):
     DEFAULT_NONCONFORMITY_FACTOR = 0.3
 
     print_debug = False
-    plot_loss_history = False
 
     def __init__(self, perception, loss, callbacks,
                  input_file_name=DEFAULT_IO_FILE_NAME, output_file_name=DEFAULT_IO_FILE_NAME,
@@ -582,6 +582,7 @@ class QLearningDecision(FunctionalDecision):
         self.output_file_name = output_file_name
         self.discount_factor = discount_factor
         self.nonconformity_probability = nonconformity_probability
+        self.completion_callback =  callback.SingleParameterCallback()
 
         # Load q_table
         self._load_q_table_from_disk()
@@ -707,9 +708,8 @@ class QLearningDecision(FunctionalDecision):
                 if existing_q_entry is None or existing_q_entry.loss > history_item.loss:
                     self.q_table[history_item.observation] = _QTableEntry(history_item.action_premise, history_item.loss)
 
-        # Debug plotting.
-        if QLearningDecision.plot_loss_history:
-            self.invoke_plot_loss_history()
+        # Trigger callback before history bank is cleared.
+        self.completion_callback(self.history_bank)
 
         # Clear history bank.
         self.history_bank.clear()
@@ -765,26 +765,3 @@ class QLearningDecision(FunctionalDecision):
         """Debug printing of the Q-Table"""
         for observation, item in self.q_table.items():
             print("   ", observation, " > ", item)
-
-    def invoke_plot_loss_history(self):
-        """Plotting of loss history."""
-        pyplot.style.use('ggplot')
-
-        loss_history = []
-
-        for agent_history in self.history_bank.values():
-            loss_history.append([])
-            for item in agent_history:
-                loss_history[-1].append(item.loss)
-
-        for item in loss_history:
-            line, = pyplot.plot(item)
-            line.set_antialiased(True)
-        
-
-        pyplot.xlabel('Timestep')
-        pyplot.ylabel('Agent Loss')
-        pyplot.title('Agent Loss Over Time')
-        pyplot.legend()
-
-        pyplot.show(block=False)

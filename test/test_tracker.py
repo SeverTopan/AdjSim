@@ -82,6 +82,7 @@ def test_trivial_agent_count():
 
 def test_exponential_agent_count():
     from adjsim import core, analysis, decision
+    from matplotlib import pyplot
 
     def increment_agents(env, source):
         env.agents.add(TestAgent()) 
@@ -101,10 +102,12 @@ def test_exponential_agent_count():
 
     assert test_sim.trackers["count"].data == [2**i for i in range(common.INTERPOLATION_NUM_TIMESTEP + 1)]
 
-    test_sim.trackers["count"].plot()
+    test_sim.trackers["count"].plot(block=False)
+    pyplot.close()
 
 def test_exponential_agent_type_count():
     from adjsim import core, analysis, decision
+    from matplotlib import pyplot
 
     def increment_agents(env, source):
         env.agents.add(TestAgent()) 
@@ -123,6 +126,7 @@ def test_exponential_agent_type_count():
 
     assert test_sim.trackers["count"].data[TestAgent] == [2**i for i in range(common.INTERPOLATION_NUM_TIMESTEP + 1)]
 
-    test_sim.trackers["count"].plot()
+    test_sim.trackers["count"].plot(block=False)
+    pyplot.close()
     
     
