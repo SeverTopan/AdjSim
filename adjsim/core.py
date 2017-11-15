@@ -290,16 +290,6 @@ class Simulation(object):
         self._prev_print_str_len = 0
         self._running = False
 
-    @staticmethod
-    def _print_banner():
-        """Prints the AdjSim Banner."""
-        welcomeMessage = "- AdjSim Reinforcement-Learning ABM Engine -"
-
-        print("-".rjust(len(welcomeMessage), "-"))
-        print(welcomeMessage)
-        print("-".rjust(len(welcomeMessage), "-"))
-
-
     def start(self):
         """Starts a simulation instance.
 
