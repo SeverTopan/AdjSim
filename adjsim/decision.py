@@ -696,6 +696,7 @@ class QLearningDecision(FunctionalDecision):
         sys.stdout.flush()
 
         # Process history.
+        num_updated = 0
         for agent_history in self.history_bank.values():
             # Apply temporal difference on banked data.
             for i in range(len(agent_history) - 2, -1, -1):
@@ -706,6 +707,7 @@ class QLearningDecision(FunctionalDecision):
                 existing_q_entry = self.q_table.get(history_item.observation)
 
                 if existing_q_entry is None or existing_q_entry.loss > history_item.loss:
+                    num_updated += 1
                     self.q_table[history_item.observation] = _QTableEntry(history_item.action_premise, history_item.loss)
 
         # Trigger callback before history bank is cleared.
@@ -715,7 +717,7 @@ class QLearningDecision(FunctionalDecision):
         self.history_bank.clear()
 
         # Ui.
-        sys.stdout.write("done\n")
+        sys.stdout.write("done - {} entries updated\n".format(num_updated))
         sys.stdout.flush()
 
     def _save_q_table_to_disk(self):

@@ -327,6 +327,9 @@ class Simulation(object):
 
         self._running = False
 
+        # Print a new line for prettier formatting.
+        print()
+
         # Call milestone callback.
         self.callbacks.simulation_complete(self)
 
@@ -427,8 +430,7 @@ class Simulation(object):
         sys.stdout.flush()
 
         # Print new timestep string.
-        print_str = "\rSimulating timestep " + str(timestep) + "/" + str(num_timesteps) + " - population: " \
-                + str(len(self.agents))
+        print_str = "\rSimulating timestep {}/{} - population: {}".format(timestep, num_timesteps, len(self.agents))
         sys.stdout.write(print_str)
         sys.stdout.flush()
 
