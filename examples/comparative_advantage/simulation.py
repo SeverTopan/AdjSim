@@ -173,6 +173,46 @@ class TransactionTracker(analysis.Tracker):
 
         pyplot.show(block=block)
 
+class AllocationTracker(analysis.Tracker):
+    def __init__(self):
+        self.data = {}
+
+    def __call__(self, simulation):
+        for agent in simulation.agents:
+            # Only process traders.
+            if not isinstance(agent, Trader):
+                continue
+
+            # New trader entry.
+            existing_trader = self.data.get(agent)
+            if existing_trader is None:
+                self.data[agent] = dict([(name, []) for name in COMMODITIES])
+
+            # Stoer allocation per commodity.
+            if not agent.production_allocation is None:
+                for i in range(len(agent.production_allocation)):
+                    self.data[agent][COMMODITIES[i]].append(agent.production_allocation[i])
+            
+
+    def plot(self, block=True):
+        pyplot.style.use('ggplot')
+
+        commodity_log_list = [[] for _ in COMMODITIES]
+
+        # New plot for each agent.
+        for agent, entry in self.data.items():
+            # Plot all commodities.
+            for commodity, allocation in entry.items():
+                line, = pyplot.plot(allocation, label=commodity)
+                line.set_antialiased(True)
+
+            pyplot.xlabel('Timestep')
+            pyplot.ylabel('Production Allocation')
+            pyplot.title(agent.name + ' Commodity Production Allocation')
+            pyplot.legend()
+
+            pyplot.show(block=block)
+
 class MediationLogEntry(object):
     @staticmethod
     def from_agent(agent):
@@ -235,6 +275,7 @@ class TraderSimulation(core.Simulation):
         self.is_training = is_training
         
         self.trackers["transaction"] = TransactionTracker()
+        self.trackers["allocation"] = AllocationTracker()
 
         for template in templates:
             trader = Trader(self, template[0], template[1], len(templates))

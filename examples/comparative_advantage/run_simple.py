@@ -17,5 +17,6 @@ if __name__ == "__main__":
     decision.QLearningDecision.print_debug = True
     sim = run(1000)
     sim.trackers["transaction"].plot()
+    sim.trackers["allocation"].plot()
     sim.trackers["qlearning_England"].plot()
     sim.trackers["qlearning_Portugal"].plot()
