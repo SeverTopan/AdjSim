@@ -14,7 +14,7 @@ def run(length):
 
 if __name__ == "__main__":
 
-    for _ in range(500):
+    for _ in range(1000):
         run(5000)
     
     decision.QLearningDecision.print_debug = True

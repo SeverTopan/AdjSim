@@ -17,14 +17,13 @@ CONVERSION_ARRAY = np.array([[1, 1],
                              [1, 1]])
 
 def perception(simulation, source):
-    return round(np.average(source.commodities)/10)*10
+    return None
 
 def loss(simulation, source):
-    # # Use change in commodities as loss.
-    # delta = source.commodities - source.previous_commodities
-    # source.previous_commodities = copy.copy(source.commodities)
-    # return -np.sum(delta) if simulation.time > 1 else 0 # Ignore delta calculation of first timestep.
-    return -np.average(source.commodities)
+    # Use change in commodities as loss.
+    delta = source.commodities - source.previous_commodities
+    source.previous_commodities = copy.copy(source.commodities)
+    return -np.average(delta) if simulation.time > 1 else 0 # Ignore delta calculation of first timestep.
 
 def trade_commodity(simulation, source):
 
@@ -61,7 +60,7 @@ def trade_commodity(simulation, source):
 
             if simulation.transaction_mediation_log[mediation_log_entry_inverse] == 0:
                 del simulation.transaction_mediation_log[mediation_log_entry_inverse]
-
+            
             target_agent.commodities[sell_commodity] += sell_amount
             source.commodities[buy_commodity] += sell_amount_converted
 
@@ -188,16 +187,14 @@ class AllocationTracker(analysis.Tracker):
             if existing_trader is None:
                 self.data[agent] = dict([(name, []) for name in COMMODITIES])
 
-            # Stoer allocation per commodity.
-            if not agent.production_allocation is None:
-                for i in range(len(agent.production_allocation)):
-                    self.data[agent][COMMODITIES[i]].append(agent.production_allocation[i])
+            # Store allocation per commodity.
+            for i in range(len(COMMODITIES)):
+                new_val = 0 if agent.production_allocation is None else agent.production_allocation[i]
+                self.data[agent][COMMODITIES[i]].append(new_val)
             
 
     def plot(self, block=True):
         pyplot.style.use('ggplot')
-
-        commodity_log_list = [[] for _ in COMMODITIES]
 
         # New plot for each agent.
         for agent, entry in self.data.items():
@@ -212,6 +209,25 @@ class AllocationTracker(analysis.Tracker):
             pyplot.legend()
 
             pyplot.show(block=block)
+
+        # Plot running averages.
+        for agent, entry in self.data.items():
+            # Plot all commodities.
+            for commodity, allocation in entry.items():
+                line, = pyplot.plot(AllocationTracker.running_mean(allocation, 500), label=commodity)
+                line.set_antialiased(True)
+
+            pyplot.xlabel('Timestep')
+            pyplot.ylabel('Average Production Allocation')
+            pyplot.title(agent.name + ' Average Commodity Production Allocation')
+            pyplot.legend()
+
+            pyplot.show(block=block)
+    
+    @staticmethod
+    def running_mean(x, N):
+        cumsum = np.cumsum(np.insert(x, 0, 0)) 
+        return (cumsum[N:] - cumsum[:-N]) / float(N)
 
 class MediationLogEntry(object):
     @staticmethod
@@ -228,7 +244,7 @@ class Trader(core.Agent):
         super().__init__()
 
         self.name = name
-        self.commodities = np.zeros([len(COMMODITIES)])
+        self.commodities = np.zeros([len(COMMODITIES)], dtype=np.float_)
         self.production_rates = production_rates
         self.production_capacity = len(production_rates)
         self.production_allocation = None
@@ -241,12 +257,13 @@ class Trader(core.Agent):
         sum_constraint = decision.SumConstraint(self.production_capacity)
         self.production_allocation_assignation = decision.DecisionMutableFloatArray((len(COMMODITIES),), sum_constraint)
 
-        self.previous_commodities = production_rates 
+        self.previous_commodities = production_rates # Initial value doesnt matter here.
 
         io_file_name = "trader-{}.qlearning.pkl".format(self.name)
-        self.decision = decision.QLearningDecision(perception, loss, simulation.callbacks,
+        self.decision = decision.QLearningDecision(perception, loss, simulation,
             input_file_name=io_file_name, output_file_name=io_file_name, 
-            nonconformity_probability=decision.QLearningDecision.DEFAULT_NONCONFORMITY_FACTOR if simulation.is_training else 0)
+            nonconformity_probability=.5 if simulation.is_training else 0,
+            discount_factor=0)
         simulation.trackers["qlearning_" + name] = analysis.QLearningHistoryTracker(self.decision)
 
         self.actions["done"] = done
