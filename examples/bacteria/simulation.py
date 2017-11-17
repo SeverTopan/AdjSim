@@ -195,7 +195,7 @@ class QLearningBacteriaTrainSimulation(core.Simulation):
 
         io_file_name = "bacteria_intelligent.qlearning.pkl"
         self.bacteria_decision = decision.QLearningDecision(perception=bacteria_perception, loss=bacteria_loss, 
-            callbacks=self.callbacks, input_file_name=io_file_name, output_file_name=io_file_name)
+            simulation=self, input_file_name=io_file_name, output_file_name=io_file_name)
         
         # create bacteria agents
         for i in range(5):
@@ -217,7 +217,7 @@ class QLearningBacteriaTestSimulation(core.VisualSimulation):
 
         io_file_name = "bacteria_intelligent.qlearning.pkl"
         self.bacteria_decision = decision.QLearningDecision(perception=bacteria_perception, loss=bacteria_loss, 
-            callbacks=self.callbacks, input_file_name=io_file_name, output_file_name=io_file_name, nonconformity_probability=0)
+            simulation=self, input_file_name=io_file_name, output_file_name=io_file_name, nonconformity_probability=0)
         self.trackers["qlearning"] = analysis.QLearningHistoryTracker(self.bacteria_decision)
         
         # create bacteria agents

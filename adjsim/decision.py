@@ -570,7 +570,7 @@ class QLearningDecision(FunctionalDecision):
 
     print_debug = False
 
-    def __init__(self, perception, loss, callbacks,
+    def __init__(self, perception, loss, simulation,
                  input_file_name=DEFAULT_IO_FILE_NAME, output_file_name=DEFAULT_IO_FILE_NAME,
                  discount_factor=DEFAULT_DISCOUNT_FACTOR, nonconformity_probability=DEFAULT_NONCONFORMITY_FACTOR):
         super().__init__(perception, loss)
@@ -584,12 +584,16 @@ class QLearningDecision(FunctionalDecision):
         self.nonconformity_probability = nonconformity_probability
         self.completion_callback =  callback.SingleParameterCallback()
 
+        # Private members.
+        self._tentative_history_bank = {}
+        self._simulation = simulation
+
         # Load q_table
         self._load_q_table_from_disk()
 
         # Register callbacks.
-        callbacks.simulation_complete.register(self._on_simulation_complete)
-
+        self._simulation.callbacks.simulation_complete.register(self._on_simulation_complete)
+        self._simulation.callbacks.agent_removed.register(self._on_agent_removal)
 
     def _load_q_table_from_disk(self):
         """Loads the Q-Table from the file described by input_file_name"""
@@ -624,6 +628,10 @@ class QLearningDecision(FunctionalDecision):
             simulation (Simulation): The Simulation.
             source (Agent): The source Agent.
         """
+        # Obtain previous step's loss for the given agent.
+        # Loss is calculated for every antecedent step right before the subsequent action is made by a given agent.
+        self._save_loss(source)
+        
         # Observe environment.
         observation = None
         try:
@@ -669,15 +677,8 @@ class QLearningDecision(FunctionalDecision):
             # Call the action premise.
             action_premise.call(simulation, source)
 
-        # Obtain current loss.
-        current_loss = None
-        try:
-            current_loss = self.loss(simulation, source)
-        except:
-            raise utility.LossException
-
         # Bank history.
-        history_item = _QLearningHistoryItem(observation, action_premise, current_loss)
+        history_item = _QLearningHistoryItem(observation, action_premise, None)
         agent_history = self.history_bank.get(source.id)
         if agent_history is None:
             self.history_bank[source.id] = [history_item]
@@ -760,8 +761,39 @@ class QLearningDecision(FunctionalDecision):
         Args:
             simulation (Simiulation): The Simulation.
         """
+
+        # Update final losses.
+        for agent in simulation.agents:
+            if agent.decision is self:
+                self._save_loss(agent)
+
+        # Save all final losses.
         self._update_q_table_from_history_bank()
         self._save_q_table_to_disk()
+
+    def _save_loss(self, source):
+        """Saves the loss into the antecedent history item.
+
+        Args:
+            Source (Agent): The source agent.
+        """
+        current_loss = None
+        try:
+            current_loss = self.loss(self._simulation, source)
+        except:
+            raise utility.LossException
+
+        entry = self.history_bank.get(source.id)
+        if not entry is None: # This occurs during the first timestep.
+            entry[-1].loss = current_loss
+
+    def _on_agent_removal(self, agent):
+        """The callback that saves an agent's loss after it is removed from the simulation.
+
+        Args:
+            agent (Agent): The Agent.
+        """
+        self._save_loss(agent)
 
     def print_q_table(self):
         """Debug printing of the Q-Table"""

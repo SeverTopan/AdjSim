@@ -30,7 +30,7 @@ def test_qlearning_basic(mutable_min, mutable_max):
             super().__init__(pos=np.array([x, y]))
 
             self.decision = decision.QLearningDecision(perception=perception, loss=loss, 
-                callbacks=sim.callbacks, output_file_name=None, input_file_name=None)
+                simulation=sim, output_file_name=None, input_file_name=None)
 
             self.actions["move"] = move
 
@@ -46,7 +46,7 @@ def test_qlearning_basic(mutable_min, mutable_max):
     # Check proper call counts.
     assert move.count == 1
     assert perception.count == 1
-    assert loss.count == 1
+    assert loss.count == 2
 
     # Check expected q_table entries.
     assert agent.decision.q_table[1].loss == 1
