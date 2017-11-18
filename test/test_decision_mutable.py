@@ -47,6 +47,14 @@ def test_float(mutable_min, mutable_max):
         d._set_value_random()
         assert d.value <= d.max_val and d.value >= d.min_val
 
+    for _ in range(50):
+        d._perturb_around_locus((mutable_max - mutable_min)/2 + mutable_min)
+        assert d.value <= d.max_val and d.value >= d.min_val
+
+    for _ in range(50):
+        d._perturb_locally()
+        assert d.value <= d.max_val and d.value >= d.min_val
+
 @pytest.mark.parametrize("mutable_min,mutable_max", [(0, 1), (-1, 0), (0.0, 7.0), (-7, 0), (300, 400), (-300, 400), (-400, -300)])
 def test_int(mutable_min, mutable_max):
     import adjsim
@@ -83,6 +91,14 @@ def test_int(mutable_min, mutable_max):
         d._set_value_random()
         assert d.value <= d.max_val and d.value >= d.min_val
 
+    for _ in range(50):
+        d._perturb_around_locus(int((mutable_max - mutable_min)/2 + mutable_min))
+        assert d.value <= d.max_val and d.value >= d.min_val
+
+    for _ in range(50):
+        d._perturb_locally()
+        assert d.value <= d.max_val and d.value >= d.min_val
+
     
 def test_bool():
     import adjsim
@@ -100,15 +116,23 @@ def test_bool():
         d._set_value_random()
         assert d.value == True or d.value == False
 
+    for _ in range(50):
+        d._perturb_around_locus(False)
+        assert d.value == True or d.value == False
+
+    for _ in range(50):
+        d._perturb_locally()
+        assert d.value == True or d.value == False
+
 
 def test_sum_constraint():
     import adjsim
 
     with pytest.raises(ValueError):
-        adjsim.decision.SumConstraint(0)
+        adjsim.decision.PositiveSumConstraint(0)
 
     with pytest.raises(ValueError):
-        adjsim.decision.SumConstraint(None)
+        adjsim.decision.PositiveSumConstraint(None)
 
 range_values = [(0, 1.6), (-1.4, 0.5), (0.0, 7.0), (-7, 0.4), (300.7, 400.9), (-300.5, 400.2), (-400.5, -300.6)]
 shape_values = [(5,), (5, 6), [5, 6,], (4, 7, 3, 4)]
@@ -159,6 +183,14 @@ def test_float_array_range_constraint(mutable_min, mutable_max, shape):
     for _ in range(50):
         d._set_value_random()
         assert (d.value <= constraint.max_val).all() and (d.value >= constraint.min_val).all()
+
+    for _ in range(50):
+        d._perturb_around_locus(np.zeros(shape, dtype=np.float_) + valid_values[0])
+        assert (d.value <= constraint.max_val).all() and (d.value >= constraint.min_val).all()
+
+    for _ in range(50):
+        d._perturb_locally()
+        assert (d.value <= constraint.max_val).all() and (d.value >= constraint.min_val).all()
     
 
 sum_values = [1, -1, 5, -5, 400, -400, 7.78, -5,789]
@@ -168,7 +200,7 @@ items = itertools.product(sum_values, shape_values)
 def test_float_array_sum_constraint(sum_val, shape):
     import adjsim
 
-    constraint = adjsim.decision.SumConstraint(sum_val)
+    constraint = adjsim.decision.PositiveSumConstraint(sum_val)
     d = adjsim.decision.DecisionMutableFloatArray(shape, constraint)
 
     # Test parameters.
@@ -222,7 +254,9 @@ def test_float_array_sum_constraint(sum_val, shape):
         d._set_value_random()
         assert math.isclose(np.sum(d.value), sum_val)
     
-
+    for _ in range(50):
+        d._perturb_around_locus(valid_values[1])
+        assert math.isclose(np.sum(d.value), sum_val)
     
 
 range_values = [(0, 1), (-1, 0), (0, 7), (-7, 0), (300, 400), (-300, 400), (-400, -300)]
@@ -275,6 +309,14 @@ def test_int_array_range_constraint(mutable_min, mutable_max, shape):
         d._set_value_random()
         assert (d.value <= constraint.max_val).all() and (d.value >= constraint.min_val).all()
 
+    for _ in range(50):
+        d._perturb_around_locus(np.zeros(shape, dtype=np.int_) + int(valid_values[0]))
+        assert (d.value <= constraint.max_val).all() and (d.value >= constraint.min_val).all()
+
+    for _ in range(50):
+        d._perturb_locally()
+        assert (d.value <= constraint.max_val).all() and (d.value >= constraint.min_val).all()
+
 
 @pytest.mark.parametrize("shape", [(5,), (5, 6), [5, 6,], (4, 7, 3, 4)])
 def test_bool_array_range_constraint(shape):
@@ -309,4 +351,12 @@ def test_bool_array_range_constraint(shape):
 
     for _ in range(50):
         d._set_value_random()
+        assert np.logical_or(d.value, np.logical_not(d.value)).all() # Trivial.
+
+    for _ in range(50):
+        d._perturb_around_locus(valid_values[0])
+        assert np.logical_or(d.value, np.logical_not(d.value)).all() # Trivial.
+
+    for _ in range(50):
+        d._perturb_locally()
         assert np.logical_or(d.value, np.logical_not(d.value)).all() # Trivial.

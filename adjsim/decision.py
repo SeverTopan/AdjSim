@@ -32,6 +32,48 @@ class DecisionMutableValue(object):
     """
     pass
 
+class DecisionMutableBool(DecisionMutableValue):
+    """Contains a boolean that the decision module will modify.
+
+    A decision mutable bool represents a value that a particular decision module will try to optimize for.
+    perturbation_scale relates to the probability the locus will flip its value.
+    """
+
+    DEFAULT_PERTURBATION_SCALE = 0.3
+
+    def __init__(self, perturbation_scale=DEFAULT_PERTURBATION_SCALE):
+        super().__init__()
+        self._value = None
+        self._perturbation_scale = perturbation_scale
+
+    @property
+    def value(self):
+        """bool: Obtain the value."""
+        return self._value
+
+    @property
+    def perturbation_scale(self):
+        """float: Obtain the perturbation scale."""
+        return self._perturbation_scale
+
+    def _set_value(self, value):
+        """Private setter for use by decision modules."""
+        self._value = bool(value)
+
+    def _set_value_random(self):
+        """Private function to assign value based on uniform random distribution inside range."""
+        self._value = bool(random.getrandbits(1))
+
+    def _perturb_locally(self):
+        """Private function to assign value based local perturbation to the current value."""
+        self._perturb_around_locus(self._value)
+
+    def _perturb_around_locus(self, locus):
+        """Private function to assign value based local perturbation to the given parameter."""
+        self._set_value(not bool(locus) if random.random() < self._perturbation_scale else locus)
+        
+
+
 class DecisionMutableFloat(DecisionMutableValue):
     """Contains a bounded float that the decision module will modify.
 
@@ -40,14 +82,18 @@ class DecisionMutableFloat(DecisionMutableValue):
     value to fulfill its loss function.
 
     Bounds are inclusive: value in [min_val, max_val].
+    perturbation_scale relates to the scale of the np.random.normal.
     """
 
-    def __init__(self, min_val, max_val):
+    DEFAULT_PERTURBATION_SCALE = 1.0
+
+    def __init__(self, min_val, max_val, perturbation_scale=DEFAULT_PERTURBATION_SCALE):
         super().__init__()
 
         self._value = None
         self._min_val = float(min_val)
         self._max_val = float(max_val)
+        self._perturbation_scale = perturbation_scale
 
     @property
     def value(self):
@@ -64,6 +110,11 @@ class DecisionMutableFloat(DecisionMutableValue):
         """float: Obtain the maximum bound."""
         return self._max_val
 
+    @property
+    def perturbation_scale(self):
+        """float: Obtain the perturbation scale."""
+        return self._perturbation_scale
+
     def _set_value(self, value):
         """Private setter for use by decision modules."""
         if value < self._min_val or value > self._max_val:
@@ -75,28 +126,18 @@ class DecisionMutableFloat(DecisionMutableValue):
         """Private function to assign value based on uniform random distribution inside range."""
         self._value = random.uniform(self.min_val, self.max_val)
 
-class DecisionMutableBool(DecisionMutableValue):
-    """Contains a boolean that the decision module will modify.
+    def _perturb_locally(self):
+        """Private function to assign value based local perturbation to the current value."""
+        self._perturb_around_locus(self._value)
 
-    A decision mutable bool represents a value that a particular decision module will try to optimize for.
-    """
+    def _perturb_around_locus(self, locus):
+        """Private function to assign value based local perturbation to the given parameter."""
+        self._perturb_value_gaussian(locus)
 
-    def __init__(self):
-        super().__init__()
-        self._value = None
-
-    @property
-    def value(self):
-        """bool: Obtain the value."""
-        return self._value
-
-    def _set_value(self, value):
-        """Private setter for use by decision modules."""
-        self._value = bool(value)
-
-    def _set_value_random(self):
-        """Private function to assign value based on uniform random distribution inside range."""
-        self._value = bool(random.getrandbits(1))
+    def _perturb_value_gaussian(self, locus):
+        """Private function to assign value based on a gaussian perturbation."""
+        self._set_value(np.clip(np.random.normal(locus, self._perturbation_scale), \
+            self.min_val, self.max_val))
 
 
 class DecisionMutableInt(DecisionMutableValue):
@@ -107,14 +148,18 @@ class DecisionMutableInt(DecisionMutableValue):
     value to fulfill its loss function.
 
     Bounds are inclusive: value in [min_val, max_val].    
+    perturbation_scale relates to the scale of the np.random.normal.
     """
 
-    def __init__(self, min_val, max_val):
+    DEFAULT_PERTURBATION_SCALE = 1.0
+
+    def __init__(self, min_val, max_val, perturbation_scale=DEFAULT_PERTURBATION_SCALE):
         super().__init__()
 
         self._value = None
         self._min_val = int(min_val)
         self._max_val = int(max_val)
+        self._perturbation_scale = perturbation_scale
 
     @property
     def value(self):
@@ -131,6 +176,11 @@ class DecisionMutableInt(DecisionMutableValue):
         """int: Obtain the maximum bound."""
         return self._max_val
 
+    @property
+    def perturbation_scale(self):
+        """float: Obtain the perturbation scale."""
+        return self._perturbation_scale
+
     def _set_value(self, value):
         """Private setter for use by decision modules."""
         if value < self._min_val or value > self._max_val:
@@ -142,14 +192,30 @@ class DecisionMutableInt(DecisionMutableValue):
         """Private function to assign value based on uniform random distribution inside range."""
         self._value = random.randint(self.min_val, self.max_val)
 
+    def _perturb_locally(self):
+        """Private function to assign value based local perturbation to the current value."""
+        self._perturb_around_locus(self._value)
+
+    def _perturb_around_locus(self, locus):
+        """Private function to assign value based local perturbation to the given parameter."""
+        self._perturb_value_gaussian(locus)
+
+    def _perturb_value_gaussian(self, locus):
+        """Private function to assign value based on a gaussian perturbation."""
+        self._set_value(np.clip(round(np.random.normal(locus, self._perturbation_scale)), \
+            self.min_val, self.max_val))
+
+
 class ArrayConstraint(object):
     """Abstract base class for array constraints."""
     def satisfies(self, value):
         raise NotImplementedError
 
 
-class SumConstraint(ArrayConstraint):
-    """Contrain an array so that all elements sum to a given value."""
+class PositiveSumConstraint(ArrayConstraint):
+    """Constrain a decision-mutable array so that all elements sum to a given value. 
+    All elements will be positive.
+    """
     def __init__(self, sum_constraint):
         if sum_constraint is None:
             raise ValueError("Sum may not be None.")
@@ -164,7 +230,7 @@ class SumConstraint(ArrayConstraint):
 
 
 class RangeConstraint(ArrayConstraint):
-    """Contrain an array so that all elements fall in a given range."""
+    """Constrain a decision-mutable array so that all elements fall in a given range."""
     def __init__(self, min_val, max_val):
         if min_val is None or max_val is None:
             raise ValueError("Bounds may not be None.")
@@ -180,15 +246,19 @@ class DecisionMutableBoolArray(DecisionMutableValue):
     """Contains an array of booleans that the decision module will modify.
 
     A decision mutable bool array represents a value that a particular decision module will try to optimize for.
+    perturbation_scale relates to the probability the locus will flip its value.
     """
 
-    def __init__(self, shape):
+    DEFAULT_PERTURBATION_SCALE = 1.0
+
+    def __init__(self, shape, perturbation_scale=DEFAULT_PERTURBATION_SCALE):
         super().__init__()
         if not np.any(shape):
             raise ValueError("Invalid shape.")
 
         self._shape = tuple(shape)
         self._value = np.zeros(self._shape, dtype=np.bool_)
+        self._perturbation_scale = perturbation_scale
 
     @property
     def value(self):
@@ -199,6 +269,11 @@ class DecisionMutableBoolArray(DecisionMutableValue):
     def shape(self):
         """np.array: Obtain the array shape."""
         return self._shape
+
+    @property
+    def perturbation_scale(self):
+        """float: Obtain the perturbation scale."""
+        return self._perturbation_scale
 
     def _set_value(self, value):
         """Private setter for use by decision modules."""
@@ -214,6 +289,15 @@ class DecisionMutableBoolArray(DecisionMutableValue):
         """Private function to assign random array value based on constraints."""
         self._value = np.random.random(self._shape) > 0.5
 
+    def _perturb_locally(self):
+        """Private function to assign value based local perturbation to the current value."""
+        self._perturb_around_locus(self._value)
+
+    def _perturb_around_locus(self, locus):
+        """Private function to assign value based local perturbation to the given parameter."""
+        flip = np.random.random(self._shape) < self._perturbation_scale
+        self._set_value(np.logical_xor(locus, flip))
+
 
 class DecisionMutableIntArray(DecisionMutableValue):
     """Contains an integer array that the decision module will modify.
@@ -223,9 +307,12 @@ class DecisionMutableIntArray(DecisionMutableValue):
     value to fulfill its loss function.
 
     A constraint must be specified. SumContraint is not supported.
+    perturbation_scale relates to the scale of the np.random.normal.
     """
 
-    def __init__(self, shape, constraint=None):
+    DEFAULT_PERTURBATION_SCALE = 1.0
+
+    def __init__(self, shape, constraint, perturbation_scale=DEFAULT_PERTURBATION_SCALE):
         super().__init__()
 
         # Error check constraints.
@@ -238,6 +325,7 @@ class DecisionMutableIntArray(DecisionMutableValue):
         self._constraint = copy.copy(constraint)
         self._shape = tuple(shape)
         self._value = np.zeros(self._shape, dtype=np.int_)
+        self._perturbation_scale = perturbation_scale
 
     @property
     def value(self):
@@ -253,6 +341,11 @@ class DecisionMutableIntArray(DecisionMutableValue):
     def shape(self):
         """np.array: Obtain the array shape."""
         return self._shape
+
+    @property
+    def perturbation_scale(self):
+        """float: Obtain the perturbation scale."""
+        return self._perturbation_scale
 
     def _set_value(self, value):
         """Private setter for use by decision modules."""
@@ -273,6 +366,23 @@ class DecisionMutableIntArray(DecisionMutableValue):
         else:
             raise ValueError("Invalid constraint type.")
 
+    def _perturb_locally(self):
+        """Private function to assign value based local perturbation to the current value."""
+        self._perturb_around_locus(self._value)
+
+    def _perturb_around_locus(self, locus):
+        """Private function to assign value based local perturbation to the given parameter."""
+        if isinstance(self._constraint, RangeConstraint):
+            self._perturb_value_gaussian_range_constraint(locus)
+
+        else:
+            raise ValueError("Invalid constraint type.")
+
+    def _perturb_value_gaussian_range_constraint(self, locus):
+        """Private function to assign value based on a gaussian perturbation."""
+        self._set_value(np.clip(np.random.normal(locus, self._perturbation_scale).astype(np.int), \
+            self._constraint.min_val, self._constraint.max_val))
+
 class DecisionMutableFloatArray(DecisionMutableValue):
     """Contains an float array that the decision module will modify.
 
@@ -281,9 +391,13 @@ class DecisionMutableFloatArray(DecisionMutableValue):
     value to fulfill its loss function.
 
     A constraint must be specified. 
+
+    perturbation_scale relates to the scale of the np.random.normal.
     """
 
-    def __init__(self, shape, constraint):
+    DEFAULT_PERTURBATION_SCALE = 1.0
+    
+    def __init__(self, shape, constraint, perturbation_scale=DEFAULT_PERTURBATION_SCALE):
         super().__init__()
 
         # Error check constraints.
@@ -296,6 +410,7 @@ class DecisionMutableFloatArray(DecisionMutableValue):
         self._constraint = copy.copy(constraint)
         self._shape = tuple(shape)
         self._value = np.zeros(self._shape, dtype=np.float_)
+        self._perturbation_scale = perturbation_scale
 
     @property
     def value(self):
@@ -311,6 +426,11 @@ class DecisionMutableFloatArray(DecisionMutableValue):
     def shape(self):
         """np.array: Obtain the array shape."""
         return self._shape
+
+    @property
+    def perturbation_scale(self):
+        """float: Obtain the perturbation scale."""
+        return self._perturbation_scale
 
     def _set_value(self, value):
         """Private setter for use by decision modules."""
@@ -328,12 +448,39 @@ class DecisionMutableFloatArray(DecisionMutableValue):
         if isinstance(self._constraint, RangeConstraint):
             self._value = np.random.uniform(self._constraint.min_val, self._constraint.max_val, size=self._shape)
 
-        elif isinstance(self._constraint, SumConstraint):
+        elif isinstance(self._constraint, PositiveSumConstraint):
             temp = np.random.random(size=self._shape)
             self._value = temp/np.sum(temp)*self._constraint.sum
 
         else:
             raise ValueError("Invalid constraint type.")
+
+    def _perturb_locally(self):
+        """Private function to assign value based local perturbation to the current value."""
+        self._perturb_around_locus(self._value)
+
+    def _perturb_around_locus(self, locus):
+        """Private function to assign value based local perturbation to the given parameter."""
+
+        if isinstance(self._constraint, RangeConstraint):
+            self._perturb_value_gaussian_range_constraint(locus)
+
+        elif isinstance(self._constraint, PositiveSumConstraint):
+            self._perturb_value_gaussian_sum_constraint(locus)
+
+        else:
+            raise ValueError("Invalid constraint type.")
+
+    def _perturb_value_gaussian_range_constraint(self, locus):
+        """Private function to assign value based on a gaussian perturbation."""
+        self._set_value(np.clip(np.random.normal(locus, self._perturbation_scale), \
+            self._constraint.min_val, self._constraint.max_val))
+
+    def _perturb_value_gaussian_sum_constraint(self, locus):
+        """Private function to assign value based on a gaussian perturbation."""
+        temp = np.random.normal(np.zeros(self._shape), self._perturbation_scale)
+        perturbation = temp - np.sum(temp)/temp.size
+        self._set_value(locus + perturbation)
 
 
 class _DecisionMutablePremise(object):
@@ -571,8 +718,10 @@ class QLearningDecision(FunctionalDecision):
     print_debug = False
 
     def __init__(self, perception, loss, simulation,
-                 input_file_name=DEFAULT_IO_FILE_NAME, output_file_name=DEFAULT_IO_FILE_NAME,
-                 discount_factor=DEFAULT_DISCOUNT_FACTOR, nonconformity_probability=DEFAULT_NONCONFORMITY_FACTOR):
+                 input_file_name=DEFAULT_IO_FILE_NAME, 
+                 output_file_name=DEFAULT_IO_FILE_NAME,
+                 discount_factor=DEFAULT_DISCOUNT_FACTOR, 
+                 nonconformity_probability=DEFAULT_NONCONFORMITY_FACTOR):
         super().__init__(perception, loss)
 
         # Initialize members.
@@ -646,32 +795,11 @@ class QLearningDecision(FunctionalDecision):
         # Cast action.
         # The random action will still be called even if a q_table entry is found.
         # This happens with a probability represented by the nonconformity_probability.
-        if action_premise is None or random.random() < self.nonconformity_probability:
-            # Prepare action premise.
-            action_premise = _ActionPremise()
+        if action_premise is None:
+            action_premise = self._generate_unprecedented_action_premise(source)
 
-            # This is essentially a RandomRepeatedCast.
-            while not source.step_complete:
-                action_premise_iteration = _ActionPremiseIteration()
-
-                # Set decision mutable values to random values, save to action premise.
-                decision_mutable_names = [d for d in dir(source) if issubclass(type(getattr(source, d)), DecisionMutableValue)]
-                for decision_mutable_name in decision_mutable_names:
-                    decision_mutable = getattr(source, decision_mutable_name)
-                    decision_mutable._set_value_random()
-
-                    action_premise_iteration.decision_mutables.append(_DecisionMutablePremise(decision_mutable_name, decision_mutable.value))
-
-                # Cast fallback decision, save to action premise.
-                try:
-                    identifier, action = random.choice(list(source.actions.items()))
-                    action(simulation, source)
-                    action_premise_iteration.action_name = identifier
-                except:
-                    raise utility.ActionException
-
-                # Save action premise.
-                action_premise.iterations.append(action_premise_iteration)
+        elif random.random() < self.nonconformity_probability:
+            action_premise = self._generate_nonconformative_action_premise(source, action_premise)
 
         else:
             # Call the action premise.
@@ -684,6 +812,50 @@ class QLearningDecision(FunctionalDecision):
             self.history_bank[source.id] = [history_item]
         else:
             self.history_bank[source.id].append(history_item)
+
+    def _generate_unprecedented_action_premise(self, source):
+        """Generate, invoke and return an action premise for the case where no known
+        prior instance of a given observation has been seen by the QLearning module.
+        """
+        return self._generate_new_random_action_premise(source)
+
+    def _generate_nonconformative_action_premise(self, source, existing_action_premise):
+        """Generate, invoke and return an action premise for the case we invoke non-conformity."""
+        return self._generate_new_random_action_premise(source)        
+
+    def _generate_new_random_action_premise(self, source):
+        """Generate, invoke and return a random new action premise.
+
+        Here we essentially perorm a RandomRepeatedCast decision, and return the 
+        resulting action premise.
+        """
+        # Prepare action premise.
+        action_premise = _ActionPremise()
+
+        # This is essentially a RandomRepeatedCast.
+        while not source.step_complete:
+            action_premise_iteration = _ActionPremiseIteration()
+
+            # Set decision mutable values to random values, save to action premise.
+            decision_mutable_names = [d for d in dir(source) if issubclass(type(getattr(source, d)), DecisionMutableValue)]
+            for decision_mutable_name in decision_mutable_names:
+                decision_mutable = getattr(source, decision_mutable_name)
+                decision_mutable._set_value_random()
+
+                action_premise_iteration.decision_mutables.append(_DecisionMutablePremise(decision_mutable_name, decision_mutable.value))
+
+            # Cast fallback decision, save to action premise.
+            try:
+                identifier, action = random.choice(list(source.actions.items()))
+                action(self._simulation, source)
+                action_premise_iteration.action_name = identifier
+            except:
+                raise utility.ActionException
+
+            # Save action premise.
+            action_premise.iterations.append(action_premise_iteration)
+
+        return action_premise
 
     def _update_q_table_from_history_bank(self):
         """Update Q-Table from the history bank.
@@ -761,7 +933,6 @@ class QLearningDecision(FunctionalDecision):
         Args:
             simulation (Simiulation): The Simulation.
         """
-
         # Update final losses.
         for agent in simulation.agents:
             if agent.decision is self:
@@ -793,9 +964,174 @@ class QLearningDecision(FunctionalDecision):
         Args:
             agent (Agent): The Agent.
         """
-        self._save_loss(agent)
+        if agent.decision is self:
+            self._save_loss(agent)
 
     def print_q_table(self):
         """Debug printing of the Q-Table"""
         for observation, item in self.q_table.items():
             print("   ", observation, " > ", item)
+
+
+class PerturbativeQLearningDecision(QLearningDecision):
+    """A decision module based on Q-Learning.
+
+    This module employs Q-Learning (https://en.wikipedia.org/wiki/Q-learning), a reinforcement
+    learning technique, to incrementally enhance its performance as measured by the provided loss
+    function. Over many simulations, the performance of the agent will be increased.
+
+    The difference between this and the canonical QLearning decision module is the non-conformity behaviour.
+    Non-conforming calls will perturb existing action premises instead of generating completely new ones
+
+    Args:
+        perception (callable): The perception callable. Can return any value.
+        loss (callable): The loss callable. Must return a float-convertible object.
+        callbacks (_CallbackSuite): The simulation's callback suite. Used by the decision module
+            to register neccessary callbacks.
+        input_file_name (string): The name of the .pkl file from which to read a previous Q-Table.
+            The previous Q-Table will be used as a starting point in the current simulation.
+        output_file_name (string): The name of the .pkl file where the new Q-Table will be saved.
+        discount_factor (float): The dscount factor (gamma) used in the temporal-differnce calculation
+            of agent loss. Defaults to 0.95.
+        nonconformity_probability (float): When an agent finds an existing entry in its Q-Table, it will 
+            still choose to perform a random action with a probability equivalent to 
+            nonconformity_probability. Defaults to 0.3.
+    """
+
+    class Config(object):
+        """Configuration object for Perturbative Q-Learning. There are 3 types of mutually-inclusive
+        perturbations that can take place. The values contained within this object represent the probability
+        that the given perturbation will take place. 
+
+        reorder_probability (float): Probability that the existing action sequence will be reordered.
+        ignore_probability (float): Proability that existing actions will be removed from the sequence.
+        local_perturbation_probability (float): Probability that local pertrurbations will be induced upon the
+            individual elements of the existing action sequence.
+        """
+
+        DEFAULT_REORDER_PROBABILITY = 0.2
+        DEFAULT_IGNORE_PROBABILITY = 0.3
+        DEFAULT_LOCAL_PERTURBATION_PROBABILITY = 0.7
+
+        def __init__(self, reorder_probability=DEFAULT_REORDER_PROBABILITY, 
+                     ignore_proabability=DEFAULT_IGNORE_PROBABILITY, 
+                     local_perturbation_probability=DEFAULT_LOCAL_PERTURBATION_PROBABILITY):
+                    
+            self._reorder_probability = reorder_probability
+            self._ignore_proabability = ignore_proabability
+            self._local_perturbation_probability = local_perturbation_probability
+
+        @property
+        def reorder_probability(self):
+            """float: obtain the probability that reordering will take place."""
+            return self._reorder_probability
+
+        @reorder_probability.setter
+        def reorder_probability(self, value):
+            val = float(value)
+            if val > 1.0 or val < 0:
+                raise ValueError("Value must be between 0 and 1")
+
+            self._reorder_probability = val
+
+        @property
+        def ignore_probability(self):
+            """float: obtain the probability that existing actions will be ignored."""
+            return self._ignore_proabability
+
+        @ignore_probability.setter
+        def ignore_probability(self, value):
+            val = float(value)
+            if val > 1.0 or val < 0:
+                raise ValueError("Value must be between 0 and 1")
+
+            self._ignore_proabability = val
+
+        @property
+        def local_perturbation_probability(self):
+            """float: obtain the probability that existing actions will be locally perturbed."""
+            return self._local_perturbation_probability
+
+        @local_perturbation_probability.setter
+        def local_perturbation_probability(self, value):
+            val = float(value)
+            if val > 1.0 or val < 0:
+                raise ValueError("Value must be between 0 and 1")
+
+            self._local_perturbation_probability = val
+
+
+    def __init__(self, perception, loss, simulation,
+                 input_file_name=QLearningDecision.DEFAULT_IO_FILE_NAME, 
+                 output_file_name=QLearningDecision.DEFAULT_IO_FILE_NAME,
+                 discount_factor=QLearningDecision.DEFAULT_DISCOUNT_FACTOR, 
+                 nonconformity_probability=QLearningDecision.DEFAULT_NONCONFORMITY_FACTOR,
+                 perturbation_config=Config()):
+        super().__init__(perception, loss, simulation, input_file_name, output_file_name, 
+                         discount_factor, nonconformity_probability)
+        self._config = perturbation_config
+
+    @property
+    def config(self):
+        """Config: obtain the perturbation configuration object."""
+        return self._config
+
+    @config.setter
+    def config(self, value):
+        if not isinstance(value, Config):
+            raise TypeError("Value must be of type PerturbativeQLearningDecision.Config")
+
+        self._config = value
+
+    def _generate_nonconformative_action_premise(self, source, existing_action_premise):
+        """Generate, invoke and return an action premise for the case we invoke non-conformity."""
+        # Prepare action premise.
+        action_premise = copy.copy(existing_action_premise)
+
+        # Ignore-type perturbation.
+        ignoration_array = np.random.random((len(action_premise.iterations),)) < self._config.ignore_probability
+        action_premise.iterations = [e for i, e in enumerate(action_premise.iterations) if not ignoration_array[i]]
+
+        # Reorder-type perturbation.
+        if random.random() < self._config.reorder_probability:
+            random.shuffle(action_premise.iterations)
+
+        # Cast existing action premise.
+        iteration_index = 0
+        while not source.step_complete and iteration_index < len(action_premise.iterations):
+            # Set and locally perturb decision mutables.
+            action_premise.iterations[iteration_index].set_mutables(source)
+            decision_mutable_names = [d for d in dir(source) if issubclass(type(getattr(source, d)), DecisionMutableValue)]
+            for decision_mutable_name in decision_mutable_names:
+                decision_mutable = getattr(source, decision_mutable_name)
+                decision_mutable._perturb_locally()
+
+            # Invoke action.
+            action_premise.iterations[iteration_index].call_action(self._simulation, source)
+
+            iteration_index += 1
+
+        # Call further actions.
+        while not source.step_complete:
+            action_premise_iteration = _ActionPremiseIteration()
+
+            # Set decision mutable values to random values, save to action premise.
+            decision_mutable_names = [d for d in dir(source) if issubclass(type(getattr(source, d)), DecisionMutableValue)]
+            for decision_mutable_name in decision_mutable_names:
+                decision_mutable = getattr(source, decision_mutable_name)
+                decision_mutable._set_value_random()
+
+                action_premise_iteration.decision_mutables.append(_DecisionMutablePremise(decision_mutable_name, decision_mutable.value))
+
+            # Cast fallback decision, save to action premise.
+            try:
+                identifier, action = random.choice(list(source.actions.items()))
+                action(self._simulation, source)
+                action_premise_iteration.action_name = identifier
+            except:
+                raise utility.ActionException
+
+            # Save action premise.
+            action_premise.iterations.append(action_premise_iteration)
+
+        return action_premise
