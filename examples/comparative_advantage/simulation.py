@@ -250,20 +250,21 @@ class Trader(core.Agent):
         self.production_allocation = None
         self.index = index
 
-        self.trade_sell_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1)
-        self.trade_buy_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1)
-        self.trade_target_index = decision.DecisionMutableInt(0, total_num_traders - 1)
-        self.trade_amount = decision.DecisionMutableFloat(0, MAX_TRADE_AMOUNT)
-        sum_constraint = decision.SumConstraint(self.production_capacity)
-        self.production_allocation_assignation = decision.DecisionMutableFloatArray((len(COMMODITIES),), sum_constraint)
+        self.trade_sell_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1, 0.5)
+        self.trade_buy_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1, 0.5)
+        self.trade_target_index = decision.DecisionMutableInt(0, total_num_traders - 1, 0.5)
+        self.trade_amount = decision.DecisionMutableFloat(0, MAX_TRADE_AMOUNT, 2)
+        sum_constraint = decision.PositiveSumConstraint(self.production_capacity)
+        self.production_allocation_assignation = decision.DecisionMutableFloatArray((len(COMMODITIES),), sum_constraint, 0.5)
 
         self.previous_commodities = production_rates # Initial value doesnt matter here.
 
         io_file_name = "trader-{}.qlearning.pkl".format(self.name)
-        self.decision = decision.QLearningDecision(perception, loss, simulation,
+        self.decision = decision.PerturbativeQLearningDecision(perception, loss, simulation,
             input_file_name=io_file_name, output_file_name=io_file_name, 
-            nonconformity_probability=.5 if simulation.is_training else 0,
-            discount_factor=0)
+            nonconformity_probability=.0 if simulation.is_training else 0.4,
+            discount_factor=0,
+            perturbation_config=decision.PerturbativeQLearningDecision.Config(0.1, 0.1, 1.))
         simulation.trackers["qlearning_" + name] = analysis.QLearningHistoryTracker(self.decision)
 
         self.actions["done"] = done
