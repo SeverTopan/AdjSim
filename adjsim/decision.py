@@ -500,7 +500,7 @@ class _DecisionMutablePremise(object):
 
     def __repr__(self):
         """Debug printing."""
-        return "(" + repr(self.name) + " - " + repr(self.value) + ")"
+        return "\n(" + repr(self.name) + " - " + repr(self.value) + ")"
 
 
 class _ActionPremiseIteration(object):
@@ -544,7 +544,7 @@ class _ActionPremiseIteration(object):
 
     def __repr__(self):
         """Debug printing."""
-        return repr(self.action_name) + " - " + repr(self.decision_mutables)
+        return "\n" + repr(self.action_name) + " - " + repr(self.decision_mutables)
 
 class _ActionPremise(object):
     """Container for an action premse.
