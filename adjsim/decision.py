@@ -1011,10 +1011,11 @@ class PerturbativeQLearningDecision(QLearningDecision):
         perturbations that can take place. The values contained within this object represent the probability
         that the given perturbation will take place. 
 
-        reorder_probability (float): Probability that the existing action sequence will be reordered.
-        ignore_probability (float): Proability that existing actions will be removed from the sequence.
-        local_perturbation_probability (float): Probability that local pertrurbations will be induced upon the
-            individual elements of the existing action sequence.
+        Args:
+            reorder_probability (float): Probability that the existing action sequence will be reordered.
+            ignore_probability (float): Proability that existing actions will be removed from the sequence.
+            local_perturbation_probability (float): Probability that local pertrurbations will be induced upon the
+                individual elements of the existing action sequence.
         """
 
         DEFAULT_REORDER_PROBABILITY = 0.2
