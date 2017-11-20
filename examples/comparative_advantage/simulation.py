@@ -5,6 +5,7 @@
 import sys
 import os
 import copy
+import math
 
 # Third party.
 import numpy as np
@@ -38,7 +39,6 @@ def trade_commodity(simulation, source):
 
     # Remove the commodity from the selling agent.
     sell_amount = np.clip(source.trade_amount.value, 0, source.commodities[sell_commodity])
-    source.commodities[sell_commodity] -= sell_amount
     sell_amount_converted = sell_amount * CONVERSION_ARRAY[sell_commodity, buy_commodity]
 
     # Create Mediation Log Entry.
@@ -46,16 +46,19 @@ def trade_commodity(simulation, source):
     mediation_log_entry_inverse = MediationLogEntry.inverse(mediation_log_entry)
 
     # Make sure there is something to sell.
-    if sell_amount == 0:
+    if math.isclose(sell_amount, 0):
         return
 
+    # Deduct sell amount.
+    source.commodities[sell_commodity] -= sell_amount
+
     # Check to see if inverse exists
-    existing = simulation.transaction_mediation_log.get(mediation_log_entry_inverse)
-    if existing is not None:
-        existing_converted = existing * CONVERSION_ARRAY[buy_commodity, sell_commodity]
+    existing_inverse = simulation.transaction_mediation_log.get(mediation_log_entry_inverse)
+    if existing_inverse is not None:
+        existing_converted = existing_inverse * CONVERSION_ARRAY[buy_commodity, sell_commodity]
 
         # Perform transaction.
-        if existing >= sell_amount_converted:
+        if existing_inverse >= sell_amount_converted:
             simulation.transaction_mediation_log[mediation_log_entry_inverse] -= sell_amount_converted
 
             if simulation.transaction_mediation_log[mediation_log_entry_inverse] == 0:
@@ -66,17 +69,22 @@ def trade_commodity(simulation, source):
 
             simulation.trackers["transaction"].on_transaction(Transaction(simulation, source.index, sell_commodity, sell_amount, target_agent.index, buy_commodity, sell_amount_converted))
 
-        elif existing < sell_amount_converted:
+        elif existing_inverse < sell_amount_converted:
             del simulation.transaction_mediation_log[mediation_log_entry_inverse]
             simulation.transaction_mediation_log[mediation_log_entry] = sell_amount - existing_converted
 
             target_agent.commodities[sell_commodity] += existing_converted
-            source.commodities[buy_commodity] += existing
+            source.commodities[buy_commodity] += existing_inverse
 
-            simulation.trackers["transaction"].on_transaction(Transaction(simulation, source.index, sell_commodity, existing_converted, target_agent.index, buy_commodity, existing))
+            simulation.trackers["transaction"].on_transaction(Transaction(simulation, source.index, sell_commodity, existing_converted, target_agent.index, buy_commodity, existing_inverse))
             
     else:
-        simulation.transaction_mediation_log[mediation_log_entry] = sell_amount
+        existing_current = simulation.transaction_mediation_log.get(mediation_log_entry)
+        if existing_current is None:
+            simulation.transaction_mediation_log[mediation_log_entry] = sell_amount
+        else:
+            simulation.transaction_mediation_log[mediation_log_entry] += sell_amount
+
 
 def allocate_production(simulation, source):
     if not source.production_allocation is None:
@@ -262,9 +270,9 @@ class Trader(core.Agent):
         io_file_name = "trader-{}.qlearning.pkl".format(self.name)
         self.decision = decision.PerturbativeQLearningDecision(perception, loss, simulation,
             input_file_name=io_file_name, output_file_name=io_file_name, 
-            nonconformity_probability=.0 if simulation.is_training else 0.4,
+            nonconformity_probability=.9 if simulation.is_training else 4.,
             discount_factor=0,
-            perturbation_config=decision.PerturbativeQLearningDecision.Config(0.1, 0.1, 1.))
+            perturbation_config=decision.PerturbativeQLearningDecision.Config(0.1, 0.4, 0.9))
         simulation.trackers["qlearning_" + name] = analysis.QLearningHistoryTracker(self.decision)
 
         self.actions["done"] = done
