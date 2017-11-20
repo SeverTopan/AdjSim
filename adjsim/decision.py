@@ -813,6 +813,13 @@ class QLearningDecision(FunctionalDecision):
         else:
             self.history_bank[source.id].append(history_item)
 
+        # Post-step existence check.
+        # If the agent is removed from the simulation during the current step, the on_agent_removed callback
+        # has fired before we had a chance to add the latest entry into the history bank. In this case,
+        # we recalculate the loss here.
+        if not source._exists:
+            self._save_loss(source)
+
     def _generate_unprecedented_action_premise(self, source):
         """Generate, invoke and return an action premise for the case where no known
         prior instance of a given observation has been seen by the QLearning module.
@@ -956,7 +963,8 @@ class QLearningDecision(FunctionalDecision):
 
         entry = self.history_bank.get(source.id)
         if not entry is None: # This occurs during the first timestep.
-            entry[-1].loss = current_loss
+            if entry[-1].loss is None: # This check enables us to perform the Post-step existence check.
+                entry[-1].loss = current_loss
 
     def _on_agent_removal(self, agent):
         """The callback that saves an agent's loss after it is removed from the simulation.
