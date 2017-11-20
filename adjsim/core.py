@@ -301,6 +301,7 @@ class Simulation(object):
             raise Exception("Simulation already started.")
 
         self._running = True
+        self.time = 0
 
         # Call milestone callback.
         self.callbacks.simulation_started(self)
