@@ -1,3 +1,5 @@
+:orphan:
+
 AdjSim
 ======
 
@@ -5,6 +7,3 @@ AdjSim
    :maxdepth: 4
 
    adjsim
-   examples
-   setup
-   test

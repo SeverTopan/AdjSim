@@ -68,11 +68,3 @@ adjsim\.visual module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: adjsim
-    :members:
-    :undoc-members:
-    :show-inheritance:
