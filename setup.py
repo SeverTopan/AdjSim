@@ -4,7 +4,7 @@ from setuptools import setup
 import sys
 
 setup(name='adjsim',
-      version='2.0.1',
+      version='2.1.0',
       description='An Agent Based Modelling Engine tailored for Reinforcement Learning.',
       long_description=open('README.rst', 'r').read(),
       url='https://github.com/SeverTopan/AdjSim',

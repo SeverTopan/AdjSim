@@ -3,9 +3,15 @@ AdjSim Simulation Framework
 
 |Build Status| |Coverage Status| |License: GPL v3|
 
-A simulation framework. Intended for simulation of ecosystems.
-
     Designed and developed by Sever Topan
+
+Navigation
+----------
+
+1. `Feature Abstract <#Features>`__
+2. `Installation Instructions <INSTALL.md>`__
+3. `Tutorial <tutorial/tutorial.ipynb>`__
+4. `Class Documentation <https://severtopan.github.io/AdjSim/>`__
 
 Features
 --------
@@ -47,7 +53,8 @@ For example, we can track the population of each different type of
 agent, or the efficacy of the agent's ability to meet its intelligence
 module-defined goals.
 
-|QLearning Graph| |Predator Prey Graph|
+\| |QLearning Graph|\ \| |Predator Prey Graph| \|
+\|:-------------:\|:-------------:\|
 
 Intelligence Module
 ~~~~~~~~~~~~~~~~~~~
@@ -60,45 +67,6 @@ agents to learn which actions are best used in a given situation.
 Currently the intelligence module implements
 `Q-Learning <https://en.wikipedia.org/wiki/Q-learning>`__, but more
 advanced reinforcement learning techniques are coming soon!
-
-Installing and Running AdjSim
------------------------------
-
-It is reccommended to run AdjSim using virtual python environments
-provided by Anaconda or Pip. The following describes the installation
-procedure for each of these.
-
-Clone the GitHub repository.
-
-::
-
-     git clone https://github.com/SeverTopan/AdjSim
-
-Make sure Python 3.5 or greater are installed, then create a new
-environment with it.
-
-::
-
-    # If using Virtualenv
-    virtualenv --python=/usr/bin/python3.6 venv
-    source venv/bin/activate
-
-    # If using Anaconda
-    conda create --name adjsim python=3.6
-    activate adjsim
-
-Install Dependencies.
-
-::
-
-     python setup.py install
-
-Note: If you run into trouble importing PyQt5 when installing using the
-setup.py file, try using
-
-::
-
-    pip install -e .
 
 .. |Build Status| image:: https://travis-ci.org/SeverTopan/AdjSim.svg?branch=master
    :target: https://travis-ci.org/SeverTopan/AdjSim
