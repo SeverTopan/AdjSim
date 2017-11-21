@@ -5,7 +5,7 @@
 
 ## Navigation
 
-1. [Feature Abstract](#Features)
+1. [Feature Abstract](#Features) (below)
 2. [Installation Instructions](INSTALL.md)
 3. [Tutorial](tutorial/tutorial.ipynb)
 4. [Class Documentation](https://severtopan.github.io/AdjSim/)
