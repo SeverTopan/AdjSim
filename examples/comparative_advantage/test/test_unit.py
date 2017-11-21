@@ -11,7 +11,11 @@ def test_transaction_equal():
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders)
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 1], 
+                                      [1, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
     sim.trackers["transaction"].data.append([]) # Housekeeping, this will throw later if not here.
     england = sim.trader_index[0]
     portugal = sim.trader_index[1]
@@ -50,7 +54,11 @@ def test_transaction_sell_less():
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders)
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 1], 
+                                      [1, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
     sim.trackers["transaction"].data.append([]) # Housekeeping, this will throw later if not here.
     england = sim.trader_index[0]
     portugal = sim.trader_index[1]
@@ -100,7 +108,11 @@ def test_transaction_sell_more():
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders)
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 1], 
+                                      [1, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
     sim.trackers["transaction"].data.append([]) # Housekeeping, this will throw later if not here.
     england = sim.trader_index[0]
     portugal = sim.trader_index[1]
@@ -153,7 +165,11 @@ def test_production():
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders)
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 1], 
+                                      [1, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
     sim.trackers["transaction"].data.append([]) # Housekeeping, this will throw later if not here.
     england = sim.trader_index[0]
     portugal = sim.trader_index[1]
@@ -203,7 +219,11 @@ def test_loss():
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders)
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 1], 
+                                      [1, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
     sim.trackers["transaction"].data.append([]) # Housekeeping, this will throw later if not here.
     england = sim.trader_index[0]
     portugal = sim.trader_index[1]
@@ -255,3 +275,111 @@ def test_loss():
 
     assert loss(sim, england) == 0
     assert loss(sim, portugal) == 0
+
+def test_transaction_conversion_sell_more():
+    from examples.comparative_advantage.simulation import TraderSimulation, MediationLogEntry, Meta
+    import adjsim
+    import numpy as np
+
+    traders = [
+            ("England", np.array([1/10, 1/12])),
+            ("Portugal", np.array([1/9, 1/8]))
+        ]
+
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 6/5], 
+                                      [5/6, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
+    sim.trackers["transaction"].data.append([]) # Housekeeping, this will throw later if not here.
+    england = sim.trader_index[0]
+    portugal = sim.trader_index[1]
+
+    england.commodities = np.array([1., 1.])
+    england.trade_amount._set_value(1)
+    england.trade_buy_commodity._set_value(0)
+    england.trade_sell_commodity._set_value(1)
+    england.trade_target_index._set_value(1)
+    england.actions["trade_commodity"](sim, england)
+
+    mediation_log_entry = MediationLogEntry.from_agent(england)
+
+    assert sim.transaction_mediation_log.get(mediation_log_entry) == 1
+    assert (england.commodities == np.array([1, 0])).all()
+
+    portugal.commodities = np.array([1., 1.])
+    portugal.trade_amount._set_value(1)
+    portugal.trade_buy_commodity._set_value(1)
+    portugal.trade_sell_commodity._set_value(0)
+    portugal.trade_target_index._set_value(0)
+    portugal.actions["trade_commodity"](sim, portugal)
+
+    
+    assert (england.commodities == np.array([1 + commodity_conversions[1, 0], 0])).all()
+    assert (portugal.commodities == np.array([0, 2])).all()
+
+    meta = None
+    for agent in sim.agents:
+        if isinstance(agent, Meta):
+            meta = agent
+            break
+    
+    meta.actions["pre_step"](sim, meta)
+
+    assert not sim.transaction_mediation_log
+    assert (england.commodities == np.array([1 + commodity_conversions[1, 0], 0])).all()
+    assert (portugal.commodities == np.array([1 - commodity_conversions[1, 0], 2])).all()
+
+def test_transaction_conversion_sell_less():
+    from examples.comparative_advantage.simulation import TraderSimulation, MediationLogEntry, Meta
+    import adjsim
+    import numpy as np
+
+    traders = [
+            ("England", np.array([1/10, 1/12])),
+            ("Portugal", np.array([1/9, 1/8]))
+        ]
+
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 5/6], 
+                                      [6/5, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
+    sim.trackers["transaction"].data.append([]) # Housekeeping, this will throw later if not here.
+    england = sim.trader_index[0]
+    portugal = sim.trader_index[1]
+
+    england.commodities = np.array([1., 1.])
+    england.trade_amount._set_value(1)
+    england.trade_buy_commodity._set_value(0)
+    england.trade_sell_commodity._set_value(1)
+    england.trade_target_index._set_value(1)
+    england.actions["trade_commodity"](sim, england)
+
+    mediation_log_entry = MediationLogEntry.from_agent(england)
+
+    assert sim.transaction_mediation_log.get(mediation_log_entry) == 1
+    assert (england.commodities == np.array([1, 0])).all()
+
+    portugal.commodities = np.array([1., 1.])
+    portugal.trade_amount._set_value(1)
+    portugal.trade_buy_commodity._set_value(1)
+    portugal.trade_sell_commodity._set_value(0)
+    portugal.trade_target_index._set_value(0)
+    portugal.actions["trade_commodity"](sim, portugal)
+
+    
+    assert (england.commodities == np.array([2, 0])).all()
+    assert (portugal.commodities == np.array([0, 1 + commodity_conversions[0, 1]])).all()
+
+    meta = None
+    for agent in sim.agents:
+        if isinstance(agent, Meta):
+            meta = agent
+            break
+    
+    meta.actions["pre_step"](sim, meta)
+
+    assert not sim.transaction_mediation_log
+    assert (england.commodities == np.array([2, 1 - commodity_conversions[0, 1]])).all()
+    assert (portugal.commodities == np.array([0, 1 + commodity_conversions[0, 1]])).all()

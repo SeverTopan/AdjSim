@@ -9,6 +9,10 @@ def test_comparative_advantage():
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders)
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 1], 
+                                      [1, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
     sim.simulate(10)
 

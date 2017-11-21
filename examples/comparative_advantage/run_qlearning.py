@@ -8,7 +8,11 @@ def run(length):
             ("Portugal", np.array([1/9, 1/8]))
         ]
 
-    sim = TraderSimulation(traders, is_training=False)
+    commodities = ["wine", "cloth"]
+    commodity_conversions = np.array([[1, 6/5], 
+                                      [5/6, 1]])
+
+    sim = TraderSimulation(traders, commodities, commodity_conversions, is_training=False)
     sim.simulate(length)
     return sim
 

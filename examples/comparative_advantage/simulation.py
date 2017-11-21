@@ -1,4 +1,7 @@
 """Comparative Advantage Simulation
+
+Illustrates the phenomenon of Ricardian Comparative Advantage in a free market trading environment.
+See https://en.wikipedia.org/wiki/Comparative_advantage.
 """
 
 # Standard.
@@ -12,10 +15,9 @@ import numpy as np
 from adjsim import analysis, core, utility, decision, color
 from matplotlib import pyplot
 
+
 MAX_TRADE_AMOUNT = 10
-COMMODITIES = ["wine", "cloth"]
-CONVERSION_ARRAY = np.array([[1, 1], 
-                             [1, 1]])
+
 
 def perception(simulation, source):
     return None
@@ -39,7 +41,7 @@ def trade_commodity(simulation, source):
 
     # Remove the commodity from the selling agent.
     sell_amount = np.clip(source.trade_amount.value, 0, source.commodities[sell_commodity])
-    sell_amount_converted = sell_amount * CONVERSION_ARRAY[sell_commodity, buy_commodity]
+    sell_amount_converted = sell_amount * simulation.commodity_conversions[sell_commodity, buy_commodity]
 
     # Create Mediation Log Entry.
     mediation_log_entry = MediationLogEntry.from_agent(source)
@@ -55,7 +57,7 @@ def trade_commodity(simulation, source):
     # Check to see if inverse exists
     existing_inverse = simulation.transaction_mediation_log.get(mediation_log_entry_inverse)
     if existing_inverse is not None:
-        existing_converted = existing_inverse * CONVERSION_ARRAY[buy_commodity, sell_commodity]
+        existing_converted = existing_inverse * simulation.commodity_conversions[buy_commodity, sell_commodity]
 
         # Perform transaction.
         if existing_inverse >= sell_amount_converted:
@@ -100,7 +102,7 @@ def pre_step(simulation, source):
     # Generate commodities.
     for agent in simulation.agents:
         if type(agent) == Trader:
-            allocation = np.zeros((len(COMMODITIES),)) if agent.production_allocation is None else agent.production_allocation
+            allocation = np.zeros((len(simulation.commodities),)) if agent.production_allocation is None else agent.production_allocation
             agent.commodities += agent.production_rates * allocation
             agent.production_allocation = None
 
@@ -134,19 +136,23 @@ class Transaction(object):
         +-
         """.format(
             self.simulation.trader_index[self.agent_a].name, 
-            COMMODITIES[self.commodity_a], 
+            self.simulation.commodities[self.commodity_a], 
             self.amount_a, 
             self.simulation.trader_index[self.agent_b].name, 
-            COMMODITIES[self.commodity_b], 
+            self.simulation.commodities[self.commodity_b], 
             self.amount_b
         )
 
 class TransactionTracker(analysis.Tracker):
     def __init__(self):
         self.data = []
+        self._commodities = None
 
     def __call__(self, simulation):
         self.data.append([])
+
+        if self._commodities is None:
+            self._commodities = simulation.commodities
 
     def on_transaction(self, transaction):
         self.data[-1].append(transaction)
@@ -157,7 +163,7 @@ class TransactionTracker(analysis.Tracker):
     def plot(self, block=True):
         pyplot.style.use('ggplot')
 
-        commodity_log_list = [[] for _ in COMMODITIES]
+        commodity_log_list = [[] for _ in self._commodities]
 
         for transactions in self.data:
             # Initialize commodity list for current timestep.
@@ -170,7 +176,7 @@ class TransactionTracker(analysis.Tracker):
                 commodity_log_list[transaction.commodity_b][-1] += transaction.amount_b
 
         for i in range(len(commodity_log_list)):
-            line, = pyplot.plot(commodity_log_list[i], label=COMMODITIES[i])
+            line, = pyplot.plot(commodity_log_list[i], label=self._commodities[i])
             line.set_antialiased(True)
 
         pyplot.xlabel('Timestep')
@@ -193,12 +199,12 @@ class AllocationTracker(analysis.Tracker):
             # New trader entry.
             existing_trader = self.data.get(agent)
             if existing_trader is None:
-                self.data[agent] = dict([(name, []) for name in COMMODITIES])
+                self.data[agent] = dict([(name, []) for name in simulation.commodities])
 
             # Store allocation per commodity.
-            for i in range(len(COMMODITIES)):
+            for i in range(len(simulation.commodities)):
                 new_val = 0 if agent.production_allocation is None else agent.production_allocation[i]
-                self.data[agent][COMMODITIES[i]].append(new_val)
+                self.data[agent][simulation.commodities[i]].append(new_val)
             
 
     def plot(self, block=True):
@@ -252,25 +258,25 @@ class Trader(core.Agent):
         super().__init__()
 
         self.name = name
-        self.commodities = np.zeros([len(COMMODITIES)], dtype=np.float_)
+        self.commodities = np.zeros([len(simulation.commodities)], dtype=np.float_)
         self.production_rates = production_rates
         self.production_capacity = len(production_rates)
         self.production_allocation = None
         self.index = index
 
-        self.trade_sell_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1, 0.5)
-        self.trade_buy_commodity = decision.DecisionMutableInt(0, len(COMMODITIES) - 1, 0.5)
+        self.trade_sell_commodity = decision.DecisionMutableInt(0, len(simulation.commodities) - 1, 0.5)
+        self.trade_buy_commodity = decision.DecisionMutableInt(0, len(simulation.commodities) - 1, 0.5)
         self.trade_target_index = decision.DecisionMutableInt(0, total_num_traders - 1, 0.5)
         self.trade_amount = decision.DecisionMutableFloat(0, MAX_TRADE_AMOUNT, 2)
         sum_constraint = decision.PositiveSumConstraint(self.production_capacity)
-        self.production_allocation_assignation = decision.DecisionMutableFloatArray((len(COMMODITIES),), sum_constraint, 0.5)
+        self.production_allocation_assignation = decision.DecisionMutableFloatArray((len(simulation.commodities),), sum_constraint, 0.5)
 
         self.previous_commodities = production_rates # Initial value doesnt matter here.
 
         io_file_name = "trader-{}.qlearning.pkl".format(self.name)
         self.decision = decision.PerturbativeQLearningDecision(perception, loss, simulation,
             input_file_name=io_file_name, output_file_name=io_file_name, 
-            nonconformity_probability=.9 if simulation.is_training else 4.,
+            nonconformity_probability=.9 if simulation.is_training else 0.4,
             discount_factor=0,
             perturbation_config=decision.PerturbativeQLearningDecision.Config(0.1, 0.4, 0.9))
         simulation.trackers["qlearning_" + name] = analysis.QLearningHistoryTracker(self.decision)
@@ -293,12 +299,14 @@ class Meta(core.Agent):
 
 class TraderSimulation(core.Simulation):
 
-    def __init__(self, templates, is_training=True):
+    def __init__(self, templates, commodities, commodity_conversions, is_training=True):
         super().__init__()
 
         self.trader_index = []
         self.transaction_mediation_log = {}
         self.is_training = is_training
+        self.commodities = commodities
+        self.commodity_conversions = commodity_conversions
         
         self.trackers["transaction"] = TransactionTracker()
         self.trackers["allocation"] = AllocationTracker()
