@@ -9,6 +9,7 @@
 2. [Installation Instructions](INSTALL.md)
 3. [Tutorial](tutorial/tutorial.ipynb)
 4. [Class Documentation](https://severtopan.github.io/AdjSim/)
+5. [Examples](https://github.com/SeverTopan/AdjSim/tree/master/examples)
 
 ## Features
 
