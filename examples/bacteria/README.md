@@ -8,5 +8,5 @@ The agents are given a loss function coinciding with their calorie count. Moving
 
 Below we can see the difference that learning makes. At the top, agents choose actions randomly, while on the bottom they have learned to consume the food. Notice how quickly they move towards their targets.
 
- | ![bacteria](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/gifs/bacteria.gif) ![bacteria_intelligent](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/gifs/bacteria_intelligent.gif) |
+ | ![bacteria](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/gifs/bacteria.gif) | ![bacteria_intelligent](https://raw.githubusercontent.com/SeverTopan/AdjSim/master/gallery/gifs/bacteria_intelligent.gif) |
 |:-------------:|:-------------:|
