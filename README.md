@@ -10,6 +10,7 @@
 3. [Tutorial](tutorial/tutorial.ipynb)
 4. [Class Documentation](https://severtopan.github.io/AdjSim/)
 5. [Examples](https://github.com/SeverTopan/AdjSim/tree/master/examples)
+6. [AdjSim DEV Talk](https://www.youtube.com/watch?v=N9h0xcJCOys)
 
 ## Features
 
