@@ -18,6 +18,8 @@
 
 At its core, AdjSim is an agent-based modelling engine. It allows users to define simulation environments through which agents interact through ability casting and timestep iteration. The framework is targeted towards agents that behave intelligently, for example a bacterium chasing down food. However, the framework is extremely flexible - from enabling physics simulation to defining an environment in which [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) plays out! AdjSim aims to be a foundational architecture on top of which reinforcement learning can be built.
 
+The AdjSim architecture differs from frameworks such as OpenAI Gym in that multiple agents can be trained simultaneously within an environment. Thus "hive-mind" complexes can be developed. Additionally, the concept of reward is independent from the environment. An agent can generate its own value system based on its own interpretation of the observations from its environment; observations and rewards are fundamentally decoupled.
+
 ### Graphical Simulation Representation
 
 The simulation can be viewed in real time as it unfolds, with graphics are rendered and animated using PyQt5. Below are  four of the distinct examples packadged with AdjSim, ranging from bacteria to moon system simulation.
